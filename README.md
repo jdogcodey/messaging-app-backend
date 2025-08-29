@@ -21,3 +21,4 @@ Plan:
   - GET my-messages - Search database and get each person you have messaged and the latest message with them
   - GET convo with sender and receiver ID - Search database for 10 most recent messages between yourself and someone else
   - POST message - with sender and receiver ID
+  - GET user-search - search for users by their name - to then add them
