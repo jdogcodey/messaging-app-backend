@@ -7,4 +7,8 @@ import { fileURLToPath } from "node:url";
 const PORT = process.env.PORT || 3000;
 
 // Workaround for __dirname in ES modules
-const __filename = fileURL;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Creating the express app
+const app = express();
