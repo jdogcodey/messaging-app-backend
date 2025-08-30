@@ -22,3 +22,35 @@ Plan:
   - GET convo with sender and receiver ID - Search database for 10 most recent messages between yourself and someone else
   - POST message - with sender and receiver ID
   - GET user-search - search for users by their name - to then add them
+
+Testing:
+
+On this project I want to start by writing some decent tests and then making functions to meet them.
+
+- Signup:
+  - Returns 201
+  - Returns with a JWT
+  - Rejects with missing fields
+  - Rejects if email or username exist
+- Login:
+  - Returns 200
+  - Returns correct logged in JWT
+  - JWT works
+  - Rejects 401 with wrong password
+  - Rejects 404 with unknown email
+- POST message:
+  - Creates message if sender and receiver are valid
+  - Stores correct timestamp
+  - Rejects if sender isn't authenticated
+- GET /my-messages:
+  - Returns list of users you've messaged with the latest message for each
+  - List is ordered by latest message
+  - Rejects if unauthenticated
+- GET /convo/:userId
+  - Returns the 10 most recent messages with a given user
+  - Orders them by timestamp
+  - Rejects if unauthenticated or incorrectly authenticated
+- GET /user-search
+  - Returns matching named users
+  - Excludes your own account from results
+  - Returns empty array if no matches
