@@ -27,6 +27,8 @@ Testing:
 
 On this project I want to start by writing some decent tests and then making functions to meet them.
 
+Auth
+
 - Signup:
   - Returns 201
   - Returns with a JWT
@@ -38,6 +40,9 @@ On this project I want to start by writing some decent tests and then making fun
   - JWT works
   - Rejects 401 with wrong password
   - Rejects 404 with unknown email
+
+Messages
+
 - POST message:
   - Creates message if sender and receiver are valid
   - Stores correct timestamp
@@ -50,6 +55,9 @@ On this project I want to start by writing some decent tests and then making fun
   - Returns the 10 most recent messages with a given user
   - Orders them by timestamp
   - Rejects if unauthenticated or incorrectly authenticated
+
+User
+
 - GET /user-search
   - Returns matching named users
   - Excludes your own account from results
