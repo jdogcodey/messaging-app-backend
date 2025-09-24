@@ -4,6 +4,10 @@ import validationController from "../controllers/validationController.js";
 
 const router = express.Router();
 
-router.post("/signup", validationController.signup(), indexController.signup);
+router.post(
+  "/signup",
+  validationController.signup()
+  //indexController.signup
+);
 
 export default router;
