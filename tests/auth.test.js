@@ -1,6 +1,7 @@
 import request from "supertest";
 import app from "../app.js";
 import prisma from "../config/prisma-client.js";
+import { succSignIn, newUser } from "./utils/testUtils.js";
 
 beforeEach(async () => {
   // Reset DB
@@ -165,7 +166,28 @@ describe("Auth API", () => {
   });
   describe("Login Route", () => {
     it("returns 400 if field is missing", async () => {
-      const res = await request(app).post("/login").expect(404);
+      const res = await request(app).post("/login").expect(400);
+    });
+    it("returns 401 if user can't be found", async () => {
+      const notUser = {
+        username: "TestUser",
+        password: "testPassword1!",
+      };
+
+      const res = await request(app).post("/login").send(notUser).expect(401);
+    });
+    it("returns 401 if password incorrect", async () => {
+      const { user } = await succSignIn(newUser);
+
+      const wrongPassword = {
+        username: user.username,
+        password: "incorrectPassword1!",
+      };
+
+      const res = await request(app)
+        .post("/login")
+        .send(wrongPassword)
+        .expect(401);
     });
   });
 });
