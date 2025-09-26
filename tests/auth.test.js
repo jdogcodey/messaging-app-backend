@@ -138,5 +138,29 @@ describe("Auth API", () => {
 
       const res = await request(app).post("/signup").send(newUser).expect(400);
     });
+    it("returns 400 with password no special character", async () => {
+      const newUser = {
+        first_name: "testFirst@",
+        last_name: "testSecond",
+        username: "testUsername",
+        email: "testEmail@test.com",
+        password: "testpassword1",
+        confirmPassword: "testpassword1",
+      };
+
+      const res = await request(app).post("/signup").send(newUser).expect(400);
+    });
+    it("returns 400 with password mismatch", async () => {
+      const newUser = {
+        first_name: "testFirst@",
+        last_name: "testSecond",
+        username: "testUsername",
+        email: "testEmail@test.com",
+        password: "testpassword1!",
+        confirmPassword: "testpassword1",
+      };
+
+      const res = await request(app).post("/signup").send(newUser).expect(400);
+    });
   });
 });

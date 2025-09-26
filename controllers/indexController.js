@@ -31,17 +31,6 @@ const indexController = {
     } = req.body;
 
     try {
-      // Confirming the passwords match (will also check front end but incase this has failed)
-      if (password !== confirmPassword) {
-        return res.status(401).json({
-          success: false,
-          message: "Passwords do not match",
-          errors: {
-            password: "Password and confirm-password do not match",
-          },
-        });
-      }
-
       // Hashing the password for storage
       const hashedPassword = await bcrypt.hash(password, 10);
 
