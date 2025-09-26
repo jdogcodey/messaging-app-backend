@@ -44,6 +44,10 @@ const validationController = {
       return true;
     }),
   ],
+  login: () => [
+    body("username").trim().notEmpty().withMessage("Username is required"),
+    body("password").notEmpty().withMessage("Password is required"),
+  ],
 };
 
 export default validationController;
