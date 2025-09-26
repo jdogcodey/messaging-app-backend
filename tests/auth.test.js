@@ -90,5 +90,18 @@ describe("Auth API", () => {
 
       const res = await request(app).post("/signup").send(newUser).expect(400);
     });
+    it("returns 400 with password missing special character", async () => {
+      // password missing special character
+      const newUser = {
+        first_name: "testFirst@",
+        last_name: "testSecond",
+        username: "testUsername",
+        email: "testEmail@test.com",
+        password: "tPass1!",
+        confirmPassword: "tPass1!",
+      };
+
+      const res = await request(app).post("/signup").send(newUser).expect(400);
+    });
   });
 });
