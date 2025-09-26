@@ -37,7 +37,7 @@ const validationController = {
       .isIn(["password", "123456", "qwerty"])
       .withMessage("Password is too common")
       .trim(),
-    body("confirm_password").custom((value, { req }) => {
+    body("confirmPassword").custom((value, { req }) => {
       if (value !== req.body.password) {
         throw new Error("Password confirmation does not match password");
       }
