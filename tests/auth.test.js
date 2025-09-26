@@ -18,21 +18,17 @@ afterAll(async () => {
 describe("Auth API", () => {
   describe("Signup Route", () => {
     it("returns 201 and a JWT with successful signup", async () => {
-      const newUser = {
-        first_name: "testFirst",
-        last_name: "testSecond",
-        username: "testUsername",
-        email: "testEmail@test.com",
-        password: "testPassword1!",
-        confirmPassword: "testPassword1!",
-      };
-      const res = await request(app).post("/signup").send(newUser).expect(201); // check if response is a success first
+      const userSignUp = newUser();
+      const res = await request(app)
+        .post("/signup")
+        .send(userSignUp)
+        .expect(201); // check if response is a success first
 
       expect(res.body.data).toHaveProperty("token");
       expect(typeof res.body.data.token).toBe("string");
 
       // Normalise the email to pick up user
-      const normalisedEmail = newUser.email.toLowerCase();
+      const normalisedEmail = userSignUp.email.toLowerCase();
 
       // Check that user is created in DB
       const userInDB = await prisma.user.findUnique({
@@ -53,115 +49,78 @@ describe("Auth API", () => {
     });
     it("returns 400 with a first_name not meeting validation", async () => {
       // first_name contains a non-alpha character
-      const newUser = {
-        first_name: "testFirst@",
-        last_name: "testSecond",
-        username: "testUsername",
-        email: "testEmail@test.com",
-        password: "testPassword1!",
-        confirmPassword: "testPassword1!",
-      };
+      const userIncFirst = newUser({ first_name: "testFirst@" });
 
-      const res = await request(app).post("/signup").send(newUser).expect(400);
+      const res = await request(app)
+        .post("/signup")
+        .send(userIncFirst)
+        .expect(400);
       console.log(res.body);
     });
     it("returns 400 with last_name not meeting validation", async () => {
       // last_name contains a non-alpha character
-      const newUser = {
-        first_name: "testFirst",
-        last_name: "testSecond@",
-        username: "testUsername",
-        email: "testEmail@test.com",
-        password: "testPassword1!",
-        confirmPassword: "testPassword1!",
-      };
+      const userIncLast = newUser({ last_name: "testSecond@" });
 
-      const res = await request(app).post("/signup").send(newUser).expect(400);
+      const res = await request(app)
+        .post("/signup")
+        .send(userIncLast)
+        .expect(400);
     });
     it("returns 400 with email not meeting validation", async () => {
       // email not an email
-      const newUser = {
-        first_name: "testFirst@",
-        last_name: "testSecond",
-        username: "testUsername",
-        email: "testEmail@test",
-        password: "testPassword1!",
-        confirmPassword: "testPassword1!",
-      };
-
-      const res = await request(app).post("/signup").send(newUser).expect(400);
+      const userIncEmail = newUser({ email: "testEmail@test" });
+      const res = await request(app)
+        .post("/signup")
+        .send(userIncEmail)
+        .expect(400);
     });
     it("returns 400 with password too short", async () => {
-      const newUser = {
-        first_name: "testFirst@",
-        last_name: "testSecond",
-        username: "testUsername",
-        email: "testEmail@test.com",
-        password: "tPass1!",
-        confirmPassword: "tPass1!",
-      };
+      const userShortPass = newUser({ password: "tPass1!" });
 
-      const res = await request(app).post("/signup").send(newUser).expect(400);
+      const res = await request(app)
+        .post("/signup")
+        .send(userShortPass)
+        .expect(400);
     });
     it("returns 400 with password no uppercase letter", async () => {
-      const newUser = {
-        first_name: "testFirst@",
-        last_name: "testSecond",
-        username: "testUsername",
-        email: "testEmail@test.com",
-        password: "testpassword1!",
-        confirmPassword: "testpassword1!",
-      };
+      const userNoUpper = newUser({ password: "testpassword1!" });
 
-      const res = await request(app).post("/signup").send(newUser).expect(400);
+      const res = await request(app)
+        .post("/signup")
+        .send(userNoUpper)
+        .expect(400);
     });
     it("returns 400 with password no lowercase letter", async () => {
-      const newUser = {
-        first_name: "testFirst@",
-        last_name: "testSecond",
-        username: "testUsername",
-        email: "testEmail@test.com",
-        password: "TESTPASSWORD1!",
-        confirmPassword: "TESTPASSWORD1!",
-      };
+      const userNoLower = newUser({ password: "TESTPASSWORD1!" });
 
-      const res = await request(app).post("/signup").send(newUser).expect(400);
+      const res = await request(app)
+        .post("/signup")
+        .send(userNoLower)
+        .expect(400);
     });
     it("returns 400 with password no number", async () => {
-      const newUser = {
-        first_name: "testFirst@",
-        last_name: "testSecond",
-        username: "testUsername",
-        email: "testEmail@test.com",
-        password: "testPassword!",
-        confirmPassword: "testPassword!",
-      };
+      const newNoNum = newUser({ password: "testPassword!" });
 
-      const res = await request(app).post("/signup").send(newUser).expect(400);
+      const res = await request(app).post("/signup").send(newNoNum).expect(400);
     });
     it("returns 400 with password no special character", async () => {
-      const newUser = {
-        first_name: "testFirst@",
-        last_name: "testSecond",
-        username: "testUsername",
-        email: "testEmail@test.com",
-        password: "testpassword1",
-        confirmPassword: "testpassword1",
-      };
+      const newNoSpecial = newUser({ password: "testPassword1" });
 
-      const res = await request(app).post("/signup").send(newUser).expect(400);
+      const res = await request(app)
+        .post("/signup")
+        .send(newNoSpecial)
+        .expect(400);
     });
     it("returns 400 with password mismatch", async () => {
-      const newUser = {
-        first_name: "testFirst@",
-        last_name: "testSecond",
-        username: "testUsername",
-        email: "testEmail@test.com",
-        password: "testpassword1!",
-        confirmPassword: "testpassword1",
-      };
+      const newMismatch = newUser({
+        password: "testPassword1!",
+        confirmPassword: "testPassword1!!",
+      });
 
-      const res = await request(app).post("/signup").send(newUser).expect(400);
+      const res = await request(app)
+        .post("/signup")
+        .send(newMismatch)
+        .expect(400);
     });
   });
   describe("Login Route", () => {

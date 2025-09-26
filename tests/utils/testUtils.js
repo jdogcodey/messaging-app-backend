@@ -2,7 +2,7 @@ import request from "supertest";
 import app from "../../app.js";
 
 export function newUser(overrides = {}) {
-  return (user = {
+  return {
     first_name: "testFirst",
     last_name: "testSecond",
     username: "testUsername",
@@ -10,7 +10,7 @@ export function newUser(overrides = {}) {
     password: "testPassword1!",
     confirmPassword: "testPassword1!",
     ...overrides,
-  });
+  };
 }
 
 export async function succSignIn(newUser) {
