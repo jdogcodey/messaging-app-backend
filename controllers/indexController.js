@@ -84,6 +84,11 @@ const indexController = {
         errors: errors,
       });
     }
+
+    return res.status(401).json({
+      success: false,
+      message: "Invalid credentials",
+    });
   },
 };
 

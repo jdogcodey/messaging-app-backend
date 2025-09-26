@@ -148,5 +148,18 @@ describe("Auth API", () => {
         .send(wrongPassword)
         .expect(401);
     });
+    it("returns 200 with correct credentials", async () => {
+      const { user } = await succSignIn(newUser);
+
+      const correctCredentials = {
+        username: user.username,
+        password: user.password,
+      };
+
+      const res = await request(app)
+        .post("/login")
+        .send(correctCredentials)
+        .expect(200);
+    });
   });
 });
