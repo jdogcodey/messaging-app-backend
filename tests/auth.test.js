@@ -39,7 +39,6 @@ describe("Auth API", () => {
           email: normalisedEmail,
         },
       });
-      console.log(userInDB);
       expect(userInDB).not.toBeNull();
 
       // Check that password isn't stored in plaintext
@@ -63,6 +62,7 @@ describe("Auth API", () => {
       };
 
       const res = await request(app).post("/signup").send(newUser).expect(400);
+      console.log(res.body);
     });
     it("returns 400 with last_name not meeting validation", async () => {
       // last_name contains a non-alpha character
@@ -161,6 +161,11 @@ describe("Auth API", () => {
       };
 
       const res = await request(app).post("/signup").send(newUser).expect(400);
+    });
+  });
+  describe("Login Route", () => {
+    it("returns 404 if field is missing", async () => {
+      const res = await request(app).post("/login").expect(404);
     });
   });
 });
