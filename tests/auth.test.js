@@ -48,5 +48,8 @@ describe("Auth API", () => {
       // Check that password is bcrypt hashed
       expect(userInDB.password).toMatch(/^\$2[ayb]\$.{56}$/);
     });
+    it("returns 400 with missing fields", async () => {
+      const res = await request(app).post("/signup").expect(400);
+    });
   });
 });

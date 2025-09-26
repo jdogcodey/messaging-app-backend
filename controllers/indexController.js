@@ -56,13 +56,6 @@ const indexController = {
         },
       });
 
-      //   const userInDB = await prisma.user.findUnique({
-      //     where: {
-      //       email: newUser.email,
-      //     },
-      //   });
-      //   console.log(userInDB);
-
       // Destructuring the password from the user
       const { password: _password, ...userWithoutPassword } = newUser;
 
