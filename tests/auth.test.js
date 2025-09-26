@@ -164,7 +164,7 @@ describe("Auth API", () => {
     });
   });
   describe("Login Route", () => {
-    it("returns 404 if field is missing", async () => {
+    it("returns 400 if field is missing", async () => {
       const res = await request(app).post("/login").expect(404);
     });
   });
