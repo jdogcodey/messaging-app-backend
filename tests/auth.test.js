@@ -1,8 +1,6 @@
 import request from "supertest";
 import app from "../app.js";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "../config/prisma-client.js";
 
 beforeEach(async () => {
   // Reset DB
@@ -29,16 +27,19 @@ describe("Auth API", () => {
       };
       const res = await request(app).post("/signup").send(newUser).expect(201); // check if response is a success first
 
-      // Check that response has a user token
-      expect(res.body).toHaveProperty("token");
-      expect(typeof res.body.token).toBe("string");
+      expect(res.body.data).toHaveProperty("token");
+      expect(typeof res.body.data.token).toBe("string");
+
+      // Normalise the email to pick up user
+      const normalisedEmail = newUser.email.toLowerCase();
 
       // Check that user is created in DB
       const userInDB = await prisma.user.findUnique({
         where: {
-          email: newUser.email,
+          email: normalisedEmail,
         },
       });
+      console.log(userInDB);
       expect(userInDB).not.toBeNull();
 
       // Check that password isn't stored in plaintext
