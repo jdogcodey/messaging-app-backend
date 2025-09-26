@@ -90,8 +90,7 @@ describe("Auth API", () => {
 
       const res = await request(app).post("/signup").send(newUser).expect(400);
     });
-    it("returns 400 with password missing special character", async () => {
-      // password missing special character
+    it("returns 400 with password too short", async () => {
       const newUser = {
         first_name: "testFirst@",
         last_name: "testSecond",
@@ -99,6 +98,42 @@ describe("Auth API", () => {
         email: "testEmail@test.com",
         password: "tPass1!",
         confirmPassword: "tPass1!",
+      };
+
+      const res = await request(app).post("/signup").send(newUser).expect(400);
+    });
+    it("returns 400 with password no uppercase letter", async () => {
+      const newUser = {
+        first_name: "testFirst@",
+        last_name: "testSecond",
+        username: "testUsername",
+        email: "testEmail@test.com",
+        password: "testpassword1!",
+        confirmPassword: "testpassword1!",
+      };
+
+      const res = await request(app).post("/signup").send(newUser).expect(400);
+    });
+    it("returns 400 with password no lowercase letter", async () => {
+      const newUser = {
+        first_name: "testFirst@",
+        last_name: "testSecond",
+        username: "testUsername",
+        email: "testEmail@test.com",
+        password: "TESTPASSWORD1!",
+        confirmPassword: "TESTPASSWORD1!",
+      };
+
+      const res = await request(app).post("/signup").send(newUser).expect(400);
+    });
+    it("returns 400 with password no number", async () => {
+      const newUser = {
+        first_name: "testFirst@",
+        last_name: "testSecond",
+        username: "testUsername",
+        email: "testEmail@test.com",
+        password: "testPassword!",
+        confirmPassword: "testPassword!",
       };
 
       const res = await request(app).post("/signup").send(newUser).expect(400);
