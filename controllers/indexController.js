@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import prisma from "../config/prisma-client.js";
 import jwt from "jsonwebtoken";
 import "dotenv";
+import passport from "passport";
+import "../config/passport.js";
 
 const indexController = {
   signup: async (req, res, next) => {
@@ -85,10 +87,39 @@ const indexController = {
       });
     }
 
-    return res.status(401).json({
-      success: false,
-      message: "Invalid credentials",
-    });
+    passport.authenticate("local", { session: false }, (err, user, info) => {
+      // Handles an error or no user
+      if (err || !user) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid credentials",
+          errors: err || errors,
+        });
+      }
+
+      // Creates the payload of the userId
+      const payload = { userId: user.id };
+
+      // Uses this payload to sign a new token
+      const token = jwt.sign(payload, process.env.SECRET, {
+        expiresIn: "1h",
+      });
+
+      // Returns that the user has logged in - and provides them with the token we just created
+      res.status(200).json({
+        success: true,
+        message: "Login successful",
+        data: {
+          token,
+          user: {
+            username: user.username,
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+          },
+        },
+      });
+    })(req, res, next);
   },
 };
 

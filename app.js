@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import cors from "cors";
 import routes from "./routes/indexRouter.js";
+import passport from "passport";
 
 const app = express();
 
@@ -22,6 +23,8 @@ app.use(
   express.urlencoded({ extended: true, limit: "1mb", parameterLimit: 5000 })
 );
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(passport.initialize());
 
 // Routes
 app.use(routes);

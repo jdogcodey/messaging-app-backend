@@ -14,11 +14,11 @@ export function newUser(overrides = {}) {
 }
 
 export async function succSignIn(newUser) {
-  const user = newUser();
-  const res = await request(app).post("/signup").send(user);
+  const testUser = newUser();
+  const res = await request(app).post("/signup").send(testUser);
 
   return {
-    newUser,
+    testUser,
     token: res.body.data.token,
     user: res.body.data.user,
   };

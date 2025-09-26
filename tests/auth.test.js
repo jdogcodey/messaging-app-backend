@@ -2,6 +2,7 @@ import request from "supertest";
 import app from "../app.js";
 import prisma from "../config/prisma-client.js";
 import { succSignIn, newUser } from "./utils/testUtils.js";
+import "dotenv";
 
 beforeEach(async () => {
   // Reset DB
@@ -55,7 +56,6 @@ describe("Auth API", () => {
         .post("/signup")
         .send(userIncFirst)
         .expect(400);
-      console.log(res.body);
     });
     it("returns 400 with last_name not meeting validation", async () => {
       // last_name contains a non-alpha character
@@ -136,24 +136,22 @@ describe("Auth API", () => {
       const res = await request(app).post("/login").send(notUser).expect(401);
     });
     it("returns 401 if password incorrect", async () => {
-      const { user } = await succSignIn(newUser);
+      const { testUser } = await succSignIn(newUser);
 
       const wrongPassword = {
-        username: user.username,
+        username: testUser.username,
         password: "incorrectPassword1!",
       };
 
-      const res = await request(app)
-        .post("/login")
-        .send(wrongPassword)
-        .expect(401);
+      const res = await request(app).post("/login").send(wrongPassword);
+      expect(401);
     });
     it("returns 200 with correct credentials", async () => {
-      const { user } = await succSignIn(newUser);
+      const { testUser } = await succSignIn(newUser);
 
       const correctCredentials = {
-        username: user.username,
-        password: user.password,
+        username: testUser.username,
+        password: testUser.password,
       };
 
       const res = await request(app)
