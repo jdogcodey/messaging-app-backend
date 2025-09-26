@@ -51,13 +51,39 @@ describe("Auth API", () => {
     it("returns 400 with missing fields", async () => {
       const res = await request(app).post("/signup").expect(400);
     });
-    it("returns 400 with a field not meeting validation", async () => {
+    it("returns 400 with a first_name not meeting validation", async () => {
       // first_name contains a non-alpha character
       const newUser = {
         first_name: "testFirst@",
         last_name: "testSecond",
         username: "testUsername",
         email: "testEmail@test.com",
+        password: "testPassword1!",
+        confirmPassword: "testPassword1!",
+      };
+
+      const res = await request(app).post("/signup").send(newUser).expect(400);
+    });
+    it("returns 400 with last_name not meeting validation", async () => {
+      // last_name contains a non-alpha character
+      const newUser = {
+        first_name: "testFirst",
+        last_name: "testSecond@",
+        username: "testUsername",
+        email: "testEmail@test.com",
+        password: "testPassword1!",
+        confirmPassword: "testPassword1!",
+      };
+
+      const res = await request(app).post("/signup").send(newUser).expect(400);
+    });
+    it("returns 400 with email not meeting validation", async () => {
+      // email not an email
+      const newUser = {
+        first_name: "testFirst@",
+        last_name: "testSecond",
+        username: "testUsername",
+        email: "testEmail@test",
         password: "testPassword1!",
         confirmPassword: "testPassword1!",
       };
