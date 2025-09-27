@@ -11,4 +11,6 @@ router.post("/login", validationController.login(), indexController.login);
 
 router.get("/auth/verify", authController.jwtAuth, indexController.getUser);
 
+router.post("/message/:receiverId", authController.jwtAuth);
+
 export default router;
