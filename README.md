@@ -81,4 +81,27 @@ Friends
 - POST /friend-request/:userId
   - Creates a friend request is userId exists and is not already a friend with 201
   - Rejects if not authenticated with 401
-  - Rejects if userId does not exist
+  - Rejects if userId does not exist with 404
+  - Rejects if sender is receiver with 400
+  - Rejects if friend request already exists (pending or they accepted) with 400
+- GET /friend-requests/received
+  - Returns list of users who have sent you requests with 200
+  - Includes timestamp of when request was sent
+  - Rejects if not authenticated with 401
+- GET /friend-requests/sent
+  - Returns list of users you have sent requests to with 200
+  - Rejects if not authenticated with 401
+- POST /friend-request/:requestId/accept
+  - Accepts request and adds both users to each other's friend list with 200
+  - Rejects if not authenticated with 401
+  - Rejects if request doesn't exist or not addressed to you with 403
+  - Rejects if request already accepted/rejected with 400
+- POST /friend-request/:requestId/reject
+  - Rejects request with 200
+  - Rejects if not authenticated with 401
+  - Rejects if request doesn't exist with 403
+  - Rejects if request already accepted/rejected with 400
+- GET /friends
+  - Returns list of accepted friends with 200
+  - List includes basic user info but no sensitive fields
+  - Rejects if not authenticated with 401
