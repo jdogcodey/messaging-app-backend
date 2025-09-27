@@ -183,16 +183,9 @@ describe("App Tests", () => {
         const res = await request(app).get("/auth/verify").expect(401);
       });
       it("rejects with 401 if token is invalid", async () => {
-        const req = {
-          body: {
-            data: {
-              token: "test",
-            },
-          },
-        };
         const res = await request(app)
           .get("/auth/verify")
-          .send(req)
+          .set("Authorization", `Bearer ${"test"}`)
           .expect(401);
       });
       it("rejects with 401 if token is expired", async () => {
@@ -203,8 +196,15 @@ describe("App Tests", () => {
 
         const res = await request(app)
           .get("/auth/verify")
-          .send(expiredToken)
+          .set("Authorization", `Bearer ${expiredToken}`)
           .expect(401);
+      });
+      it("continues to next middleware returning 200 with correct credentials", async () => {
+        const { token } = await succSignIn(newUser);
+        const res = await request(app)
+          .get("/auth/verify")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(200);
       });
     });
   });
