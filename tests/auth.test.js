@@ -153,7 +153,7 @@ describe("Auth API", () => {
       const res = await request(app).post("/login").send(wrongPassword);
       expect(401);
     });
-    it("returns 200 with correct credentials", async () => {
+    it("returns 200 and JWT with correct credentials", async () => {
       const { testUser } = await succSignIn(newUser);
 
       const correctCredentials = {
@@ -165,6 +165,10 @@ describe("Auth API", () => {
         .post("/login")
         .send(correctCredentials)
         .expect(200);
+
+      // Check for the token
+      expect(res.body.data).toHaveProperty("token");
+      expect(typeof res.body.data.token).toBe("string");
     });
   });
 });

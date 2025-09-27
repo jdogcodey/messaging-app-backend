@@ -27,7 +27,7 @@ Testing:
 
 On this project I want to start by writing some decent tests and then making functions to meet them.
 
-Auth
+Authentication
 
 - Signup:
   - Returns 201
@@ -41,24 +41,44 @@ Auth
   - Rejects 401 with wrong password
   - Rejects 404 with unknown email
 
+Authorisation:
+
+- JWT Auth:
+  - returns 401 if not logged in
+  - continues to next middleware if logged in
+  - return 401 if JWT is expired or invalid
+- Message Ownership:
+  - If neither side of the convo is yours then returns 401
+- 
+
 Messages
 
 - POST message:
-  - Creates message if sender and receiver are valid
+  - Creates message if sender and receiver are valid with 201
   - Stores correct timestamp
-  - Rejects if sender isn't authenticated
+  - Rejects if sender isn't authenticated with 401
+  - Rejects if receiver doesn't exist with 404
+  - Rejects if sender is same as receiver with 400
+  - Rejects if message body missing/empty with 400
 - GET /my-messages:
-  - Returns list of users you've messaged with the latest message for each
+  - Returns list of users you've messaged with the latest message for each with 200
   - List is ordered by latest message
-  - Rejects if unauthenticated
+  - Rejects if unauthenticated with 401
 - GET /convo/:userId
-  - Returns the 10 most recent messages with a given user
+  - Returns the 10 most recent messages with a given user with 200
   - Orders them by timestamp
-  - Rejects if unauthenticated or incorrectly authenticated
+  - Rejects if unauthenticated with 401
+  - Rejects with 404 if userId is not valid
+  - Rejects if requesting convo you aren't in - 403
 
-User
+Friends
 
 - GET /user-search
-  - Returns matching named users
-  - Excludes your own account from results
-  - Returns empty array if no matches
+  - Returns matching named users with 200
+  - Excludes your own account from results with 200
+  - Returns empty array if no matches with 200
+  - Rejects if unauthenticated with 401
+- POST /friend-request/:userId
+  - Creates a friend request is userId exists and is not already a friend with 201
+  - Rejects if not authenticated with 401
+  - Rejects if userId does not exist
