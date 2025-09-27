@@ -122,6 +122,13 @@ describe("Auth API", () => {
         .send(newMismatch)
         .expect(400);
     });
+    it("returns 400 if email or username already exists", async () => {
+      const { testUser } = await succSignIn(newUser);
+      const secondUser = await request(app)
+        .post("/signup")
+        .send(testUser)
+        .expect(400);
+    });
   });
   describe("Login Route", () => {
     it("returns 400 if field is missing", async () => {
