@@ -137,6 +137,12 @@ const indexController = {
       });
     })(req, res, next);
   },
+  getUser: (req, res, next) => {
+    res.status(200).json({
+      success: true,
+      message: "Authorised",
+    });
+  },
 };
 
 export default indexController;

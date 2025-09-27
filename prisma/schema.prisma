@@ -19,7 +19,7 @@ model User {
 }
 
 model Message {
-  id         Int                @id @default(autoincrement())
+  id         String             @id @default(uuid())
   content    String
   createdAt  DateTime           @default(now())
   sender     User               @relation("SentMessages", fields: [senderId], references: [id])
@@ -28,9 +28,9 @@ model Message {
 }
 
 model MessageRecipient {
-  id        Int     @id @default(autoincrement())
+  id        String  @id @default(uuid())
   message   Message @relation(fields: [messageId], references: [id])
   user      User    @relation(fields: [userId], references: [id])
-  messageId Int
+  messageId String
   userId    String
 }

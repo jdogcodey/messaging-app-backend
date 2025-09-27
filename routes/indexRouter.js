@@ -9,6 +9,6 @@ router.post("/signup", validationController.signup(), indexController.signup);
 
 router.post("/login", validationController.login(), indexController.login);
 
-router.get("/auth/verify", authController.jwtAuth);
+router.get("/auth/verify", authController.jwtAuth, indexController.getUser);
 
 export default router;
