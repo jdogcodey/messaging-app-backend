@@ -49,7 +49,6 @@ Authorisation:
   - return 401 if JWT is expired or invalid
 - Message Ownership:
   - If neither side of the convo is yours then returns 401
-- 
 
 Messages
 
