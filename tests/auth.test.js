@@ -4,6 +4,7 @@ import prisma from "../config/prisma-client.js";
 import { succSignIn, newUser } from "./utils/testUtils.js";
 import "dotenv";
 import jwt from "jsonwebtoken";
+import { response } from "express";
 
 beforeEach(async () => {
   // Reset DB
@@ -206,6 +207,16 @@ describe("App Tests", () => {
           .set("Authorization", `Bearer ${token}`)
           .expect(200);
       });
+    });
+  });
+  describe("Messages API", () => {
+    describe("POST /message/:receiverId", () => {
+      it("Rejects if sender isn't authenticated with 401", async () => {
+        const res = await request(app).post("/message/1234").expect(401);
+      });
+      // it("Rejects if receiver doesnt exist with 404", async () => {
+      //   const res = await response(app).post("/message/");
+      // });
     });
   });
 });
