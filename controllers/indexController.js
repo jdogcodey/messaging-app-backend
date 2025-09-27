@@ -32,7 +32,23 @@ const indexController = {
       confirmPassword,
     } = req.body;
 
+    // Checking that a user with that email or username exists
     try {
+      const checkForDuplicate = await prisma.user.findFirst({
+        where: {
+          OR: [{ email: email }, { username: username }],
+        },
+      });
+
+      // Return with 400 to user (could be 409 but this could expose that an email is signed up)
+      if (checkForDuplicate) {
+        let duplicateField =
+          checkForDuplicate.email === req.body.email ? "email" : "username";
+        return res.status(400).json({
+          success: false,
+          message: "Already have an account? Go to login",
+        });
+      }
       // Hashing the password for storage
       const hashedPassword = await bcrypt.hash(password, 10);
 
