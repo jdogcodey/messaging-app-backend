@@ -3,6 +3,7 @@ import app from "../app.js";
 import prisma from "../config/prisma-client.js";
 import { succSignIn, newUser } from "./utils/testUtils.js";
 import "dotenv";
+import jwt from "jsonwebtoken";
 
 beforeEach(async () => {
   // Reset DB
@@ -180,6 +181,30 @@ describe("App Tests", () => {
     describe("JWT Auth", () => {
       it("rejects with 401 if no token", async () => {
         const res = await request(app).get("/auth/verify").expect(401);
+      });
+      it("rejects with 401 if token is invalid", async () => {
+        const req = {
+          body: {
+            data: {
+              token: "test",
+            },
+          },
+        };
+        const res = await request(app)
+          .get("/auth/verify")
+          .send(req)
+          .expect(401);
+      });
+      it("rejects with 401 if token is expired", async () => {
+        const { user } = await succSignIn(newUser);
+        const expiredToken = jwt.sign({ userId: user.id }, process.env.SECRET, {
+          expiresIn: -10,
+        });
+
+        const res = await request(app)
+          .get("/auth/verify")
+          .send(expiredToken)
+          .expect(401);
       });
     });
   });
