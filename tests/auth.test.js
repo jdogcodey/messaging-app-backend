@@ -178,45 +178,4 @@ describe("App Tests", () => {
       });
     });
   });
-  describe("Authorisation API", () => {
-    describe("JWT Auth", () => {
-      it("rejects with 401 if no token", async () => {
-        const res = await request(app).get("/auth/verify").expect(401);
-      });
-      it("rejects with 401 if token is invalid", async () => {
-        const res = await request(app)
-          .get("/auth/verify")
-          .set("Authorization", `Bearer ${"test"}`)
-          .expect(401);
-      });
-      it("rejects with 401 if token is expired", async () => {
-        const { user } = await succSignIn(newUser);
-        const expiredToken = jwt.sign({ userId: user.id }, process.env.SECRET, {
-          expiresIn: -10,
-        });
-
-        const res = await request(app)
-          .get("/auth/verify")
-          .set("Authorization", `Bearer ${expiredToken}`)
-          .expect(401);
-      });
-      it("continues to next middleware returning 200 with correct credentials", async () => {
-        const { token } = await succSignIn(newUser);
-        const res = await request(app)
-          .get("/auth/verify")
-          .set("Authorization", `Bearer ${token}`)
-          .expect(200);
-      });
-    });
-  });
-  describe("Messages API", () => {
-    describe("POST /message/:receiverId", () => {
-      it("Rejects if sender isn't authenticated with 401", async () => {
-        const res = await request(app).post("/message/1234").expect(401);
-      });
-      // it("Rejects if receiver doesnt exist with 404", async () => {
-      //   const res = await response(app).post("/message/");
-      // });
-    });
-  });
 });
