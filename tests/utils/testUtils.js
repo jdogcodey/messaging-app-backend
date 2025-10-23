@@ -2,11 +2,14 @@ import request from "supertest";
 import app from "../../app.js";
 
 export function newUser(overrides = {}) {
+  const uniqueId =
+    Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
   return {
     first_name: "testFirst",
     last_name: "testSecond",
-    username: "testUsername",
-    email: "testEmail@test.com",
+    username: `testUsername_${uniqueId}`,
+    email: `testEmail_${uniqueId}@test.com`,
     password: "testPassword1!",
     confirmPassword: "testPassword1!",
     ...overrides,
