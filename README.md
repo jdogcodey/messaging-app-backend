@@ -48,7 +48,7 @@ Authorisation:
   - continues to next middleware if logged in
   - return 401 if JWT is expired or invalid
 - Message Ownership:
-  - If neither side of the convo is yours then returns 401
+  - If neither side of the convo is yours then returns 401 - I think this doesn't matter because you aren't ever requesting the conversation - instead requesting messages that include you and another person
 
 Messages
 
