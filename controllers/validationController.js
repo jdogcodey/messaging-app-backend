@@ -48,6 +48,11 @@ const validationController = {
     body("username").trim().notEmpty().withMessage("Username is required"),
     body("password").notEmpty().withMessage("Password is required"),
   ],
+  message: () => [
+    body("message")
+      .notEmpty()
+      .withMessage("What have you got to say for yourself?"),
+  ],
 };
 
 export default validationController;

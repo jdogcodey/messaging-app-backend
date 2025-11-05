@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import "dotenv";
 import passport from "passport";
 import "../config/passport.js";
+import validationErrorController from "./validationErrorsController.js";
 
 const indexController = {
   signup: async (req, res, next) => {
@@ -91,18 +92,6 @@ const indexController = {
     }
   },
   login: async (req, res, next) => {
-    // Collecting the errors from the validation
-    const errors = validationResult(req).array();
-
-    // Returning these errors so sign up form is correctly filled by front end
-    if (errors.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Please fix the highlighted field",
-        errors: errors,
-      });
-    }
-
     passport.authenticate("local", { session: false }, (err, user, info) => {
       // Handles an error or no user
       if (err || !user) {
@@ -149,6 +138,7 @@ const indexController = {
         success: false,
         message: "Do you have no friends?",
       });
+    } else {
     }
   },
 };

@@ -21,13 +21,17 @@ afterAll(async () => {
 describe("Messages API", () => {
   describe("POST /message/:receiverId", () => {
     it("Rejects if sender isn't authenticated with 401", async () => {
-      const res = await request(app).post("/message/1234").expect(401);
+      const res = await request(app)
+        .post("/message/1234")
+        .send({ message: "test" })
+        .expect(401);
     });
     it("Rejects if receiver not given with 404", async () => {
       const { token } = await succSignIn(newUser);
       const res = await request(app)
         .post("/message/")
         .set("Authorization", `Bearer ${token}`)
+        .send({ message: "test" })
         .expect(404);
     });
     it("Rejects if receiver doesn't exist with 404", async () => {
@@ -35,6 +39,7 @@ describe("Messages API", () => {
       const res = await request(app)
         .post("/message/475768")
         .set("Authorization", `Bearer ${token}`)
+        .send({ message: "test" })
         .expect(404);
     });
     it("Rejects if sender is same as receiver with 400", async () => {
@@ -42,7 +47,16 @@ describe("Messages API", () => {
       const res = await request(app)
         .post(`/message/${user.id}`)
         .set("Authorization", `Bearer ${token}`)
+        .send({ message: "test" })
         .expect(400);
     });
+    // it("Rejects if message is empty with 400", async () => {
+    //   const { token } = await succSignIn(newUser);
+    //   const res = await request(app)
+    //     .post(`/message/123456789`)
+    //     .set("Authorization", `Bearer ${token}`)
+    //     .send({ message: "" })
+    //     .expect(400);
+    // });
   });
 });
