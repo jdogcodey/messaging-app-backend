@@ -58,5 +58,16 @@ describe("Messages API", () => {
         .send({ message: "" })
         .expect(400);
     });
+    describe("Creates message between valid sender and receiver with 201", () => {
+      it("201 if sender and receiver are valid and message has content", async () => {
+        const { token } = await succSignIn(newUser);
+        const { user } = await succSignIn(newUser);
+        const res = await request(app)
+          .post(`/message/${user.id}`)
+          .set("Authorization", `Bearer ${token}`)
+          .send({ message: "test" })
+          .expect(201);
+      });
+    });
   });
 });
