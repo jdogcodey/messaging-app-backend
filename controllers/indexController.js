@@ -143,6 +143,11 @@ const indexController = {
       message: "Authorised",
     });
   },
+  postMessage: (req, res, next) => {
+    if (req.receiverId === req.user.id) {
+      res.status(400);
+    }
+  },
 };
 
 export default indexController;
