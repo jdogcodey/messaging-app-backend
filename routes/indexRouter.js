@@ -7,7 +7,12 @@ import validationErrorController from "../controllers/validationErrorsController
 
 const router = express.Router();
 
-router.post("/signup", validationController.signup(), indexController.signup);
+router.post(
+  "/signup",
+  validationController.signup(),
+  validationErrorController,
+  indexController.signup
+);
 
 router.post(
   "/login",

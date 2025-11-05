@@ -136,46 +136,46 @@ describe("App Tests", () => {
           .expect(400);
       });
     });
-    // describe("Login Route", () => {
-    //   it("returns 400 if field is missing", async () => {
-    //     const res = await request(app).post("/login").expect(400);
-    //   });
-    //   it("returns 401 if user can't be found", async () => {
-    //     const notUser = {
-    //       username: "TestUser",
-    //       password: "testPassword1!",
-    //     };
+    describe("Login Route", () => {
+      it("returns 400 if field is missing", async () => {
+        const res = await request(app).post("/login").expect(400);
+      });
+      it("returns 401 if user can't be found", async () => {
+        const notUser = {
+          username: "TestUser",
+          password: "testPassword1!",
+        };
 
-    //     const res = await request(app).post("/login").send(notUser).expect(401);
-    //   });
-    //   it("returns 401 if password incorrect", async () => {
-    //     const { testUser } = await succSignIn(newUser);
+        const res = await request(app).post("/login").send(notUser).expect(401);
+      });
+      it("returns 401 if password incorrect", async () => {
+        const { testUser } = await succSignIn(newUser);
 
-    //     const wrongPassword = {
-    //       username: testUser.username,
-    //       password: "incorrectPassword1!",
-    //     };
+        const wrongPassword = {
+          username: testUser.username,
+          password: "incorrectPassword1!",
+        };
 
-    //     const res = await request(app).post("/login").send(wrongPassword);
-    //     expect(401);
-    //   });
-    //   it("returns 200 and JWT with correct credentials", async () => {
-    //     const { testUser } = await succSignIn(newUser);
+        const res = await request(app).post("/login").send(wrongPassword);
+        expect(401);
+      });
+      it("returns 200 and JWT with correct credentials", async () => {
+        const { testUser } = await succSignIn(newUser);
 
-    //     const correctCredentials = {
-    //       username: testUser.username,
-    //       password: testUser.password,
-    //     };
+        const correctCredentials = {
+          username: testUser.username,
+          password: testUser.password,
+        };
 
-    //     const res = await request(app)
-    //       .post("/login")
-    //       .send(correctCredentials)
-    //       .expect(200);
+        const res = await request(app)
+          .post("/login")
+          .send(correctCredentials)
+          .expect(200);
 
-    //     // Check for the token
-    //     expect(res.body.data).toHaveProperty("token");
-    //     expect(typeof res.body.data.token).toBe("string");
-    //   });
-    // });
+        // Check for the token
+        expect(res.body.data).toHaveProperty("token");
+        expect(typeof res.body.data.token).toBe("string");
+      });
+    });
   });
 });

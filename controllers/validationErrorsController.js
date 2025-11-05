@@ -1,6 +1,6 @@
 import { validationResult } from "express-validator";
 
-export default function validationErrorController(req, res) {
+export default function validationErrorController(req, res, next) {
   const errors = validationResult(req).array();
   // Returning these errors so sign up form is correctly filled by front end
   if (errors.length > 0) {
@@ -9,5 +9,5 @@ export default function validationErrorController(req, res) {
       message: "Please fix the highlighted field",
       errors: errors,
     });
-  }
+  } else next();
 }

@@ -11,18 +11,6 @@ const indexController = {
   signup: async (req, res, next) => {
     // Takes the sign up POST request, validates the form, checks if the user already exists, then creates the user returning 201 on success
 
-    // Collecting the errors from the validation
-    const errors = validationResult(req).array();
-
-    // Returning these errors so sign up form is correctly filled by front end
-    if (errors.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Please fix the highlighted field",
-        errors: errors,
-      });
-    }
-
     // Destructuring the form
     const {
       first_name,
