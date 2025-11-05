@@ -144,8 +144,11 @@ const indexController = {
     });
   },
   postMessage: (req, res, next) => {
-    if (req.receiverId === req.user.id) {
-      res.status(400);
+    if (req.params.receiverId === req.user.id) {
+      res.status(400).json({
+        success: false,
+        message: "Do you have no friends?",
+      });
     }
   },
 };
