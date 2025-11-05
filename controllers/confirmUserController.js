@@ -9,8 +9,11 @@ async function confirmUserController(req, res, next) {
   });
   //
   if (!receiver) {
-    return res.status(404).json({});
-  } else return res.status(400).json({});
+    return res.status(404).json({
+      success: false,
+      message: "Receiver not found",
+    });
+  } else next();
 }
 
 export default confirmUserController;
