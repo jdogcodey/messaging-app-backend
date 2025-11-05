@@ -26,6 +26,7 @@ router.get("/auth/verify", authController.jwtAuth, indexController.getUser);
 router.post(
   "/message/:receiverId",
   validationController.message(),
+  validationErrorController,
   authController.jwtAuth,
   confirmUserController,
   indexController.postMessage

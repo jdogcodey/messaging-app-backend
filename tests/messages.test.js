@@ -50,13 +50,13 @@ describe("Messages API", () => {
         .send({ message: "test" })
         .expect(400);
     });
-    // it("Rejects if message is empty with 400", async () => {
-    //   const { token } = await succSignIn(newUser);
-    //   const res = await request(app)
-    //     .post(`/message/123456789`)
-    //     .set("Authorization", `Bearer ${token}`)
-    //     .send({ message: "" })
-    //     .expect(400);
-    // });
+    it("Rejects if message is empty with 400", async () => {
+      const { token } = await succSignIn(newUser);
+      const res = await request(app)
+        .post(`/message/123456789`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ message: "" })
+        .expect(400);
+    });
   });
 });
