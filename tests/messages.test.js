@@ -37,5 +37,12 @@ describe("Messages API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(404);
     });
+    it("Rejects if sender is same as receiver with 400", async () => {
+      const { token, user } = await succSignIn(newUser);
+      const res = await request(app)
+        .post(`/message/${user.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(400);
+    });
   });
 });
