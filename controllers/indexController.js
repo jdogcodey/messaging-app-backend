@@ -127,6 +127,9 @@ const indexController = {
         message: "Do you have no friends?",
       });
     } else {
+      res.status(201).json({
+        success: true,
+      });
     }
   },
 };
