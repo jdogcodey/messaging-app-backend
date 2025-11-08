@@ -120,13 +120,19 @@ const indexController = {
       message: "Authorised",
     });
   },
-  postMessage: (req, res, next) => {
+  postMessage: async (req, res, next) => {
     if (req.params.receiverId === req.user.id) {
       res.status(400).json({
         success: false,
         message: "Do you have no friends?",
       });
     } else {
+      await prisma.message.create({
+        data: {
+          content: req.body.message,
+          senderId: req.user.id,
+        },
+      });
       res.status(201).json({
         success: true,
       });
