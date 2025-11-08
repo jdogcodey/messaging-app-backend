@@ -78,7 +78,7 @@ describe("Messages API", () => {
 
         // We are only testing if there is a message in the DB. As we cleared the DB before each test we know that any message must be the one we submitted
         const messageInDB = await prisma.message.findMany({});
-        expect(anyMessages.length > 0).toBe(true);
+        expect(messageInDB.length > 0).toBe(true);
       });
     });
   });
