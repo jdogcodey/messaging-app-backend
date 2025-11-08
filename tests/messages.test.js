@@ -68,6 +68,18 @@ describe("Messages API", () => {
           .send({ message: "test" })
           .expect(201);
       });
+      it("Adds message to database", async () => {
+        const { token, user: user1 } = await succSignIn(newUser);
+        const { user: user2 } = await succSignIn(newUser);
+        const res = await request(app)
+          .post(`/message/${user2.id}`)
+          .set("Authorization", `Bearer ${token}`)
+          .send({ message: "test" });
+
+        // We are only testing if there is a message in the DB. As we cleared the DB before each test we know that any message must be the one we submitted
+        const messageInDB = await prisma.message.findMany({});
+        expect(messageInDB);
+      });
     });
   });
 });
