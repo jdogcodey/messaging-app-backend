@@ -127,15 +127,23 @@ const indexController = {
         message: "Do you have no friends?",
       });
     } else {
-      await prisma.message.create({
-        data: {
-          content: req.body.message,
-          senderId: req.user.id,
-        },
-      });
-      res.status(201).json({
-        success: true,
-      });
+      try {
+        prisma.message.create({
+          data: {
+            content: req.body.message,
+            senderId: req.user.id,
+          },
+        });
+        res.status(201).json({
+          success: true,
+          message: "Message sent",
+        });
+      } catch {
+        res.status(500).json({
+          success: false,
+          message: "Computer says no",
+        });
+      }
     }
   },
 };
