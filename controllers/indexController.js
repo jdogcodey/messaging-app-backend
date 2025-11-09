@@ -128,7 +128,7 @@ const indexController = {
       });
     } else {
       try {
-        prisma.message.create({
+        await prisma.message.create({
           data: {
             content: req.body.message,
             senderId: req.user.id,
