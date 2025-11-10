@@ -60,7 +60,7 @@ Messages
   - Rejects if sender is same as receiver with 400
   - Rejects if message body missing/empty with 400
 - GET /my-messages:
-  - Returns list of users you've messaged with the latest message for each with 200
+  - Returns list of users you've messaged or received from with the latest message for each with 200
   - List is ordered by latest message
   - Rejects if unauthenticated with 401
 - GET /convo/:userId

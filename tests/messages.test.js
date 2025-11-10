@@ -52,12 +52,17 @@ describe("Messages API", () => {
     });
     it("Rejects if message is empty with 400", async () => {
       const { token } = await succSignIn(newUser);
+      const { user: user2 } = await succSignIn(newUser);
       const res = await request(app)
-        .post(`/message/123456789`)
+        .post(`/message/${user2.id}`)
         .set("Authorization", `Bearer ${token}`)
         .send({ message: "" })
         .expect(400);
     });
+    // it("Rejects if message is too long with 400", async () => {
+    //   const { token } = await succSignIn(newUser);
+    //   const res = await request(app).post(`/Message/123456789`);
+    // });
     describe("Creates message between valid sender and receiver with 201", () => {
       it("201 if sender and receiver are valid and message has content", async () => {
         const { token } = await succSignIn(newUser);
@@ -96,7 +101,7 @@ describe("Messages API", () => {
         expect(messageInDB[0].senderId).toBe(user1.id);
       });
       it("Message stores correct date", async () => {
-        const { token, user: ser1 } = await succSignIn(newUser);
+        const { token } = await succSignIn(newUser);
         const { user: user2 } = await succSignIn(newUser);
         const oldDate = new Date();
 
@@ -112,6 +117,18 @@ describe("Messages API", () => {
         expect(newerThan).toBe(true);
         expect(olderThan).toBe(true);
       });
+    });
+  });
+  describe("GET /my-messages", () => {
+    it("Returns list of users you've messaged with the latest message for each with 200", async () => {
+      const { token: token1, user: user1 } = await succSignIn(newUser);
+      const { token: token2, user: user2 } = await succSignIn(newUser);
+      const { token: token3, user: user3 } = await succSignIn(newUser);
+
+      const message1 = await request(app)
+        .post(`/message/${user1.id}`)
+        .set("Authorization", `Bearer ${token2}`)
+        .send({ message: "test" });
     });
   });
 });
