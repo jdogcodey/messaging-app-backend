@@ -5,6 +5,7 @@ import { succSignIn, newUser } from "./utils/testUtils.js";
 import "dotenv";
 import jwt from "jsonwebtoken";
 import { response } from "express";
+import { faker } from "@faker-js/faker";
 
 beforeEach(async () => {
   // Reset DB
@@ -59,10 +60,18 @@ describe("Messages API", () => {
         .send({ message: "" })
         .expect(400);
     });
-    // it("Rejects if message is too long with 400", async () => {
-    //   const { token } = await succSignIn(newUser);
-    //   const res = await request(app).post(`/Message/123456789`);
-    // });
+    it("Rejects if message is too long with 400", async () => {
+      const { token } = await succSignIn(newUser);
+      const { user: user2 } = await succSignIn(newUser);
+      const longString = faker.string.alpha(
+        Number(process.env.MAX_MSG_LENGTH) + 1
+      );
+      const res = await request(app)
+        .post(`/Message/${user2.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ message: longString })
+        .expect(400);
+    });
     describe("Creates message between valid sender and receiver with 201", () => {
       it("201 if sender and receiver are valid and message has content", async () => {
         const { token } = await succSignIn(newUser);

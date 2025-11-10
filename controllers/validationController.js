@@ -1,4 +1,5 @@
 import { body } from "express-validator";
+import "dotenv";
 
 const validationController = {
   signup: () => [
@@ -51,7 +52,9 @@ const validationController = {
   message: () => [
     body("message")
       .notEmpty()
-      .withMessage("What have you got to say for yourself?"),
+      .withMessage("What have you got to say for yourself?")
+      .isLength({ max: process.env.MAX_MSG_LENGTH })
+      .withMessage("Too much waffle"),
   ],
 };
 
