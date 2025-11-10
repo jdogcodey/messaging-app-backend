@@ -128,10 +128,16 @@ const indexController = {
       });
     } else {
       try {
-        await prisma.message.create({
+        const messageInDB = await prisma.message.create({
           data: {
             content: req.body.message,
             senderId: req.user.id,
+          },
+        });
+        await prisma.messageRecipient.create({
+          data: {
+            userId: req.params.receiverId,
+            messageId: messageInDB.id,
           },
         });
         res.status(201).json({
