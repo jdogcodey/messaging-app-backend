@@ -59,6 +59,7 @@ Messages
   - Rejects if receiver doesn't exist with 404
   - Rejects if sender is same as receiver with 400
   - Rejects if message body missing/empty with 400
+  - Adds recipient correctly
 - GET /my-messages:
   - Returns list of users you've messaged or received from with the latest message for each with 200
   - List is ordered by latest message
