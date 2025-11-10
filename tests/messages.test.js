@@ -95,6 +95,23 @@ describe("Messages API", () => {
         expect(messageInDB[0].content).toBe(message);
         expect(messageInDB[0].senderId).toBe(user1.id);
       });
+      it("Message stores correct date", async () => {
+        const { token, user: ser1 } = await succSignIn(newUser);
+        const { user: user2 } = await succSignIn(newUser);
+        const oldDate = new Date();
+
+        const res = await request(app)
+          .post(`/message/${user2.id}`)
+          .set("Authorization", `Bearer ${token}`)
+          .send({ message: "test" });
+
+        const messageInDB = await prisma.message.findMany({});
+        const newDate = new Date();
+        const newerThan = messageInDB[0].createdAt > oldDate;
+        const olderThan = messageInDB[0].createdAt < newDate;
+        expect(newerThan).toBe(true);
+        expect(olderThan).toBe(true);
+      });
     });
   });
 });
