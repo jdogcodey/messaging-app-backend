@@ -53,7 +53,7 @@ const validationController = {
     body("message")
       .notEmpty()
       .withMessage("What have you got to say for yourself?")
-      .isLength({ max: process.env.MAX_MSG_LENGTH })
+      .isLength({ max: Number(process.env.MAX_MSG_LENGTH) })
       .withMessage("Too much waffle"),
   ],
 };
