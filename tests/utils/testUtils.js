@@ -43,4 +43,23 @@ export async function fullDBSetup() {
     });
     userIDsStore.push(newUser.id);
   }
+  for (let i = 0; i < 500; i++) {
+    const randomSenderIndex = Math.floor(Math.random() * userIDsStore.length);
+    let randomReceiverIndex = Math.floor(Math.random() * userIDsStore.length);
+    while (randomSenderIndex === randomReceiverIndex) {
+      let randomReceiverIndex = Math.floor(Math.random() * userIDsStore.length);
+    }
+    const newMessage = await prisma.message.create({
+      data: {
+        content: faker.string.alphanumeric({ length: { max: 500 } }),
+        senderId: userIDsStore[randomSenderIndex],
+      },
+    });
+    const recipient = await prisma.messageRecipient.create({
+      data: {
+        messageId: newMessage.id,
+        userId: userIDsStore[randomReceiverIndex],
+      },
+    });
+  }
 }
