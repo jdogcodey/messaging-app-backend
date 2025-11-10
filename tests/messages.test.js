@@ -126,6 +126,23 @@ describe("Messages API", () => {
         expect(newerThan).toBe(true);
         expect(olderThan).toBe(true);
       });
+      it("Message recipient stored correctly", async () => {
+        const { token } = await succSignIn(newUser);
+        const { user: user2 } = await succSignIn(newUser);
+
+        const res = await request(app)
+          .post(`/message/${user2.id}`)
+          .set("Authorization", `Bearer ${token}`)
+          .send({ message: "test" });
+
+        const messageInDB = await prisma.message.findMany({
+          include: {
+            sender: true,
+            recipients: true,
+          },
+        });
+        expect(messageInDB[0].recipients[0].userId).toEqual(user2.id);
+      });
     });
   });
   describe("GET /my-messages", () => {

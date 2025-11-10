@@ -1,6 +1,7 @@
 import request from "supertest";
 import app from "../../app.js";
 import prisma from "../../config/prisma-client.js";
+import { faker } from "@faker-js/faker";
 
 export function newUser(overrides = {}) {
   const uniqueId =
@@ -26,4 +27,20 @@ export async function succSignIn(newUser) {
     token: res.body.data.token,
     user: res.body.data.user,
   };
+}
+
+export async function fullDBSetup() {
+  const userIDsStore = [];
+  for (let i = 0; i < 25; i++) {
+    const newUser = await prisma.user.create({
+      where: {
+        first_name: faker.person.firstName(),
+        last_name: faker.person.lastName(),
+        username: faker.string.alphanumeric({ length: { min: 8, max: 20 } }),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric({ min: 8, max: 20 }),
+      },
+    });
+    userIDsStore.push(newUser.id);
+  }
 }
