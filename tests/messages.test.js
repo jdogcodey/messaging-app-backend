@@ -1,7 +1,7 @@
 import request from "supertest";
 import app from "../app.js";
 import prisma from "../config/prisma-client.js";
-import { succSignIn, newUser } from "./utils/testUtils.js";
+import { succSignIn, newUser, fullDBSetup } from "./utils/testUtils.js";
 import "dotenv";
 import jwt from "jsonwebtoken";
 import { response } from "express";
@@ -147,14 +147,6 @@ describe("Messages API", () => {
   });
   describe("GET /my-messages", () => {
     it("Returns list of users you've messaged with the latest message for each with 200", async () => {
-      const { token: token1, user: user1 } = await succSignIn(newUser);
-      const { token: token2, user: user2 } = await succSignIn(newUser);
-      const { token: token3, user: user3 } = await succSignIn(newUser);
-
-      const message1 = await request(app)
-        .post(`/message/${user1.id}`)
-        .set("Authorization", `Bearer ${token2}`)
-        .send({ message: "test" });
-    });
+      
   });
 });
