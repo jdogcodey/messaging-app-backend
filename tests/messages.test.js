@@ -147,6 +147,19 @@ describe("Messages API", () => {
   });
   describe("GET /my-messages", () => {
     it("Returns list of users you've messaged with the latest message for each with 200", async () => {
-      
+      const fakeUname = "myMessagesTest123!";
+      const fakePword = "myPasswordTest123!";
+      // Add test users and messages to the DB - should be enough!
+      fullDBSetup(25, 500, fakeUname, fakePword);
+      // Logging in a user who should have sent and received messages
+      const loggedIn = await request(app).post("/login").send({
+        username: fakeUname,
+        password: fakePword,
+      });
+      const res = await request(app)
+        .get("/my-messages")
+        .set("Authorization", `Bearer ${loggedIn.body.data.token}`)
+        .expect(200);
+    });
   });
 });

@@ -2,6 +2,8 @@ import request from "supertest";
 import app from "../../app.js";
 import prisma from "../../config/prisma-client.js";
 import { faker } from "@faker-js/faker";
+import bcrypt from "bcryptjs";
+import "dotenv";
 
 export function newUser(overrides = {}) {
   const uniqueId =
@@ -30,30 +32,32 @@ export async function succSignIn(newUser) {
 }
 
 // To add a number of users and some mock messages between them into the DB
-export async function fullDBSetup(users, messages) {
+export async function fullDBSetup(users, messages, fakeUname, fakePword) {
   // Stores the IDs of all the users we create so we can spoof the messages
   const userIDsStore = [];
+  const myHashed = await bcrypt.hash(fakePword, 10);
   // This is a user who will have messages but we know the password of so we can log in during tests
   const ourUser = await prisma.user.create({
-    where: {
-      first_name: faker.person.firstName(),
-      last_name: faker.person.lastName(),
-      username: faker.internet.username(),
-      email: faker.internet.email(),
-      password: "FakePassword123!",
+    data: {
+      first_name: "First",
+      last_name: "Last",
+      username: fakeUname,
+      email: "realemail@test.com",
+      password: myHashed,
     },
   });
   // Push the ID to the array for sending messages
-  userIDsStore.push(ourUser.id);
+  // userIDsStore.push(ourUser.id);
   // Looping to create different users in the DB. Allows us to easily scale up the number of users to test
   for (let i = 0; i < users; i++) {
+    const hashedPassword = await bcrypt.hash(faker.internet.password(), 10);
     const newUser = await prisma.user.create({
-      where: {
+      data: {
         first_name: faker.person.firstName(),
         last_name: faker.person.lastName(),
         username: faker.internet.username(),
         email: faker.internet.email(),
-        password: faker.internet.password(),
+        password: hashedPassword,
       },
     });
     // Push to the arry for sending messages
@@ -66,7 +70,7 @@ export async function fullDBSetup(users, messages) {
     let randomReceiverIndex = Math.floor(Math.random() * userIDsStore.length);
     // If they are the same then find a different one
     while (randomSenderIndex === randomReceiverIndex) {
-      let randomReceiverIndex = Math.floor(Math.random() * userIDsStore.length);
+      randomReceiverIndex = Math.floor(Math.random() * userIDsStore.length);
     }
     // Create the message from the sender
     const newMessage = await prisma.message.create({
