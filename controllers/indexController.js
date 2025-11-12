@@ -152,6 +152,11 @@ const indexController = {
       }
     }
   },
+  getMyMessages: async (req, res, next) => {
+    res.status(200).json({
+      success: true,
+    });
+  },
 };
 
 export default indexController;

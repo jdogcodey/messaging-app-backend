@@ -32,4 +32,10 @@ router.post(
   indexController.postMessage
 );
 
+router.get(
+  "/my-messages",
+  authController.jwtAuth,
+  indexController.getMyMessages
+);
+
 export default router;
