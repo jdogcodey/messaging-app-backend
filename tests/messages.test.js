@@ -150,7 +150,7 @@ describe("Messages API", () => {
       const fakeUname = "myMessagesTest123!";
       const fakePword = "myPasswordTest123!";
       // Add test users and messages to the DB - should be enough!
-      fullDBSetup(25, 500, fakeUname, fakePword);
+      await fullDBSetup(25, 500, fakeUname, fakePword);
       // Logging in a user who should have sent and received messages
       const loggedIn = await request(app).post("/login").send({
         username: fakeUname,
