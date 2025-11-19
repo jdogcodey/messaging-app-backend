@@ -161,7 +161,8 @@ describe("Messages API", () => {
         .set("Authorization", `Bearer ${loggedIn.body.data.token}`)
         .expect(200);
 
-      expect(res.body.data.conversations);
+      expect(res.body.data.conversations).toBeDefined();
+      expect(res.body.data.conversations.length).toBe(10);
     });
   });
 });
