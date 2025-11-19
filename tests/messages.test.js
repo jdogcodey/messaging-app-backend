@@ -1,7 +1,12 @@
 import request from "supertest";
 import app from "../app.js";
 import prisma from "../config/prisma-client.js";
-import { succSignIn, newUser, fullDBSetup } from "./utils/testUtils.js";
+import {
+  succSignIn,
+  newUser,
+  fullDBSetup,
+  dbKnowMessages,
+} from "./utils/testUtils.js";
 import "dotenv";
 import jwt from "jsonwebtoken";
 import { response } from "express";
@@ -150,7 +155,8 @@ describe("Messages API", () => {
       const fakeUname = "myMessagesTest123!";
       const fakePword = "myPasswordTest123!";
       // Add test users and messages to the DB - should be enough!
-      await fullDBSetup(25, 500, fakeUname, fakePword);
+      // await fullDBSetup(25, 500, fakeUname, fakePword);
+      await dbKnowMessages(25, fakeUname, fakePword);
       // Logging in a user who should have sent and received messages
       const loggedIn = await request(app).post("/login").send({
         username: fakeUname,
