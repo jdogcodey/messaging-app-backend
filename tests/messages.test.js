@@ -177,9 +177,7 @@ describe("Messages API", () => {
           res.body.data.user.id
         );
         expect(res.body.data.conversations[i]).toHaveProperty("createdAt");
-        // expect(res.body.data.conversations[i].latestMessage).toHaveProperty(
-        //   content
-        // );
+        expect(res.body.data.conversations[i]).toHaveProperty("content");
       }
     });
   });
