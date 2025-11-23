@@ -197,11 +197,11 @@ const indexController = {
       data: {
         conversations: messageList,
         user: {
-          id: user.id,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          username: user.username,
-          email: user.email,
+          id: req.user.id,
+          first_name: req.user.first_name,
+          last_name: req.user.last_name,
+          username: req.user.username,
+          email: req.user.email,
         },
       },
     });
