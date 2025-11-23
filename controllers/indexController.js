@@ -162,34 +162,40 @@ const indexController = {
         m."createdAt",
         m."senderId",
         mr."userId" AS "recipientId",
-        LEAST(m."senderId", mr."userId") AS "userA",
-        GREATEST(m."senderId", mr."userId") AS "userB"
+        CASE 
+          WHEN m."senderId" = ${userId} THEN mr."userId"
+          ELSE m."senderId"
+        END AS "otherUserId"
       FROM "Message" m
       JOIN "MessageRecipient" mr ON mr."messageId" = m.id
-      WHERE m."senderId" <> mr."userId"
+      WHERE m."senderId" = ${userId} OR mr."userId" = ${userId}
     ),
     ranked AS (
       SELECT
         *,
         ROW_NUMBER() OVER (
-          PARTITION BY "userA", "userB"
+          PARTITION BY "otherUserId"
           ORDER BY "createdAt" DESC 
         ) AS rn
       FROM all_pairs
     )
-    SELECT * 
+    SELECT 
+      "messageId",
+      content,
+      "createdAt",
+      "senderId",
+      "recipientId",
+      "otherUserId"
     FROM ranked 
     WHERE rn = 1
-      AND (${userId} = "userA" OR ${userId} = "userB")
     ORDER BY "createdAt" DESC
     LIMIT 10;
 `;
-    console.log(messageList);
     res.status(200).json({
       success: true,
       message: "Message request successful",
       data: {
-        conversations: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        conversations: messageList,
       },
     });
   },
