@@ -153,6 +153,38 @@ const indexController = {
     }
   },
   getMyMessages: async (req, res, next) => {
+    const userId = req.user.id;
+    const messageList = await prisma.$queryRaw`
+    WITH all_pairs AS (
+      SELECT
+        m.id AS "messageId",
+        m.content,
+        m."createdAt",
+        m."senderId",
+        mr."userId" AS "recipientId",
+        LEAST(m."senderId", mr."userId") AS "userA",
+        GREATEST(m."senderId", mr."userId") AS "userB"
+      FROM "Message" m
+      JOIN "MessageRecipient" mr ON mr."messageId" = m.id
+      WHERE m."senderId" <> mr."userId"
+    ),
+    ranked AS (
+      SELECT
+        *,
+        ROW_NUMBER() OVER (
+          PARTITION BY "userA", "userB"
+          ORDER BY "createdAt" DESC 
+        ) AS rn
+      FROM all_pairs
+    )
+    SELECT * 
+    FROM ranked 
+    WHERE rn = 1
+      AND (${userId} = "userA" OR ${userId} = "userB")
+    ORDER BY "createdAt" DESC
+    LIMIT 10;
+`;
+    console.log(messageList);
     res.status(200).json({
       success: true,
       message: "Message request successful",
