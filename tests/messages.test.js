@@ -202,6 +202,14 @@ describe("Messages API", () => {
 
         expect(res.body.data.conversations).toBeDefined();
         expect(res.body.data.conversations.length).toBe(10);
+        for (let i = 0; i < 10; i++) {
+        expect(res.body.data.conversations[i]).toHaveProperty("senderId");
+        expect(res.body.data.conversations[i]).toHaveProperty("recipientId");
+        expect(res.body.data.conversations[i]).toHaveProperty("otherUserId");
+        expect(res.body.data.conversations[i].otherUserId).not.toBe(
+          res.body.data.user.id
+        );
+      }
     })
   });
 });
