@@ -207,6 +207,36 @@ export async function dbKnowSendReceive(fakeUname, fakePword) {
         userId: userIDsStore[i * 3], // Done this to ensure it isn't just the 3 most recent chats anyway. Ideally this would be configurable on input to the util - maybe i'll add later]
       },
     });
+  };
+  // Add a few messages back and forth so we can test whether multiple messages in one chat messes it up
+  for (let i = 0; i < 2; i++) {
+    const newMessage = await prisma.message.create({
+      data: {
+        content: `singleChatHistory${i}`,
+        senderId: ourUser.id,
+      },
+    });
+    // Add the same recipient for these messages 
+    const recipient = await prisma.messageRecipient.create({
+      data: {
+        messageId: newMessage.id,
+        userId: userIDsStore[5],
+      }
+    })
+    // Add a reply message
+    const newReply = await prisma.message.create({
+      data: {
+        content: `singleChatReply${i}`,
+        senderId: userIDsStore[5]
+      },
+    });
+    // Add the reply recipient
+    const replyRecipient = await prisma.messageRecipient.create({
+      data: {
+        messageId: newReply.id,
+        userId: ourUser.id,
+      }
+    })
   }
 }
 

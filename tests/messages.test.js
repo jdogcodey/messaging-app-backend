@@ -6,6 +6,7 @@ import {
   newUser,
   fullDBSetup,
   dbKnowMessages,
+  dbKnowSendReceive,
 } from "./utils/testUtils.js";
 import "dotenv";
 import jwt from "jsonwebtoken";
@@ -151,7 +152,8 @@ describe("Messages API", () => {
     });
   });
   describe("GET /my-messages", () => {
-    it("Returns list of users you've messaged with the latest message for each with 200", async () => {
+    // This tests if our user is the recipient of all messages
+    it("Returns list of users you've messaged with the latest message for each with 200 - if our user is the recipient of all messages", async () => {
       const fakeUname = "myMessagesTest123!";
       const fakePword = "myPasswordTest123!";
       // Add test users and messages to the DB - should be enough!
@@ -183,8 +185,23 @@ describe("Messages API", () => {
         );
       }
     });
-  });
-  describe("GET /convo/:userId", () => {
-    it();
+    // This tests if our there are some messages back and forth in a chat
+    it("Returns list of users you've messaged with the latest message for each with 200 - if our user sends and receives", async () => {
+      const fakeUname = "myMessagesTest123!";
+      const fakePword = "myPasswordTest123!";
+      await dbKnowSendReceive(fakeUname, fakePword);
+      // Logging in the user
+      const loggedIn = await request(app).post("/login").send({
+        username: fakeUname,
+        password: fakePword,
+      });
+      const res = await request(app)
+        .get("/my-messages")
+        .set("Authorization", `Bearer ${loggedIn.body.data.token}`)
+        .expect(200);
+
+        expect(res.body.data.conversations).toBeDefined();
+        expect(res.body.data.conversations.length).toBe(10);
+    })
   });
 });
