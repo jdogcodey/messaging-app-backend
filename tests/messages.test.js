@@ -212,6 +212,7 @@ describe("Messages API", () => {
         expect(res.body.data.conversations[i]).toHaveProperty("createdAt");
         expect(res.body.data.conversations[i]).toHaveProperty("content");
       }
+      expect(res.body.data.conversations[0].content).toEqual("singleChatReply1")
     })
   });
 });
