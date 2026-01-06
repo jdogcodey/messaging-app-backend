@@ -216,8 +216,9 @@ describe("Messages API", () => {
       for (let i = 1; i < 4; i++) {
         expect(res.body.data.conversations[i].content).toEqual(`testNewerMessage${4 - i}`)
       }
-      // expect(res.body.data.conversations[1].content).toEqual("testNewerMessage3")
-      // expect(res.body.data.conversations[2])
+      for (let i = 4; i < 10 ; i++) {
+        expect(res.body.data.conversations[i].content).toEqual(`testMessage${23 - i}`)
+      }
     })
   });
 });
