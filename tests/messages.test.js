@@ -209,6 +209,8 @@ describe("Messages API", () => {
         expect(res.body.data.conversations[i].otherUserId).not.toBe(
           res.body.data.user.id
         );
+        expect(res.body.data.conversations[i]).toHaveProperty("createdAt");
+        expect(res.body.data.conversations[i]).toHaveProperty("content");
       }
     })
   });
