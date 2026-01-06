@@ -216,7 +216,10 @@ describe("Messages API", () => {
       for (let i = 1; i < 4; i++) {
         expect(res.body.data.conversations[i].content).toEqual(`testNewerMessage${4 - i}`)
       }
-      for (let i = 4; i < 10 ; i++) {
+      for (let i = 4; i < 8 ; i++) {
+        expect(res.body.data.conversations[i].content).toEqual(`testMessage${23 - i}`)
+      }
+      for (let i = 8; i < 10; i++) {
         expect(res.body.data.conversations[i].content).toEqual(`testMessage${23 - i}`)
       }
     })

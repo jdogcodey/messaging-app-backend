@@ -204,7 +204,7 @@ export async function dbKnowSendReceive(fakeUname, fakePword) {
     const recipient = await prisma.messageRecipient.create({
       data: {
         messageId: newMessage.id,
-        userId: userIDsStore[i * 3], // Done this to ensure it isn't just the 3 most recent chats anyway. Ideally this would be configurable on input to the util - maybe i'll add later]
+        userId: userIDsStore[i * 4], // Done this to ensure it isn't just the 3 most recent chats anyway. Ideally this would be configurable on input to the util - maybe i'll add later]
       },
     });
   };
