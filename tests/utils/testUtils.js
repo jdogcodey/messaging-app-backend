@@ -5,6 +5,7 @@ import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
 import "dotenv";
 
+// Returns a test user
 export function newUser(overrides = {}) {
   const uniqueId =
     Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -20,6 +21,7 @@ export function newUser(overrides = {}) {
   };
 }
 
+// signing in the provided user
 export async function succSignIn(newUser) {
   const testUser = newUser();
   const res = await request(app).post("/signup").send(testUser);
