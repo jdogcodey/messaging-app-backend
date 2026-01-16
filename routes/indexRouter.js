@@ -38,4 +38,9 @@ router.get(
   indexController.getMyMessages
 );
 
+router.get("/convo/:userId",
+  authController.jwtAuth,
+  indexController.getConvo,
+)
+
 export default router;

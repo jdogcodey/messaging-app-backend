@@ -206,6 +206,44 @@ const indexController = {
       },
     });
   },
+  getConvo: async (req, res, next) => {
+    res.status(200).json({
+      success: true,
+      message: "Conversation request successful",
+      data: {
+        user: {
+          first_name: req.user.first_name,
+          last_name: req.user.last_name,
+          username: req.user.username,
+          email: req.user.email,
+        }
+      }
+    })
+  //   const ourUser = req.user.id;
+  //   const otherUser = req.params.userId;
+  //   const convoMessages = await prisma.message.findMany({
+  //     where: {
+  //       OR: [
+  //         {
+  //           senderId: ourUser,
+  //           recipients: {
+  //             some: {
+  //               userId: otherUser,
+  //             }
+  //           }
+  //         },
+  //         {
+  //           senderId: otherUser,
+  //           recipients: {
+  //             some: {
+  //               userId: ourUser,
+  //             }
+  //           }
+  //         }
+  //       ]
+  //     }
+  //   })
+  },
 };
 
 export default indexController;

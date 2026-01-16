@@ -230,13 +230,13 @@ describe("Messages API", () => {
     it("Returns 10 most recent messages in the conversation with 200", async () => {
       const fakeUname = 'myMessagesTest123!';
       const fakePword = 'myPasswordTest123!';
-      const otherUser = await dbMessageHistory(fakeUname, fakePword);
-      const loggedIn = (await request(app).post('/login')).setEncoding({
+      const otherUserID = await dbMessageHistory(fakeUname, fakePword);
+      const loggedIn = await request(app).post('/login').send({
         username: fakeUname,
         password: fakePword,
       });
       const res = await request(app)
-      .get(`/convo/${otherUser.id}`)
+      .get(`/convo/${otherUserID}`)
       .set('Authorization', `Bearer ${loggedIn.body.data.token}`)
       .expect(200);
     })
