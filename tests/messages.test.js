@@ -241,6 +241,7 @@ describe("Messages API", () => {
       .expect(200);
 
       expect(res.body.data.messages).toBeDefined();
+      expect(res.body.data.messages.length).toBe(10)
     })
   })
 });
