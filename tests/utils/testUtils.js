@@ -282,6 +282,7 @@ export async function dbMessageHistory(fakeUname, fakePword) {
       },
     });
   }
+  return otherUser.id
 }
 
 // Adding message convo back and forth between two users to test
