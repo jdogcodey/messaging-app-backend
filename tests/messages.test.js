@@ -247,6 +247,7 @@ describe("Messages API", () => {
         expect(res.body.data.messages[i]).toHaveProperty('content');
         expect(res.body.data.messages[i]).toHaveProperty('createdAt');
         expect(res.body.data.messages[i]).toHaveProperty('senderId');
+        expect(res.body.data.messages[i].content).toEqual(`testMessage${14-i}`)
       }
     })
   })
