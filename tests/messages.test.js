@@ -241,7 +241,13 @@ describe("Messages API", () => {
       .expect(200);
 
       expect(res.body.data.messages).toBeDefined();
-      expect(res.body.data.messages.length).toBe(10)
+      expect(res.body.data.messages.length).toBe(10);
+      for (let i = 0; i < 10; i++) {
+        expect(res.body.data.messages[i]).toHaveProperty('id');
+        expect(res.body.data.messages[i]).toHaveProperty('content');
+        expect(res.body.data.messages[i]).toHaveProperty('createdAt');
+        expect(res.body.data.messages[i]).toHaveProperty('senderId');
+      }
     })
   })
 });
