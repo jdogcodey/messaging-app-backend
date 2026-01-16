@@ -376,4 +376,5 @@ export async function dbMessageHistoryConvo(fakeUname, fakePword) {
       userId: ourUser.id,
     }
   })
+  return otherUser.id
 }
