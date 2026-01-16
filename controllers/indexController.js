@@ -211,6 +211,11 @@ const indexController = {
     const otherUser = req.params.userId;
     const messages = await prisma.message.findMany({
       take: 10,
+      orderBy: [
+        {
+          createdAt: 'desc'
+        }
+      ],
       where: {
         OR: [
           {
