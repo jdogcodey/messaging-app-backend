@@ -239,6 +239,8 @@ describe("Messages API", () => {
       .get(`/convo/${otherUserID}`)
       .set('Authorization', `Bearer ${loggedIn.body.data.token}`)
       .expect(200);
+
+      expect(res.body.data.messages).toBeDefined();
     })
   })
 });
