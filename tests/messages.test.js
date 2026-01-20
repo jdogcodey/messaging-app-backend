@@ -154,6 +154,11 @@ describe("Messages API", () => {
     });
   });
   describe("GET /my-messages", () => {
+    it("Rejects if not logged in with 401", async () => {
+      const res = await request(app)
+      .get("/my-messages")
+      .expect(401) // Going back and ensuring errors are correct
+    })
     // This tests if our user is the recipient of all messages
     it("Returns list of users you've messaged with the latest message for each with 200 - if our user is the recipient of all messages", async () => {
       const fakeUname = "myMessagesTest123!";
