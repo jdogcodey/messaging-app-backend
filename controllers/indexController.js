@@ -207,6 +207,7 @@ const indexController = {
     });
   },
   getConvo: async (req, res, next) => {
+
     const ourUser = req.user.id;
     const otherUser = req.params.userId;
     const messages = await prisma.message.findMany({
@@ -237,6 +238,12 @@ const indexController = {
         ]
       }
     })
+    if (messages.length < 1) {
+      res.status(404).json({
+        success: false,
+        message: 'Conversation request unsuccessful',
+      })
+    } else {
     res.status(200).json({
       success: true,
       message: "Conversation request successful",
@@ -250,6 +257,7 @@ const indexController = {
         messages: messages,
       }
     })
+  }
   },
 };
 
