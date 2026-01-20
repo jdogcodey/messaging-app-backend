@@ -237,6 +237,10 @@ describe("Messages API", () => {
       .get("/my-messages")
       .expect(401) // Going back and ensuring errors are correct
     })
+    it("Rejects with 404 if userId is not valid", async () => {
+      const { token } = await succSignIn(newUser)
+      const res = await request(app).get('/convo/123').set('Authorization', `Bearer ${token}`).expect(404)
+    })
     it("Returns 10 most recent messages in the conversation with 200 - if messages all come from same user", async () => {
       const fakeUname = 'myMessagesTest123!';
       const fakePword = 'myPasswordTest123!';
