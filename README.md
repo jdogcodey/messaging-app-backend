@@ -69,7 +69,7 @@ Messages
   - Orders them by timestamp
   - Rejects if unauthenticated with 401
   - Rejects with 404 if userId is not valid
-  - Rejects if requesting convo you aren't in - 403
+  - Rejects if requesting convo you aren't in - 403 - Think this would always be a 404 but that's better as doesn't acknowledge whether the convo exists
 
 Friends
 
