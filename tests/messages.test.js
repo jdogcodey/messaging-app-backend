@@ -232,6 +232,11 @@ describe("Messages API", () => {
     })
   });
   describe("GET /convo/:userId", () => {
+    it("Rejects if not logged in with 401", async () => {
+      const res = await request(app)
+      .get("/my-messages")
+      .expect(401) // Going back and ensuring errors are correct
+    })
     it("Returns 10 most recent messages in the conversation with 200 - if messages all come from same user", async () => {
       const fakeUname = 'myMessagesTest123!';
       const fakePword = 'myPasswordTest123!';
