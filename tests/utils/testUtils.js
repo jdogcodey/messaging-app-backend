@@ -378,3 +378,27 @@ export async function dbMessageHistoryConvo(fakeUname, fakePword) {
   })
   return otherUser.id
 }
+
+export async function dbNameSearch(fakeUname, fakePword, namesList) {
+  const myHashed = bcrypt.hash(fakePword, 10);
+  const ourUser = await prisma.user.create({
+    data: {
+      first_name: "First",
+      last_name: "Last",
+      username: fakeUname,
+      email: "realemail@test.com",
+      password: myHashed,
+    },
+  });
+  for (let i = 0; i < namesList.length; i++) {
+    const newUser = await prisma.user.create({
+      data: {
+        first_name: namesList[i],
+        last_name: 'Last',
+        username: `User${i}`,
+        email: `fakeEmail${i}@gmail.com`,
+        password: `Testpassword${i}`
+      }
+    })
+  }
+}
