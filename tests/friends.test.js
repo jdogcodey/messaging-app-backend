@@ -8,7 +8,8 @@ import {
   dbKnowMessages,
   dbKnowSendReceive,
   dbMessageHistory,
-  dbMessageHistoryConvo
+  dbMessageHistoryConvo,
+  dbFirstNameSearch,
 } from "./utils/testUtils.js";
 import "dotenv";
 import jwt from "jsonwebtoken";
@@ -34,6 +35,15 @@ describe("Friends API", () => {
           .get('/user-search')
           .send({ search: '123' })
           .expect(404);
+        })
+        it("Searches first names", async () => {
+          const { token } = await succSignIn(newUser) 
+          const nameList = ['Steve', 'Steve', 'Steve', 'Sharon', 'Bob', 'Doris', 'Steve'];
+          await dbFirstNameSearch(nameList)
+          const res = await request(app)
+          .get('/user-search')
+          .send({ search: 'Steve' })
+          .expect(200);
         })
     })
 })
