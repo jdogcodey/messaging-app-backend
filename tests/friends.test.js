@@ -34,7 +34,7 @@ describe("Friends API", () => {
           const res = await request(app)
           .get('/user-search')
           .send({ search: '123' })
-          .expect(404);
+          .expect(401);
         })
         it("Searches first names", async () => {
           const { token } = await succSignIn(newUser) 
