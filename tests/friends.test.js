@@ -42,8 +42,11 @@ describe("Friends API", () => {
           await dbFirstNameSearch(nameList)
           const res = await request(app)
           .get('/user-search')
+          .set("Authorization", `Bearer ${token}`)
           .send({ search: 'Steve' })
           .expect(200);
+
+          expect(res.body.data.searchResults).toBeDefined()
         })
     })
 })
