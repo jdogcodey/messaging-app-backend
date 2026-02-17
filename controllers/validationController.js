@@ -8,14 +8,16 @@ const validationController = {
       .notEmpty()
       .withMessage("First name is required")
       .isAlpha()
-      .withMessage("First name must only contain letters"),
+      .withMessage("First name must only contain letters")
+      .escape(),
     body("last_name")
       .trim()
       .notEmpty()
       .withMessage("Last name is required")
       .isAlpha()
-      .withMessage("Last name must only contain letters"),
-    body("username").trim().notEmpty().withMessage("Username is required"),
+      .withMessage("Last name must only contain letters")
+      .escape(),
+    body("username").trim().notEmpty().withMessage("Username is required").escape(),
     body("email")
       .trim()
       .isEmail()
@@ -37,8 +39,9 @@ const validationController = {
       .not()
       .isIn(["password", "123456", "qwerty"])
       .withMessage("Password is too common")
-      .trim(),
-    body("confirmPassword").custom((value, { req }) => {
+      .trim()
+      .escape(),
+    body("confirmPassword").escape().custom((value, { req }) => {
       if (value !== req.body.password) {
         throw new Error("Password confirmation does not match password");
       }
@@ -46,15 +49,16 @@ const validationController = {
     }),
   ],
   login: () => [
-    body("username").trim().notEmpty().withMessage("Username is required"),
-    body("password").notEmpty().withMessage("Password is required"),
+    body("username").trim().notEmpty().withMessage("Username is required").escape(),
+    body("password").notEmpty().withMessage("Password is required").escape(),
   ],
   message: () => [
     body("message")
       .notEmpty()
       .withMessage("What have you got to say for yourself?")
       .isLength({ max: Number(process.env.MAX_MSG_LENGTH) })
-      .withMessage("Too much waffle"),
+      .withMessage("Too much waffle")
+      .escape(),
   ],
 };
 
