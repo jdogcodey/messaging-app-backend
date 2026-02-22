@@ -43,6 +43,6 @@ router.get("/convo/:userId",
   indexController.getConvo,
 )
 
-router.get("/user-search", validationController.userSearch(), authController.jwtAuth, indexController.userSearch)
+router.get("/user-search", validationController.userSearch(), validationErrorController, authController.jwtAuth, indexController.userSearch)
 
 export default router;
