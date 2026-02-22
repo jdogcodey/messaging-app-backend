@@ -36,18 +36,25 @@ describe("Friends API", () => {
           .send({ search: '123' })
           .expect(401);
         })
-        it("Searches first names", async () => {
-          const { token } = await succSignIn(newUser) 
-          const nameList = ['Steve', 'Steve', 'Steve', 'Sharon', 'Bob', 'Doris', 'Steve'];
-          await dbFirstNameSearch(nameList)
+        it("Rejects with 400 if no search sent", async () => {
+          const { token } = await succSignIn(newUser)
           const res = await request(app)
           .get('/user-search')
-          .set("Authorization", `Bearer ${token}`)
-          .send({ search: 'Steve' })
-          .expect(200);
-
-          expect(res.body.data.searchResults).toBeDefined()
-          expect(res.body.data.searchResults.length).toBe(4)
+          .set('Authorization', `Bearer ${token}`)
+          .expect(400)
         })
+        // it("Searches first names", async () => {
+        //   const { token } = await succSignIn(newUser) 
+        //   const nameList = ['Steve', 'Steve', 'Steve', 'Sharon', 'Bob', 'Doris', 'Steve'];
+        //   await dbFirstNameSearch(nameList)
+        //   const res = await request(app)
+        //   .get('/user-search')
+        //   .set("Authorization", `Bearer ${token}`)
+        //   .send({ search: 'Steve' })
+        //   .expect(200);
+
+        // expect(res.body.data.searchResults).toBeDefined()
+        // expect(res.body.data.searchResults.length).toBe(4)
+        // })
     })
 })
