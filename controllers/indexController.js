@@ -260,11 +260,27 @@ const indexController = {
   }
   },
   userSearch: async (req, res, next) => {
+    console.log('test')
+    const { search } = req.body;
+    const searchTerms = search.trim().split(/\s+/); // Split the terms up to search based on each individual term
+    const results = await prisma.user.findMany({
+      where: {
+        AND: searchTerms.map((term) => ({
+          OR: [
+          { first_name: { contains: term, mode: 'insensitive' }},
+          { last_name: { contains: term, mode: 'insensitive'}},
+          { username: { contains: term, mode: 'insensitive'}}
+        ]
+        }))
+      },
+      select: {id: true, first_name: true, last_name: true, username: true},
+      take: 10,
+    })
     res.status(200).json({
       success: true,
       message: "User search results",
       data: {
-        searchResults: {}
+        searchResults: results,
       }
     })
   },
