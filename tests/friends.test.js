@@ -11,6 +11,7 @@ import {
   dbMessageHistoryConvo,
   dbFirstNameSearch,
   dbLastNameSearch,
+  dbUsernameSearch,
 } from "./utils/testUtils.js";
 import "dotenv";
 import jwt from "jsonwebtoken";
@@ -74,6 +75,23 @@ describe("Friends API", () => {
         expect(res.body.data.searchResults.length).toBe(3)
         for (let i = 0; i < 3; i++) {
           expect(res.body.data.searchResults[i].last_name).toBe('Smith')
+        }
+      })
+      it("Searches usernames", async () => {
+        const { token } = await succSignIn(newUser)
+        const nameList = ['testingUser1', '2testingUser', '3user', '4user', '5user', 'testingUser6', '7testingUser'];
+        await dbUsernameSearch(nameList);
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .send({ search: 'testingUser'})
+        .expect(200);
+
+        console.log(res.body.data.searchResults)
+        expect(res.body.data.searchResults).toBeDefined()
+        expect(res.body.data.searchResults.length).toBe(4)
+        for (let i = 0; i < 3; i++) {
+          expect(res.body.data.searchResults[i].username).toContain('testingUser')
         }
       })
     })
