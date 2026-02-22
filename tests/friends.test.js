@@ -10,6 +10,7 @@ import {
   dbMessageHistory,
   dbMessageHistoryConvo,
   dbFirstNameSearch,
+  dbLastNameSearch,
 } from "./utils/testUtils.js";
 import "dotenv";
 import jwt from "jsonwebtoken";
@@ -55,6 +56,25 @@ describe("Friends API", () => {
 
         expect(res.body.data.searchResults).toBeDefined()
         expect(res.body.data.searchResults.length).toBe(4)
+        for (let i = 0; i < 4; i++) {
+          expect(res.body.data.searchResults[i].first_name).toBe('Steve')
+        }
         })
+      it("Searches last names", async () => {
+        const { token } = await succSignIn(newUser)
+        const nameList = ['Smith', 'Potter', 'Smith', 'Weasley', 'Malfoy', 'Smith'];
+        await dbLastNameSearch(nameList);
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .send({ search: 'Smith'})
+        .expect(200);
+
+        expect(res.body.data.searchResults).toBeDefined()
+        expect(res.body.data.searchResults.length).toBe(3)
+        for (let i = 0; i < 3; i++) {
+          expect(res.body.data.searchResults[i].last_name).toBe('Smith')
+        }
+      })
     })
 })
