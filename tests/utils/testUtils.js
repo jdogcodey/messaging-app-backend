@@ -388,7 +388,7 @@ export async function dbFirstNameSearch(namesList) {
         last_name: 'Last',
         username: `User${i}`,
         email: `fakeEmail${i}@gmail.com`,
-        password: `Testpassword${i}`
+        password: `Testpassword${i}` // Password isn't hashed but should just saving on test run-time
       }
     })
   }
