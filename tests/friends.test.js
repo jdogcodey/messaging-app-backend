@@ -79,19 +79,19 @@ describe("Friends API", () => {
       })
       it("Searches usernames", async () => {
         const { token } = await succSignIn(newUser)
-        const nameList = ['testingUser1', '2testingUser', '3user', '4user', '5user', 'testingUser6', '7testingUser'];
+        const nameList = ['testUser1', '2testUser', '3user', '4user', '5user', 'testUser6', '7testUser'];
         await dbUsernameSearch(nameList);
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: 'testingUser'})
+        .send({ search: 'testUser'})
         .expect(200);
 
         console.log(res.body.data.searchResults)
         expect(res.body.data.searchResults).toBeDefined()
         expect(res.body.data.searchResults.length).toBe(4)
         for (let i = 0; i < 3; i++) {
-          expect(res.body.data.searchResults[i].username).toContain('testingUser')
+          expect(res.body.data.searchResults[i].username).toContain('testUser')
         }
       })
     })
