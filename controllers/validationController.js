@@ -60,6 +60,14 @@ const validationController = {
       .withMessage("Too much waffle")
       .escape(),
   ],
+  userSearch: () => [
+    body("search")
+      .notEmpty()
+      .withMessage("Can't search nothing!")
+      .isLength({ max: 128 })
+      .withMessage("Search too long. Try searching the exact username")
+      .escape()
+  ],
 };
 
 export default validationController;

@@ -386,8 +386,8 @@ export async function dbFirstNameSearch(namesList) {
       data: {
         first_name: namesList[i],
         last_name: 'Last',
-        username: `User${i}`,
-        email: `fakeEmail${i}@gmail.com`,
+        username: `UFirst${i}`,
+        email: `fakeEmailFirst${i}@gmail.com`,
         password: `Testpassword${i}` // Password isn't hashed but should just saving on test run-time
       }
     })
@@ -401,8 +401,8 @@ export async function dbLastNameSearch(namesList) {
       data: {
         first_name: 'First',
         last_name: namesList[i],
-        username: `User${i}`,
-        email: `fakeEmail${i}@gmail.com`,
+        username: `ULast${i}`,
+        email: `fakeEmailLast${i}@gmail.com`,
         password: `Testpassword${i}` // Password isn't hashed but should just saving on test run-time
       }
     })
@@ -417,7 +417,7 @@ export async function dbUsernameSearch(namesList) {
         first_name: 'First',
         last_name: 'Last',
         username: namesList[i],
-        email: `fakeEmail${i}@gmail.com`,
+        email: `fakeEmailUname${i}@gmail.com`,
         password: `Testpassword${i}` // Password isn't hashed but should just saving on test run-time
       }
     })
