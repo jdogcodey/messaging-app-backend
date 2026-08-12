@@ -86,32 +86,28 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .send({ search: 'testUser'})
         .expect(200);
-
-        console.log(res.body.data.searchResults)
         expect(res.body.data.searchResults).toBeDefined()
         expect(res.body.data.searchResults.length).toBe(4)
         for (let i = 0; i < 3; i++) {
           expect(res.body.data.searchResults[i].username).toContain('testUser')
         }
       })
-      // it("Searches usernames, first and last and mixed", async () => {
-      //   const { token } = await succSignIn(newUser)
-      //   const usernameList = ['testUser1', '2testUser', '3user', '4user', '5user', 'testUser6', '7testUser'];
-      //   await dbUsernameSearch(usernameList);
-      //   const firstList = ['Test', 'Jest', 'Messed', 'Test', 'test', 'user', 'User']
-      //   await dbFirstNameSearch(firstList)
-      //   const lastList = ['user', 'Userpls', 'notuse', 'testing', 'uSeR']
-      //   await dbLastNameSearch(lastList)
-      //   const res = await request(app)
-      //   .get('/user-search')
-      //   .set("Authorization", `Bearer ${token}`)
-      //   .send({ search: 'test User'})
-      //   .expect(200);
-
-      //   console.log(res.body.data.searchResults)
-      //   console.log(res.body.data.searchResults)
-      //   expect(res.body.data.searchResults).toBeDefined()
-      //   expect(res.body.data.searchResults.length).toBe(10)
-      // })
+      it("Searches usernames, first and last and mixed", async () => {
+        const { token } = await succSignIn(newUser)
+        const usernameList = ['testUser1', '2testUser', '3user', '4user', '5user', 'testUser6', '7testUser'];
+        await dbUsernameSearch(usernameList);
+        const firstList = ['Test', 'Jest', 'Messed', 'Test', 'test', 'user', 'User']
+        await dbFirstNameSearch(firstList)
+        const lastList = ['user', 'Userpls', 'notuse', 'testing', 'uSeR']
+        await dbLastNameSearch(lastList)
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .send({ search: 'testUser'})
+        .expect(200);
+        console.log(res.body.data.searchResults)
+        expect(res.body.data.searchResults).toBeDefined()
+        expect(res.body.data.searchResults.length).toBe(10)
+      })
     })
 })
