@@ -190,6 +190,19 @@ describe("Friends API", () => {
         .expect(200);
         expect(res.body.data.searchResults.length).toBe(3)
       })
+      it("Searches with a space don't combine and search first or last", async () => {
+        const { token } = await succSignIn(newUser)
+        const firstList = ['John', 'JohnSmith', 'Johnny', 'Johnathan', 'JohnSmithhy']
+        await dbFirstNameSearch(firstList)
+        const lastList = ['Smith', 'Smithy', 'JohnSmith', 'JohnSmithy', 'John']
+        await dbLastNameSearch(lastList)
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .send({ search: 'John Smith' })
+        .expect(200)
+        expect(res.body.data.searchResults.length).toBe(0) // Should be searching for first:'John' AND last: 'Smith' so none should meet this
+      })
       it("Searches usernames, first and last and mixed", async () => {
         const { token } = await succSignIn(newUser)
         const usernameList = ['testUser1', '2testUser', '3user', '4user', '5user', 'testUser6', '7testUser'];
@@ -203,7 +216,6 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .send({ search: 'test User'})
         .expect(200);
-        console.log(res.body.data.searchResults)
         expect(res.body.data.searchResults).toBeDefined()
         expect(res.body.data.searchResults.length).toBe(4)
       })
