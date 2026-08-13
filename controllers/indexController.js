@@ -261,7 +261,7 @@ const indexController = {
   },
   userSearch: async (req, res, next) => {
     const { search } = req.body;
-    const searchTerms = search.trim().split(/\s+/).join(' | '); // Split the terms up to search based on each individual term
+    const searchTerms = search.trim().split(/\s+/).map(term => `${term}:*`).join(' | '); // Split the terms up to search based on each individual terms and add :* to search partial
     const results = await prisma.user.findMany({
       where: {
         id: {
