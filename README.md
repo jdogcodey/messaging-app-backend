@@ -82,7 +82,7 @@ On this project I want to start by writing some decent tests and then making fun
   - [x] Search last names - partial match
   - [x] Search usernames
   - [x] Search targets first, last and username at once
-  - [ ] Username search ignores spaces
+  - [x] Username search ignores spaces
   - [ ] Search first and last combined ('John Smith' doesn't show all 'John' and 'Smith' but rather 'John Smith')
   - [ ] Search with spaces separates after first space and searches first and last OR username ('jo h n' searches first:'jo' last: 'hn' and username:'john')
   - [ ] Search orders in a sensible order
