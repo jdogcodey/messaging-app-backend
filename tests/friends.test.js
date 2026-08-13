@@ -32,20 +32,20 @@ afterAll(async () => {
 
 describe("Friends API", () => {
     describe("GET /user-search", () => {
-        it("Rejects with 401 if unauthenticated", async () => {
+      it("Rejects with 401 if unauthenticated", async () => {
           const res = await request(app)
           .get('/user-search')
           .send({ search: '123' })
           .expect(401);
-        })
-        it("Rejects with 400 if no search sent", async () => {
+      })
+      it("Rejects with 400 if no search sent", async () => {
           const { token } = await succSignIn(newUser)
           const res = await request(app)
           .get('/user-search')
           .set('Authorization', `Bearer ${token}`)
           .expect(400)
-        })
-        it("Searches first names - exact match", async () => {
+      })
+      it("Searches first names - exact match", async () => {
           const { token } = await succSignIn(newUser) 
           const nameList = ['Steve', 'Steve', 'Steve', 'Sharon', 'Bob', 'Doris', 'Steve'];
           await dbFirstNameSearch(nameList)
@@ -60,8 +60,8 @@ describe("Friends API", () => {
         for (let i = 0; i < 4; i++) {
           expect(res.body.data.searchResults[i].first_name).toBe('Steve')
         }
-        })
-        it("Searches first names - case changes", async () => {
+      })
+      it("Searches first names - case changes", async () => {
           const { token } = await succSignIn(newUser) 
           const nameList = ['BOBBY', 'BoBBY', 'bobbY', 'Sharon', 'Bob', 'Doris', 'BobBy'];
           await dbFirstNameSearch(nameList)
@@ -76,8 +76,8 @@ describe("Friends API", () => {
         for (let i = 0; i < 4; i++) {
           expect(res.body.data.searchResults[i].first_name.toLowerCase()).toBe('bobby')
         }
-        })
-        it.only("Searches first names - partial", async () => {
+      })
+      it("Searches first names - partial", async () => {
           const { token } = await succSignIn(newUser) 
           const nameList = ['BOBBY', 'BoBBY', 'bobbY', 'Sharon', 'Bob', 'Doris', 'BobBy'];
           await dbFirstNameSearch(nameList)
@@ -92,7 +92,7 @@ describe("Friends API", () => {
         for (let i = 0; i < 4; i++) {
           expect(res.body.data.searchResults[i].first_name.toLowerCase()).toContain('bo')
         }
-        })
+      })
       it("Searches last names", async () => {
         const { token } = await succSignIn(newUser)
         const nameList = ['Smith', 'Potter', 'Smith', 'Weasley', 'Malfoy', 'Smith'];
