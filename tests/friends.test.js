@@ -45,6 +45,14 @@ describe("Friends API", () => {
           .set('Authorization', `Bearer ${token}`)
           .expect(400)
       })
+      it("Excludes your own account from results with 200", async () => {
+        const { token, user } = await succSignIn(newUser)
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .send({ search: user.first_name })
+        .expect(200);
+      })
       it("Searches first names - exact match", async () => {
           const { token } = await succSignIn(newUser) 
           const nameList = ['Steve', 'Steve', 'Steve', 'Sharon', 'Bob', 'Doris', 'Steve'];
@@ -77,7 +85,7 @@ describe("Friends API", () => {
           expect(res.body.data.searchResults[i].first_name.toLowerCase()).toBe('bobby')
         }
       })
-      it("Searches first names - partial", async () => {
+      it("Searches first names - partial beginning match", async () => {
           const { token } = await succSignIn(newUser) 
           const nameList = ['BOBBY', 'BoBBY', 'bobbY', 'Sharon', 'Bob', 'Doris', 'BobBy'];
           await dbFirstNameSearch(nameList)
@@ -125,7 +133,7 @@ describe("Friends API", () => {
           expect(res.body.data.searchResults[i].last_name.toLowerCase()).toBe('smith')
         }
       })
-      it("Searches last names - partial", async () => {
+      it("Searches last names - partial beginning match", async () => {
         const { token } = await succSignIn(newUser)
         const nameList = ['Smith', 'Potter', 'Smith', 'Weasley', 'Malfoy', 'Smith', 'Smiith', 'Smity'];
         await dbLastNameSearch(nameList);
