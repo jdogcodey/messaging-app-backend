@@ -45,7 +45,7 @@ describe("Friends API", () => {
           .set('Authorization', `Bearer ${token}`)
           .expect(400)
         })
-        it("Searches first names", async () => {
+        it("Searches first names - exact match", async () => {
           const { token } = await succSignIn(newUser) 
           const nameList = ['Steve', 'Steve', 'Steve', 'Sharon', 'Bob', 'Doris', 'Steve'];
           await dbFirstNameSearch(nameList)
@@ -59,6 +59,22 @@ describe("Friends API", () => {
         expect(res.body.data.searchResults.length).toBe(4)
         for (let i = 0; i < 4; i++) {
           expect(res.body.data.searchResults[i].first_name).toBe('Steve')
+        }
+        })
+        it("Searches first names - case changes", async () => {
+          const { token } = await succSignIn(newUser) 
+          const nameList = ['BOBBY', 'BoBBY', 'bobbY', 'Sharon', 'Bob', 'Doris', 'BobBy'];
+          await dbFirstNameSearch(nameList)
+          const res = await request(app)
+          .get('/user-search')
+          .set("Authorization", `Bearer ${token}`)
+          .send({ search: 'bobby' })
+          .expect(200);
+
+        expect(res.body.data.searchResults).toBeDefined()
+        expect(res.body.data.searchResults.length).toBe(4)
+        for (let i = 0; i < 4; i++) {
+          expect(res.body.data.searchResults[i].first_name.toLowerCase()).toBe('bobby')
         }
         })
       it("Searches last names", async () => {
@@ -103,7 +119,7 @@ describe("Friends API", () => {
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: 'testUser'})
+        .send({ search: 'test User'})
         .expect(200);
         console.log(res.body.data.searchResults)
         expect(res.body.data.searchResults).toBeDefined()
