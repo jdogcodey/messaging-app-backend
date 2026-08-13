@@ -125,6 +125,22 @@ describe("Friends API", () => {
           expect(res.body.data.searchResults[i].last_name.toLowerCase()).toBe('smith')
         }
       })
+      it("Searches last names - partial", async () => {
+        const { token } = await succSignIn(newUser)
+        const nameList = ['Smith', 'Potter', 'Smith', 'Weasley', 'Malfoy', 'Smith', 'Smiith', 'Smity'];
+        await dbLastNameSearch(nameList);
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .send({ search: 'Smit'})
+        .expect(200);
+
+        expect(res.body.data.searchResults).toBeDefined()
+        expect(res.body.data.searchResults.length).toBe(4)
+        for (let i = 0; i < 3; i++) {
+          expect(res.body.data.searchResults[i].last_name.toLowerCase()).toContain('smit')
+        }
+      })
       it("Searches usernames", async () => {
         const { token } = await succSignIn(newUser)
         const nameList = ['testUser1', '2testUser', '3user', '4user', '5user', 'testUser6', '7testUser'];
