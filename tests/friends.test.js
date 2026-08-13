@@ -56,6 +56,18 @@ describe("Friends API", () => {
         expect(res.body.data.searchResults).toBeDefined()
         expect(res.body.data.searchResults.length).toBe(0)
       })
+      it("Returns empty array if no matches with 200", async () => {
+        const { token } = await succSignIn(newUser)
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .send({ search: 'nothingToSeeHere' })
+        .expect(200)
+
+        expect(res.body.data.searchResults).toBeDefined()
+        expect(res.body.data.searchResults).toEqual([])
+        expect(res.body.data.searchResults.length).toBe(0)
+      })
       it("Searches first names - exact match", async () => {
           const { token } = await succSignIn(newUser) 
           const nameList = ['Steve', 'Steve', 'Steve', 'Sharon', 'Bob', 'Doris', 'Steve'];
