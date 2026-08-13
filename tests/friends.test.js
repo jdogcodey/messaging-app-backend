@@ -179,6 +179,17 @@ describe("Friends API", () => {
           expect(res.body.data.searchResults[i].username).toContain('testUser')
         }
       })
+      it("Searches usernames ignoring spaces", async () =>{
+        const { token } = await succSignIn(newUser)
+        const nameList = ['testUser1', '1testuser', '1test2us3er', '123test', '12testUser23']
+        await dbUsernameSearch(nameList);
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .send({ search: 'test us er' })
+        .expect(200);
+        expect(res.body.data.searchResults.length).toBe(3)
+      })
       it("Searches usernames, first and last and mixed", async () => {
         const { token } = await succSignIn(newUser)
         const usernameList = ['testUser1', '2testUser', '3user', '4user', '5user', 'testUser6', '7testUser'];
