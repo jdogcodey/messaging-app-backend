@@ -270,7 +270,7 @@ const indexController = {
           OR: [
           { first_name: { search: searchTerms }},
           { last_name: { search: searchTerms }},
-          { username: { contains: search.trim(), mode: 'insensitive' }}
+          { username: { contains: search.replace(/\s+/g, ''), mode: 'insensitive' }} // The replace takes all spaces and removes them (making trim redundant)
         ]
       },
       orderBy: {
