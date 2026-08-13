@@ -51,7 +51,10 @@ describe("Friends API", () => {
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
         .send({ search: user.first_name })
-        .expect(200);
+        .expect(200)
+        
+        expect(res.body.data.searchResults).toBeDefined()
+        expect(res.body.data.searchResults.length).toBe(0)
       })
       it("Searches first names - exact match", async () => {
           const { token } = await succSignIn(newUser) 
