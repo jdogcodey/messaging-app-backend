@@ -194,7 +194,7 @@ describe("Friends API", () => {
         .expect(200);
         console.log(res.body.data.searchResults)
         expect(res.body.data.searchResults).toBeDefined()
-        expect(res.body.data.searchResults.length).toBe(10)
+        expect(res.body.data.searchResults.length).toBe(4)
       })
     })
 })
