@@ -260,16 +260,32 @@ const indexController = {
   }
   },
   userSearch: async (req, res, next) => {
+    // Need to rewrite function to:
+    // - Search 'first' AND 'last' not 'first' OR 'last'
+    // Currently it works splitting the terms but doesn't search. Also needs to be neatened up a little 
+    
     const { search } = req.body;
-    const searchTerms = search.trim().split(/\s+/).map(term => `${term}:*`).join(' | '); // Split the terms up to search based on each individual terms and add :* to search partial
+    const searchTerms = search.trim().split(/\s+/); // Split the terms up to search based on each individual terms and add :* to search partial
+    console.log(searchTerms)
+    let firstSearch;
+    let secondSearch;
+    if (searchTerms.length > 1) {
+      firstSearch = `${searchTerms.shift()}:*`;
+      secondSearch = `${searchTerms.join(' ')}:*`;
+    } else {
+      firstSearch = `${searchTerms[0]}:*`;
+      secondSearch = `${searchTerms[0]}:*`;
+    }
+    console.log(firstSearch)
+    console.log(secondSearch)
     const results = await prisma.user.findMany({
       where: {
         id: {
           not: req.user.id,
         },
           OR: [
-          { first_name: { search: searchTerms }},
-          { last_name: { search: searchTerms }},
+          { first_name: { search: firstSearch }},
+          { last_name: { search: secondSearch }},
           { username: { contains: search.replace(/\s+/g, ''), mode: 'insensitive' }} // The replace takes all spaces and removes them (making trim redundant)
         ]
       },
