@@ -269,26 +269,45 @@ const indexController = {
     const searchTerms = fullSearch.split(/\s+/).filter(Boolean) // Split search terms (for use later) and filter to remove any double spaces etc. 
     const usernameSearch = fullSearch.replace(/\s+/g, '') // Remove whitespace but keep one single search term to search username
     let nameSearch; // Used to alter search based on number of submitted terms
+    let orderByCondition; // Used to alter the order or prioritising the results I get
 
     if (searchTerms.length > 1) { // Basically if the user has searched where we think they could want a first and last name
-      const firstTerm = `${searchTerms[0]}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc. 
-      const secondTerm = `${searchTerms.slice(1).join(' ')}:*`; // Slice to remove the firstTerm, join to combine the array and ' ' so that from 'John Henry Smith' we will search 'Henry' AND 'Smith' in the last name not just either or comined 'HenrySmith'
+      const firstTerm = searchTerms[0];
+      const firstTermSearch = `${firstTerm}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc. 
+      const secondTerm = searchTerms.slice(1).join(' '); // Slice to remove the firstTerm, join to combine the array and ' ' so that from 'John Henry Smith' we will search 'Henry' AND 'Smith' in the last name not just either or comined 'HenrySmith'
+      const secondTermSearch = `${secondTerm}:*`; 
       nameSearch = {
         OR: [
           {
             AND: [ // Search first term in first AND second term in second
-              { first_name: { search: firstTerm } },
-              { last_name: { search: secondTerm } }
+              { first_name: { search: firstTermSearch } },
+              { last_name: { search: secondTermSearch } }
             ]
           },
           {
             AND: [ // Vice versa of what we have just searched
-              { first_name: { search: secondTerm } },
-              { second_name: { search: firstTerm } }
+              { first_name: { search: secondTermSearch } },
+              { last_name: { search: firstTermSearch } }
             ]
           }
         ]
       }
+      orderByCondition = [ // We want to prioritise first & last as the user has searched something suggesting it is a name not a username
+        {
+          _relevance: {
+            fields: ['first_name', 'last_name'],
+            search: `${firstTerm} & ${secondTerm} | ${secondTerm} & ${firstTerm}`, // 'John Smith' and 'Smith John' prioritised equally
+            sort: 'desc',
+          }
+        },
+        {
+          _relevance: {
+            fields: ['username'],
+            search: usernameSearch,
+            sort: 'desc',
+          }
+        }
+      ];
     } else { // User is only searching one name
       const singleTerm = `${searchTerms[0]}:*`;
       nameSearch = {
@@ -297,6 +316,22 @@ const indexController = {
           { last_name: { search: singleTerm } }
         ]
       }
+      orderByCondition = [ // Prioritise username then name matches
+        {
+          _relevance: {
+            fields: ['username'],
+            search: usernameSearch,
+            sort: 'desc',
+          }
+        },
+        {
+          _relevance: {
+            fields: ['first_name', 'last_name'],
+            search: singleTerm,
+            sort: 'desc',
+          }
+        }
+      ];
     }
     const results = await prisma.user.findMany({
       where: {
@@ -308,6 +343,7 @@ const indexController = {
           { username: { contains: usernameSearch, mode: 'insensitive' }} 
         ]
       },
+      orderBy: orderByCondition,
       select: {id: true, first_name: true, last_name: true, username: true},
       take: 10,
     })
