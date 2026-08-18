@@ -263,38 +263,50 @@ const indexController = {
     // Need to rewrite function to:
     // - Search 'first' AND 'last' not 'first' OR 'last'
     // Currently it works splitting the terms but doesn't search. Also needs to be neatened up a little 
-    
-    const { search } = req.body;
-    const searchTerms = search.trim().split(/\s+/); // Split the terms up to search based on each individual terms and add :* to search partial
-    console.log(searchTerms)
-    let firstSearch;
-    let secondSearch;
-    if (searchTerms.length > 1) {
-      firstSearch = `${searchTerms.shift()}:*`;
-      secondSearch = `${searchTerms.join(' ')}:*`;
-    } else {
-      firstSearch = `${searchTerms[0]}:*`;
-      secondSearch = `${searchTerms[0]}:*`;
+
+    const { search } = req.body; // Collects the search from the request
+    const fullSearch = search.trim(); // Trims any surrounding spaces
+    const searchTerms = fullSearch.split(/\s+/).filter(Boolean) // Split search terms (for use later) and filter to remove any double spaces etc. 
+    const usernameSearch = fullSearch.replace(/\s+/g, '') // Remove whitespace but keep one single search term to search username
+    let nameSearch; // Used to alter search based on number of submitted terms
+
+    if (searchTerms.length > 1) { // Basically if the user has searched where we think they could want a first and last name
+      const firstTerm = `${searchTerms[0]}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc. 
+      const secondTerm = `${searchTerms.slice(1).join(' ')}:*`; // Slice to remove the firstTerm, join to combine the array and ' ' so that from 'John Henry Smith' we will search 'Henry' AND 'Smith' in the last name not just either or comined 'HenrySmith'
+      nameSearch = {
+        OR: [
+          {
+            AND: [ // Search first term in first AND second term in second
+              { first_name: { search: firstTerm } },
+              { last_name: { search: secondTerm } }
+            ]
+          },
+          {
+            AND: [ // Vice versa of what we have just searched
+              { first_name: { search: secondTerm } },
+              { second_name: { search: firstTerm } }
+            ]
+          }
+        ]
+      }
+    } else { // User is only searching one name
+      const singleTerm = `${searchTerms[0]}:*`;
+      nameSearch = {
+        OR: [
+          { first_name: { search: singleTerm } },
+          { last_name: { search: singleTerm } }
+        ]
+      }
     }
-    console.log(firstSearch)
-    console.log(secondSearch)
     const results = await prisma.user.findMany({
       where: {
         id: {
           not: req.user.id,
         },
           OR: [
-          { first_name: { search: firstSearch }},
-          { last_name: { search: secondSearch }},
-          { username: { contains: search.replace(/\s+/g, ''), mode: 'insensitive' }} // The replace takes all spaces and removes them (making trim redundant)
+          nameSearch,
+          { username: { contains: usernameSearch, mode: 'insensitive' }} 
         ]
-      },
-      orderBy: {
-      _relevance: {
-        fields: ['first_name', 'last_name', 'username'],
-        search: searchTerms,
-        sort: 'desc',
-      },
       },
       select: {id: true, first_name: true, last_name: true, username: true},
       take: 10,
@@ -305,7 +317,7 @@ const indexController = {
       data: {
         searchResults: results,
       }
-    })
+    });
   },
 };
 
