@@ -260,22 +260,30 @@ const indexController = {
   }
   },
   userSearch: async (req, res, next) => {
-    // Need to rewrite function to:
-    // - Search 'first' AND 'last' not 'first' OR 'last'
-    // Currently it works splitting the terms but doesn't search. Also needs to be neatened up a little 
+    // Currently the orderBy doesn't work correctly. 
+    // Should change to this: 
+    // - If single search term entered then search for 10 results just username. If less than ten then search names to end up with 10
+    // - If two+ search terms entered then vice versa with names first and then usernames
 
     const { search } = req.body; // Collects the search from the request
     const fullSearch = search.trim(); // Trims any surrounding spaces
     const searchTerms = fullSearch.split(/\s+/).filter(Boolean) // Split search terms (for use later) and filter to remove any double spaces etc. 
     const usernameSearch = fullSearch.replace(/\s+/g, '') // Remove whitespace but keep one single search term to search username
     let nameSearch; // Used to alter search based on number of submitted terms
-    let orderByCondition; // Used to alter the order or prioritising the results I get
+    let results = []; // Creating the output here as I will be running multiple queries to fill up 10 results
 
     if (searchTerms.length > 1) { // Basically if the user has searched where we think they could want a first and last name
       const firstTerm = searchTerms[0];
       const firstTermSearch = `${firstTerm}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc. 
-      const secondTerm = searchTerms.slice(1).join(' ').replace(/\s+/g, ''); // Slice to remove the firstTerm, join to combine the array and ' ' so that from 'John Henry Smith' we will search 'Henry' AND 'Smith' in the last name not just either or comined 'HenrySmith'. I don't think this currently works.
+      const secondTerm = searchTerms.slice(1).join(' ').replace(/\s+/g, ''); // Slice to remove the firstTerm, join to combine the array and ' ' so that from 'John Henry Smith' we will search 'Henry' AND 'Smith' in the last name not just either or comined 'HenrySmith'.
+      // FIXME: I don't think this currently works.
       const secondTermSearch = `${secondTerm}:*`; 
+
+      // TODO: Search for up to 10 first/last names
+      results = await prisma.
+
+      // TODO: Search for remainder within usernames
+
       nameSearch = {
         OR: [
           {
@@ -292,46 +300,21 @@ const indexController = {
           }
         ]
       }
-      orderByCondition = [ // We want to prioritise first & last as the user has searched something suggesting it is a name not a username
-        {
-          _relevance: {
-            fields: ['first_name', 'last_name'],
-            search: `${firstTerm} & ${secondTerm} | ${secondTerm} & ${firstTerm}`, // 'John Smith' and 'Smith John' prioritised equally
-            sort: 'desc',
-          }
-        },
-        {
-          _relevance: {
-            fields: ['username'],
-            search: usernameSearch,
-            sort: 'desc',
-          }
-        }
-      ];
+      
     } else { // User is only searching one name
       const singleTerm = `${searchTerms[0]}:*`;
+
+      // TODO: Search for usernames up to 10
+
+      // TODO: Search for remainder of names
+
+
       nameSearch = {
         OR: [
           { first_name: { search: singleTerm } },
           { last_name: { search: singleTerm } }
         ]
       }
-      orderByCondition = [ // Prioritise username then name matches
-        {
-          _relevance: {
-            fields: ['username'],
-            search: usernameSearch,
-            sort: 'desc',
-          }
-        },
-        {
-          _relevance: {
-            fields: ['first_name', 'last_name'],
-            search: singleTerm,
-            sort: 'desc',
-          }
-        }
-      ];
     }
     const results = await prisma.user.findMany({
       where: {
