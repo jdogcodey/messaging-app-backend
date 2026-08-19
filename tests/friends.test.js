@@ -229,8 +229,32 @@ describe("Friends API", () => {
         .expect(200);
         expect(res.body.data.searchResults.length).toBe(2)
       })
+      it.only("Prioritises username with single search query", async () => {
+        const { token } = await succSignIn(newUser)
+        const matchingUsernames = ['John123', '123John', '1John1']
+        await dbUsernameSearch([...matchingUsernames, '1SteveJoh']);
+        const userList = [{first_name: 'John', last_name: 'Smith'}, {first_name: 'John', last_name: 'Johnson'}, {first_name: 'Steve', last_name: 'John'}, {first_name: 'Nah', last_name: 'Notme'}];
+        await dbFirstLastNameSearch(userList)
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .send({ search: 'John'})
+        .expect(200);
+        const results = res.body.data.searchResults;
+        expect(results.length).toBe(6)
 
-      // it("Prioritises username with single search query")
+        const prioritisedUsernameResults = results.slice(0, 3).map(r => r.username);
+        matchingUsernames.forEach((username) => {
+          expect(prioritisedUsernameResults).toContain(username)
+        })
+
+        const remainingNameResults = results.slice(3);
+        remainingNameResults.forEach((user) => {
+          const firstNameMatch = user.first_name.toLowerCase().includes('john');
+          const lastNameMatch = user.last_name.toLowerCase().includes('john');
+          expect(firstNameMatch | lastNameMatch).toBe(true)
+        })
+      })
       // it("Prioritises first&last with dual search query")
     })
 })
