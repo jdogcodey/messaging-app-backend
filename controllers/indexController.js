@@ -274,7 +274,7 @@ const indexController = {
     if (searchTerms.length > 1) { // Basically if the user has searched where we think they could want a first and last name
       const firstTerm = searchTerms[0];
       const firstTermSearch = `${firstTerm}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc. 
-      const secondTerm = searchTerms.slice(1).join(' '); // Slice to remove the firstTerm, join to combine the array and ' ' so that from 'John Henry Smith' we will search 'Henry' AND 'Smith' in the last name not just either or comined 'HenrySmith'
+      const secondTerm = searchTerms.slice(1).join(' ').replace(/\s+/g, ''); // Slice to remove the firstTerm, join to combine the array and ' ' so that from 'John Henry Smith' we will search 'Henry' AND 'Smith' in the last name not just either or comined 'HenrySmith'
       const secondTermSearch = `${secondTerm}:*`; 
       nameSearch = {
         OR: [
