@@ -189,7 +189,7 @@ describe("Friends API", () => {
         .send({ search: 'test us er' })
         .expect(200);
         expect(res.body.data.searchResults.length).toBe(3)
-      }) // This test doesnt pass with updated code - tomorrows task
+      })
       it("Searches with a space don't combine and search first or last", async () => {
         const { token } = await succSignIn(newUser)
         const firstList = ['John', 'JohnSmith', 'Johnny', 'Johnathan', 'JohnSmithhy']
