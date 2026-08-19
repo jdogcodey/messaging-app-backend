@@ -410,7 +410,19 @@ export async function dbLastNameSearch(namesList) {
 }
 
 // Function adding users with first and last names that are known so we can test
-
+export async function dbFirstLastNameSearch(namesList) {
+  for (let i = 0; i < namesList.length; i++) {
+    const newUser = await prisma.user.create({
+      data: {
+        first_name: namesList[i].first_name,
+        last_name: namesList[i].last_name,
+        username: `ULast${i}`,
+        email: `fakeEmailFirstLast${i}@gmail.com`,
+        password: `Testpassword${i}` // Again, not hashed but not necessary on this test
+      }
+    })
+  }
+}
 
 // Function adding some users with different last names so we can test
 export async function dbUsernameSearch(namesList) {
