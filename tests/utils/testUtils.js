@@ -409,6 +409,9 @@ export async function dbLastNameSearch(namesList) {
   }
 }
 
+// Function adding users with first and last names that are known so we can test
+
+
 // Function adding some users with different last names so we can test
 export async function dbUsernameSearch(namesList) {
   for (let i = 0; i < namesList.length; i++) {
