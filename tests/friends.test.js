@@ -12,6 +12,7 @@ import {
   dbFirstNameSearch,
   dbLastNameSearch,
   dbUsernameSearch,
+  dbFirstLastNameSearch,
 } from "./utils/testUtils.js";
 import "dotenv";
 import jwt from "jsonwebtoken";
@@ -219,5 +220,8 @@ describe("Friends API", () => {
         expect(res.body.data.searchResults).toBeDefined()
         expect(res.body.data.searchResults.length).toBe(4)
       })
+      it("Searches first and last combined")
+      it("Prioritises username with single search query")
+      it("Prioritises first&last with dual search query")
     })
 })
