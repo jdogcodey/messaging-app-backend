@@ -208,17 +208,15 @@ describe("Friends API", () => {
         const { token } = await succSignIn(newUser)
         const usernameList = ['testUser1', '2testUser', '3user', '4user', '5user', 'testUser6', '7testUser'];
         await dbUsernameSearch(usernameList);
-        const firstList = ['Test', 'Jest', 'Messed', 'Test', 'test', 'user', 'User']
-        await dbFirstNameSearch(firstList)
-        const lastList = ['user', 'Userpls', 'notuse', 'testing', 'uSeR']
-        await dbLastNameSearch(lastList)
+        const namesList = [{first_name: 'John', last_name: 'Smith'}, {first_name: 'Test', last_name: 'Nope'}, {first_name: 'Nah', last_name: 'User'}, {first_name: 'test', last_name: 'user'}, {first_name: 'testthis', last_name: 'user'}]
+        await dbFirstLastNameSearch(namesList)
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
         .send({ search: 'test User'})
         .expect(200);
         expect(res.body.data.searchResults).toBeDefined()
-        expect(res.body.data.searchResults.length).toBe(4)
+        expect(res.body.data.searchResults.length).toBe(6)
       })
       it("Searches first and last combined", async () => {
         const { token } = await succSignIn(newUser)
@@ -231,6 +229,7 @@ describe("Friends API", () => {
         .expect(200);
         expect(res.body.data.searchResults.length).toBe(2)
       })
+
       // it("Prioritises username with single search query")
       // it("Prioritises first&last with dual search query")
     })
