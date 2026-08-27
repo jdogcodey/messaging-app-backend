@@ -275,6 +275,10 @@ const indexController = {
     if (searchTerms.length > 1) { // Basically if the user has searched where we think they could want a first and last name
       const firstTerm = searchTerms[0];
       const firstTermSearch = `${firstTerm}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc. 
+
+      // TODO: Refactor second term to leave as Array
+      // If I leave it as an array then I can search 'John Henry Smith' as firstName 'John:*' & lastNam 'Henry:*' & lastName 'Smith:*' which should return more relevant results
+
       const secondTerm = searchTerms.slice(1).join(' ').replace(/\s+/g, ''); // Slice to remove the firstTerm, join to combine the array and ' ' so that from 'John Henry Smith' we will search 'Henry' AND 'Smith' in the last name not just either or comined 'HenrySmith'.
       // FIXME: I don't think this currently works.
       const secondTermSearch = `${secondTerm}:*`; 
