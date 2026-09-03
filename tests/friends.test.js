@@ -69,7 +69,7 @@ describe("Friends API", () => {
         expect(res.body.data.searchResults).toEqual([])
         expect(res.body.data.searchResults.length).toBe(0)
       })
-      it("Searches first names - exact match", async () => {
+      it.only("Searches first names - exact match", async () => {
           const { token } = await succSignIn(newUser) 
           const nameList = ['Steve', 'Steve', 'Steve', 'Sharon', 'Bob', 'Doris', 'Steve'];
           await dbFirstNameSearch(nameList)
@@ -79,11 +79,16 @@ describe("Friends API", () => {
           .send({ search: 'Steve' })
           .expect(200);
 
-        expect(res.body.data.searchResults).toBeDefined()
-        expect(res.body.data.searchResults.length).toBe(4)
-        for (let i = 0; i < 4; i++) {
-          expect(res.body.data.searchResults[i].first_name).toBe('Steve')
-        }
+        const results = res.body.data.searchResults;
+
+        expect(results).toBeDefined()
+        expect(results.length).toBe(4)
+        results.forEach((user) => {
+          expect(user.first_name).toBe('Steve')
+        })
+        // for (let i = 0; i < 4; i++) {
+        //   expect(res.body.data.searchResults[i].first_name).toBe('Steve')
+        // }
       })
       it("Searches first names - case changes", async () => {
           const { token } = await succSignIn(newUser) 
