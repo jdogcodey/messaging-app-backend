@@ -327,5 +327,19 @@ describe("Friends API", () => {
 
         expect(results.length).toBe(1)
       })
+      it("No duplicate flipped", async () => {
+        const { token } = await succSignIn(newUser);
+        await dbWholeUserSearch({first_name: 'John', last_name: 'Smith', username: 'JohnSmith'})
+
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .query({ search: 'JohnSmith'})
+        .expect(200);
+
+        const results = res.body.data.searchResults;
+
+        expect(results.length).toBe(1)
+      })
     })
 })
