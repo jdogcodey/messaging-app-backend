@@ -94,14 +94,16 @@ describe("Friends API", () => {
           .set("Authorization", `Bearer ${token}`)
           .send({ search: 'bobby' })
           .expect(200);
+        
+        const results = res.body.data.searchResults;
 
-        expect(res.body.data.searchResults).toBeDefined()
-        expect(res.body.data.searchResults.length).toBe(4)
-        for (let i = 0; i < 4; i++) {
-          expect(res.body.data.searchResults[i].first_name.toLowerCase()).toBe('bobby')
-        }
+        expect(results).toBeDefined()
+        expect(results.length).toBe(4)
+        results.forEach((user) => {
+          expect(user.first_name.toLowerCase()).toBe('bobby')
+        })
       })
-      it.only("Searches first names - partial beginning match", async () => {
+      it("Searches first names - partial beginning match", async () => {
           const { token } = await succSignIn(newUser) 
           const nameList = ['BOBBY', 'BoBBY', 'bobbY', 'Sharon', 'Bob', 'Doris', 'BobBy'];
           await dbFirstNameSearch(nameList)
