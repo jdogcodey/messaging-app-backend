@@ -438,3 +438,15 @@ export async function dbUsernameSearch(namesList) {
     })
   }
 }
+
+export async function dbWholeUserSearch(user) {
+    const newUser = await prisma.user.create({
+    data: {
+      first_name: user.first_name,
+      last_name: user.last_name,
+      username: user.username,
+      email: 'fakeEmailPls@gmail.com',
+      password: 'TestPass1!',
+  }
+})
+}
