@@ -354,5 +354,18 @@ describe("Friends API", () => {
         const results = res.body.data.searchResults;
         expect(results.length).toBe(1)
       })
+      it.only("Special characters & symbols handled correctly", async () => {
+        const { token } = await succSignIn(newUser);
+        await dbFirstLastNameSearch([{first_name: 'John', last_name: 'Smith'}])
+
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .query({ search: 'John:*'})
+        .expect(200);
+
+        const results = res.body.data.searchResults;
+        expect(results.length).toBe(0)
+      })
     })
 })
