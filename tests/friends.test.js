@@ -170,11 +170,13 @@ describe("Friends API", () => {
         .send({ search: 'Smit'})
         .expect(200);
 
-        expect(res.body.data.searchResults).toBeDefined()
-        expect(res.body.data.searchResults.length).toBe(4)
-        for (let i = 0; i < 3; i++) {
-          expect(res.body.data.searchResults[i].last_name.toLowerCase()).toContain('smit')
-        }
+        const results = res.body.data.searchResults;
+
+        expect(results).toBeDefined()
+        expect(results.length).toBe(4)
+        results.forEach((user) => {
+          expect(results.last_name.toLowerCase()).toContain('smit');
+        })
       })
       it("Searches usernames", async () => {
         const { token } = await succSignIn(newUser)
