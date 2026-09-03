@@ -13,6 +13,7 @@ import {
   dbLastNameSearch,
   dbUsernameSearch,
   dbFirstLastNameSearch,
+  dbWholeUserSearch,
 } from "./utils/testUtils.js";
 import "dotenv";
 import jwt from "jsonwebtoken";
@@ -311,6 +312,20 @@ describe("Friends API", () => {
         const results = res.body.data.searchResults;
 
         expect(results.length).toBe(10)
+      })
+      it("No duplicate if first&last = username", async () => {
+        const { token } = await succSignIn(newUser);
+        await dbWholeUserSearch({first_name: 'John', last_name: 'Smith', username: 'JohnSmith'})
+
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .query({ search: 'John Smith'})
+        .expect(200);
+
+        const results = res.body.data.searchResults;
+
+        expect(results.length).toBe(1)
       })
     })
 })
