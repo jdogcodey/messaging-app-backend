@@ -152,11 +152,13 @@ describe("Friends API", () => {
         .send({ search: 'Smith'})
         .expect(200);
 
-        expect(res.body.data.searchResults).toBeDefined()
-        expect(res.body.data.searchResults.length).toBe(3)
-        for (let i = 0; i < 3; i++) {
-          expect(res.body.data.searchResults[i].last_name.toLowerCase()).toBe('smith')
-        }
+        const results = res.body.data.searchResults;
+
+        expect(results).toBeDefined()
+        expect(results.length).toBe(3)
+        results.forEach((user) => {
+          expect(user.last_name.toLowerCase()).toBe('smith')
+        })
       })
       it("Searches last names - partial beginning match", async () => {
         const { token } = await succSignIn(newUser)
