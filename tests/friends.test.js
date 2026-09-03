@@ -175,7 +175,7 @@ describe("Friends API", () => {
         expect(results).toBeDefined()
         expect(results.length).toBe(4)
         results.forEach((user) => {
-          expect(results.last_name.toLowerCase()).toContain('smit');
+          expect(user.last_name.toLowerCase()).toContain('smit');
         })
       })
       it("Searches usernames", async () => {
@@ -187,11 +187,14 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .send({ search: 'testUser'})
         .expect(200);
-        expect(res.body.data.searchResults).toBeDefined()
-        expect(res.body.data.searchResults.length).toBe(4)
-        for (let i = 0; i < 3; i++) {
-          expect(res.body.data.searchResults[i].username).toContain('testUser')
-        }
+
+        const results = res.body.data.searchResults;
+
+        expect(results).toBeDefined()
+        expect(results.length).toBe(4)
+        results.forEach((user) => {
+          expect(user.username).toContain('testUser');
+        })
       })
       it("Searches usernames ignoring spaces", async () =>{
         const { token } = await succSignIn(newUser)
