@@ -297,5 +297,20 @@ describe("Friends API", () => {
           expect(usernameResults).toContain(username)
         })
       })
+      it("Result caps at 10", async () => {
+        const { token } = await succSignIn(newUser);
+        const usernameList = ['John', 'John1', 'John2', 'John3', 'John4', 'John5', 'John6', 'John7', 'John8', 'John9', 'John10', 'John11', 'John12', 'John13', 'John14', 'John15'];
+        await dbUsernameSearch(usernameList);
+
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .query({ search: 'John'})
+        .expect(200);
+
+        const results = res.body.data.searchResults;
+
+        expect(results.length).toBe(10)
+      })
     })
 })
