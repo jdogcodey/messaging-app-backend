@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import "dotenv";
 
 const validationController = {
@@ -61,7 +61,7 @@ const validationController = {
       .escape(),
   ],
   userSearch: () => [
-    body("search")
+    query("search")
       .notEmpty()
       .withMessage("Can't search nothing!")
       .isLength({ max: 128 })
