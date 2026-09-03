@@ -275,9 +275,11 @@ const indexController = {
 
     if (searchTerms.length > 1) { // Basically if the user has searched where we think they could want a first and last name
       const firstTerm = searchTerms[0];
-      const firstTermSearch = `${firstTerm}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc. 
+      //const firstTermSearch = `${firstTerm}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc. 
+      const firstTermSearch = firstTerm;
 
-      const lastTermSearch = searchTerms.slice(1).map((term) => `${term}:*`).join(' & '); // Slice to remove firstTerm, map to add prefix matching, join to create a single search that can be run
+      //const lastTermSearch = searchTerms.slice(1).map((term) => `${term}:*`).join(' & '); // Slice to remove firstTerm, map to add prefix matching, join to create a single search that can be run
+      const lastTermSearch = searchTerms.slice(1).join(' ')
 
       firstLastSearchResults = await prisma.user.findMany({
         where: {
@@ -287,14 +289,26 @@ const indexController = {
           OR: [
             {
               AND: [
-                { first_name: { search: firstTermSearch } },
-                { last_name: {search: lastTermSearch } },
+                { first_name: 
+                  { startsWith: firstTermSearch, mode: 'insensitive'}
+                //  { search: firstTermSearch } 
+                },
+                { last_name: 
+                  { startsWith: lastTermSearch, mode: 'insensitive'}
+                  // {search: lastTermSearch } 
+                },
               ]
             },
             {
               AND: [
-                { first_name: { search: lastTermSearch } },
-                { last_name: { search: firstTermSearch } },
+                { first_name: 
+                  { startsWith: lastTermSearch, mode: 'insensitive' }
+                  //{ search: lastTermSearch } 
+                },
+                { last_name: 
+                  { startsWith: firstTermSearch, mode: 'insensitive' }
+                  //{ search: firstTermSearch } 
+                },
               ]
             },
           ],
@@ -322,7 +336,7 @@ const indexController = {
       }
 
     } else { // User is only searching one name
-      const singleTerm = `${searchTerms[0]}:*`;
+      const singleTerm = searchTerms[0];
       
       usernameSearchResults = await prisma.user.findMany({
           where: {
@@ -346,8 +360,14 @@ const indexController = {
             notIn: noDuplicate,
           },
           OR: [
-            {last_name: { search: singleTerm }},
-            {first_name: { search: singleTerm }},
+            {last_name: 
+              { startsWith: singleTerm, mode: 'insensitive'}
+              // { search: singleTerm }
+            },
+            {first_name: 
+              { startsWith: singleTerm, mode: 'insensitive'}
+              // { search: singleTerm }
+            },
           ],
         },
         select: {id: true, first_name: true, last_name: true, username: true},
