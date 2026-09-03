@@ -36,7 +36,7 @@ describe("Friends API", () => {
       it("Rejects with 401 if unauthenticated", async () => {
           const res = await request(app)
           .get('/user-search')
-          .send({ search: '123' })
+          .query({ search: '123' })
           .expect(401);
       })
       it("Rejects with 400 if no search sent", async () => {
@@ -51,7 +51,7 @@ describe("Friends API", () => {
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: user.first_name })
+        .query({ search: user.first_name })
         .expect(200)
         
         expect(res.body.data.searchResults).toBeDefined()
@@ -62,7 +62,7 @@ describe("Friends API", () => {
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: 'nothingToSeeHere' })
+        .query({ search: 'nothingToSeeHere' })
         .expect(200)
 
         expect(res.body.data.searchResults).toBeDefined()
@@ -76,7 +76,7 @@ describe("Friends API", () => {
           const res = await request(app)
           .get('/user-search')
           .set("Authorization", `Bearer ${token}`)
-          .send({ search: 'Steve' })
+          .query({ search: 'Steve' })
           .expect(200);
 
         const results = res.body.data.searchResults;
@@ -94,7 +94,7 @@ describe("Friends API", () => {
           const res = await request(app)
           .get('/user-search')
           .set("Authorization", `Bearer ${token}`)
-          .send({ search: 'bobby' })
+          .query({ search: 'bobby' })
           .expect(200);
         
         const results = res.body.data.searchResults;
@@ -112,7 +112,7 @@ describe("Friends API", () => {
           const res = await request(app)
           .get('/user-search')
           .set("Authorization", `Bearer ${token}`)
-          .send({ search: 'bo' })
+          .query({ search: 'bo' })
           .expect(200);
 
         const results = res.body.data.searchResults;
@@ -131,7 +131,7 @@ describe("Friends API", () => {
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: 'Smith'})
+        .query({ search: 'Smith'})
         .expect(200);
 
         const results = res.body.data.searchResults;
@@ -149,7 +149,7 @@ describe("Friends API", () => {
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: 'Smith'})
+        .query({ search: 'Smith'})
         .expect(200);
 
         const results = res.body.data.searchResults;
@@ -167,7 +167,7 @@ describe("Friends API", () => {
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: 'Smit'})
+        .query({ search: 'Smit'})
         .expect(200);
 
         const results = res.body.data.searchResults;
@@ -185,7 +185,7 @@ describe("Friends API", () => {
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: 'testUser'})
+        .query({ search: 'testUser'})
         .expect(200);
 
         const results = res.body.data.searchResults;
@@ -203,7 +203,7 @@ describe("Friends API", () => {
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: 'test us er' })
+        .query({ search: 'test us er' })
         .expect(200);
         expect(res.body.data.searchResults.length).toBe(3)
       })
@@ -216,7 +216,7 @@ describe("Friends API", () => {
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: 'John Smith' })
+        .query({ search: 'John Smith' })
         .expect(200)
         expect(res.body.data.searchResults.length).toBe(0) // Should be searching for first:'John' AND last: 'Smith' so none should meet this
       })
@@ -229,7 +229,7 @@ describe("Friends API", () => {
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: 'test User'})
+        .query({ search: 'test User'})
         .expect(200);
         expect(res.body.data.searchResults).toBeDefined()
         expect(res.body.data.searchResults.length).toBe(6)
@@ -241,7 +241,7 @@ describe("Friends API", () => {
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: 'John Smith'})
+        .query({ search: 'John Smith'})
         .expect(200);
         expect(res.body.data.searchResults.length).toBe(2)
       })
@@ -254,7 +254,7 @@ describe("Friends API", () => {
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: 'John'})
+        .query({ search: 'John'})
         .expect(200);
         const results = res.body.data.searchResults;
         expect(results.length).toBe(6)
@@ -280,7 +280,7 @@ describe("Friends API", () => {
         const res = await request(app)
         .get('/user-search')
         .set("Authorization", `Bearer ${token}`)
-        .send({ search: 'John Smith'})
+        .query({ search: 'John Smith'})
         .expect(200);
         const results = res.body.data.searchResults;
         expect(results.length).toBe(5)
