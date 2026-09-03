@@ -341,5 +341,18 @@ describe("Friends API", () => {
 
         expect(results.length).toBe(1)
       })
+      it("Whitespace sanitation", async () => {
+        const { token } = await succSignIn(newUser);
+        await dbFirstLastNameSearch([{first_name: 'John', last_name: 'Smith'}])
+
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .query({ search: '          John         Smith      '})
+        .expect(200);
+
+        const results = res.body.data.searchResults;
+        expect(results.length).toBe(1)
+      })
     })
 })
