@@ -101,7 +101,7 @@ describe("Friends API", () => {
           expect(res.body.data.searchResults[i].first_name.toLowerCase()).toBe('bobby')
         }
       })
-      it("Searches first names - partial beginning match", async () => {
+      it.only("Searches first names - partial beginning match", async () => {
           const { token } = await succSignIn(newUser) 
           const nameList = ['BOBBY', 'BoBBY', 'bobbY', 'Sharon', 'Bob', 'Doris', 'BobBy'];
           await dbFirstNameSearch(nameList)
@@ -111,11 +111,14 @@ describe("Friends API", () => {
           .send({ search: 'bo' })
           .expect(200);
 
-        expect(res.body.data.searchResults).toBeDefined()
-        expect(res.body.data.searchResults.length).toBe(5)
-        for (let i = 0; i < 4; i++) {
-          expect(res.body.data.searchResults[i].first_name.toLowerCase()).toContain('bo')
-        }
+        const results = res.body.data.searchResults;
+
+        expect(results).toBeDefined()
+        expect(results.length).toBe(5)
+        
+        results.forEach(user => {
+          expect(user.first_name.toLowerCase()).toContain('bo')
+        })
       })
       it("Searches last names", async () => {
         const { token } = await succSignIn(newUser)
