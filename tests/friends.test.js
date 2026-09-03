@@ -252,7 +252,7 @@ describe("Friends API", () => {
         remainingNameResults.forEach((user) => {
           const firstNameMatch = user.first_name.toLowerCase().includes('john');
           const lastNameMatch = user.last_name.toLowerCase().includes('john');
-          expect(firstNameMatch | lastNameMatch).toBe(true)
+          expect(firstNameMatch || lastNameMatch).toBe(true)
         })
       })
       // it("Prioritises first&last with dual search query")
