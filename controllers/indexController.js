@@ -265,7 +265,7 @@ const indexController = {
     // - If single search term entered then search for 10 results just username. If less than ten then search names to end up with 10
     // - If two+ search terms entered then vice versa with names first and then usernames
 
-    const { search } = req.body; // Collects the search from the request
+    const { search } = req.query; // Collects the search from the request
     const fullSearch = search.trim().toLowerCase(); // Trims any surrounding spaces and get rid of any cases that may have been sent
     const searchTerms = fullSearch.split(/\s+/).filter(Boolean) // Split search terms (for use later) and filter to remove any double spaces etc. 
     const usernameSearch = fullSearch.replace(/\s+/g, '') // Remove whitespace but keep one single search term to search username
