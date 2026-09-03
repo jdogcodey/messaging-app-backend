@@ -266,7 +266,7 @@ const indexController = {
     // - If two+ search terms entered then vice versa with names first and then usernames
 
     const { search } = req.body; // Collects the search from the request
-    const fullSearch = search.trim().toLowerSpace(); // Trims any surrounding spaces and get rid of any cases that may have been sent
+    const fullSearch = search.trim().toLowerCase(); // Trims any surrounding spaces and get rid of any cases that may have been sent
     const searchTerms = fullSearch.split(/\s+/).filter(Boolean) // Split search terms (for use later) and filter to remove any double spaces etc. 
     const usernameSearch = fullSearch.replace(/\s+/g, '') // Remove whitespace but keep one single search term to search username
     let nameSearch; // Used to alter search based on number of submitted terms
@@ -275,60 +275,82 @@ const indexController = {
     if (searchTerms.length > 1) { // Basically if the user has searched where we think they could want a first and last name
       const firstTerm = searchTerms[0];
       const firstTermSearch = `${firstTerm}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc. 
-      
+
       const lastTermSearch = searchTerms.slice(1).map((term) => `${term}:*`).join(' & '); // Slice to remove firstTerm, map to add prefix matching, join to create a single search that can be run
 
-      // TODO: Search for up to 10 first/last names
-      results = await prisma.
-
-      // TODO: Search for remainder within usernames
-
-      nameSearch = {
-        OR: [
-          {
-            AND: [ // Search first term in first AND second term in second
-              { first_name: { search: firstTermSearch } },
-              { last_name: { search: secondTermSearch } }
-            ]
+      firstLastSearchResults = await prisma.user.findMany({
+        where: {
+          id: {
+            not: req.user.id,
           },
-          {
-            AND: [ // Vice versa of what we have just searched
-              { first_name: { search: secondTermSearch } },
-              { last_name: { search: firstTermSearch } }
-            ]
-          }
-        ]
+          OR: [
+            {
+              AND: [
+                { first_name: { search: firstTermSearch } },
+                { last_name: {search: lastTermSearch } },
+              ]
+            },
+            {
+              AND: [
+                { first_name: { search: lastTermSearch } },
+                { last_name: { search: firstTermSearch } },
+              ]
+            },
+          ],
+        },
+        select: {id: true, first_name: true, last_name: true, username: true},
+          take: 10,
+      });
+      results = [...firstLastSearchResults]
+
+      let usernameSearchResults;
+      if (firstLastSearchResults.length < 10) {
+        usernameSearchResults = await prisma.user.findMany({
+          where: {
+            id: {
+              not: req.user.id,
+            },
+            username: {contains: usernameSearch, mode: 'insensitive'},
+          },
+          select: {id: true, first_name: true, last_name: true, username: true},
+          take: 10-firstLastSearchResults.length,
+        })
+        results = results.concat(usernameSearchResults)
       }
-      
+
     } else { // User is only searching one name
       const singleTerm = `${searchTerms[0]}:*`;
+      
+      usernameSearchResults = await prisma.user.findMany({
+          where: {
+            id: {
+              not: req.user.id,
+            },
+            username: {contains: usernameSearch, mode: 'insensitive'},
+          },
+          select: {id: true, first_name: true, last_name: true, username: true},
+          take: 10,
+        })
+        results = [...usernameSearchResults]
 
-      // TODO: Search for usernames up to 10
-
-      // TODO: Search for remainder of names
-
-
-      nameSearch = {
-        OR: [
-          { first_name: { search: singleTerm } },
-          { last_name: { search: singleTerm } }
-        ]
+      let firstLastSearchResults;
+      if (usernameSearchResults.length < 10) {
+        firstLastSearchResults = await prisma.user.findMany({
+        where: {
+          id: {
+            not: req.user.id,
+          },
+          OR: [
+            {last_name: { search: singleTerm }},
+            {first_name: { search: singleTerm }},
+          ],
+        },
+        select: {id: true, first_name: true, last_name: true, username: true},
+        take: 10-usernameSearchResults.length,
+      });
+      results = results.concat(firstLastSearchResults)
       }
     }
-    const results = await prisma.user.findMany({
-      where: {
-        id: {
-          not: req.user.id,
-        },
-          OR: [
-          nameSearch,
-          { username: { contains: usernameSearch, mode: 'insensitive' }} 
-        ]
-      },
-      orderBy: orderByCondition,
-      select: {id: true, first_name: true, last_name: true, username: true},
-      take: 10,
-    })
     res.status(200).json({
       success: true,
       message: "User search results",
