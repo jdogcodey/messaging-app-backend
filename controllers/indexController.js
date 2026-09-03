@@ -271,6 +271,7 @@ const indexController = {
     const usernameSearch = fullSearch.replace(/\s+/g, '') // Remove whitespace but keep one single search term to search username
     let nameSearch; // Used to alter search based on number of submitted terms
     let results = []; // Creating the output here as I will be running multiple queries to fill up 10 results
+    let noDuplicate = [req.user.id]
 
     if (searchTerms.length > 1) { // Basically if the user has searched where we think they could want a first and last name
       const firstTerm = searchTerms[0];
@@ -281,7 +282,7 @@ const indexController = {
       firstLastSearchResults = await prisma.user.findMany({
         where: {
           id: {
-            not: req.user.id,
+            notIn: noDuplicate,
           },
           OR: [
             {
@@ -301,14 +302,16 @@ const indexController = {
         select: {id: true, first_name: true, last_name: true, username: true},
           take: 10,
       });
-      results = [...firstLastSearchResults]
 
+      results = [...firstLastSearchResults]
       let usernameSearchResults;
+      noDuplicate.push(...results.map(u => u.id))
+
       if (firstLastSearchResults.length < 10) {
         usernameSearchResults = await prisma.user.findMany({
           where: {
             id: {
-              not: req.user.id,
+              notIn: noDuplicate,
             },
             username: {contains: usernameSearch, mode: 'insensitive'},
           },
@@ -324,21 +327,23 @@ const indexController = {
       usernameSearchResults = await prisma.user.findMany({
           where: {
             id: {
-              not: req.user.id,
+              notIn: noDuplicate,
             },
             username: {contains: usernameSearch, mode: 'insensitive'},
           },
           select: {id: true, first_name: true, last_name: true, username: true},
           take: 10,
         })
-        results = [...usernameSearchResults]
-
+      
+      results = [...usernameSearchResults]
       let firstLastSearchResults;
+      noDuplicate.push(...results.map(u => u.id))
+
       if (usernameSearchResults.length < 10) {
         firstLastSearchResults = await prisma.user.findMany({
         where: {
           id: {
-            not: req.user.id,
+            notIn: noDuplicate,
           },
           OR: [
             {last_name: { search: singleTerm }},
