@@ -367,6 +367,19 @@ describe("Friends API", () => {
         const results = res.body.data.searchResults;
         expect(results.length).toBe(0)
       })
+      it("Special characters handled correctly in username", async () => {
+        const { token } = await succSignIn(newUser);
+        await dbUsernameSearch(['1!~John*&%$#@()']);
+
+        const res = await request(app)
+        .get('/user-search')
+        .set("Authorization", `Bearer ${token}`)
+        .query({ search: '1!~John*&%$#@()'})
+        .expect(200);
+
+        const results = res.body.data.searchResults;
+        expect(results.length).toBe(1)
+      })
       it("Reverse name search", async () => {
         const { token } = await succSignIn(newUser);
         await dbFirstLastNameSearch([{ first_name: 'John', last_name: 'Smith' }])
