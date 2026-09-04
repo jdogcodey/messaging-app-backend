@@ -17,6 +17,9 @@ model User {
   password         String
   sentMessages     Message[]          @relation("SentMessages")
   receivedMessages MessageRecipient[]
+
+  @@index([first_name])
+  @@index([last_name])
 }
 
 model Message {
