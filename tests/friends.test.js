@@ -367,10 +367,21 @@ describe("Friends API", () => {
         const results = res.body.data.searchResults;
         expect(results.length).toBe(0)
       })
-      // I think that this test doesnt actually test what I want to as it just adds the username without escaped characters. SO needs updating
       it("Special characters handled correctly in username", async () => {
+        const resUsernameSignUp = await request(app)
+          .post("/signup")
+          .send({
+            first_name: "testFirst",
+            last_name: "testSecond",
+            username: `1!~John*&%$#@()`,
+            email: `testEmail_JohnSmith@test.com`,
+            password: "testPassword1!",
+            confirmPassword: "testPassword1!",
+          })
+          .expect(201); // check if response is a success first
+
+
         const { token } = await succSignIn(newUser);
-        await dbUsernameSearch(['1!~John*&%$#@()']);
 
         const res = await request(app)
         .get('/user-search')
@@ -380,6 +391,7 @@ describe("Friends API", () => {
 
         const results = res.body.data.searchResults;
         expect(results.length).toBe(1)
+        expect(results[0].username).toBe(`1!~John*&%$#@()`)
       })
       it("Reverse name search", async () => {
         const { token } = await succSignIn(newUser);
