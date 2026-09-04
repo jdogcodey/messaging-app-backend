@@ -367,6 +367,7 @@ describe("Friends API", () => {
         const results = res.body.data.searchResults;
         expect(results.length).toBe(0)
       })
+      // I think that this test doesnt actually test what I want to as it just adds the username without escaped characters. SO needs updating
       it("Special characters handled correctly in username", async () => {
         const { token } = await succSignIn(newUser);
         await dbUsernameSearch(['1!~John*&%$#@()']);
