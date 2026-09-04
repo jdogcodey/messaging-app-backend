@@ -8,16 +8,14 @@ const validationController = {
       .notEmpty()
       .withMessage("First name is required")
       .isAlpha()
-      .withMessage("First name must only contain letters")
-      .escape(),
+      .withMessage("First name must only contain letters"),
     body("last_name")
       .trim()
       .notEmpty()
       .withMessage("Last name is required")
       .isAlpha()
-      .withMessage("Last name must only contain letters")
-      .escape(),
-    body("username").trim().notEmpty().withMessage("Username is required").escape(),
+      .withMessage("Last name must only contain letters"),
+    body("username").trim().notEmpty().withMessage("Username is required"),
     body("email")
       .trim()
       .isEmail()
@@ -39,9 +37,8 @@ const validationController = {
       .not()
       .isIn(["password", "123456", "qwerty"])
       .withMessage("Password is too common")
-      .trim()
-      .escape(),
-    body("confirmPassword").escape().custom((value, { req }) => {
+      .trim(),
+    body("confirmPassword").custom((value, { req }) => {
       if (value !== req.body.password) {
         throw new Error("Password confirmation does not match password");
       }
@@ -49,24 +46,22 @@ const validationController = {
     }),
   ],
   login: () => [
-    body("username").trim().notEmpty().withMessage("Username is required").escape(),
-    body("password").notEmpty().withMessage("Password is required").escape(),
+    body("username").trim().notEmpty().withMessage("Username is required"),
+    body("password").notEmpty().withMessage("Password is required"),
   ],
   message: () => [
     body("message")
       .notEmpty()
       .withMessage("What have you got to say for yourself?")
       .isLength({ max: Number(process.env.MAX_MSG_LENGTH) })
-      .withMessage("Too much waffle")
-      .escape(),
+      .withMessage("Too much waffle"),
   ],
   userSearch: () => [
     query("search")
       .notEmpty()
       .withMessage("Can't search nothing!")
       .isLength({ max: 128 })
-      .withMessage("Search too long. Try searching the exact username")
-      .escape()
+      .withMessage("Search too long. Try searching the exact username"),
   ],
 };
 
