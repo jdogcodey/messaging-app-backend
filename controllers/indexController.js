@@ -381,6 +381,10 @@ const indexController = {
       message: "User search results",
       data: {
         searchResults: results,
+      },
+      pagination: {
+        page: 1,
+        limit: 10,
       }
     });
   },
