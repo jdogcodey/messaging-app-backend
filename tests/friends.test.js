@@ -406,5 +406,24 @@ describe("Friends API", () => {
         const results = res.body.data.searchResults;
         expect(results.length).toBe(1)
       })
+      it("Pagination - defaults to 1 page with limit 10", async () => {
+        const { token } = await succSignIn(newUser);
+        const usernameList = [];
+        for (let i = 0; i < 100; i++) {
+          usernameList.push(`John${i}`)
+        }
+        await dbUsernameSearch(usernameList)
+
+        const res = await request(app)
+          .get('/user-search')
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: 'John'})
+          .expect(200);
+
+          expect(res.body.pagination).toBeDefined();
+          expect(res.body.data.searchResults.length).toBe(10)
+          expect(res.body.pagination.page).toBe(1);
+          expect(res.body.pagination.limit).toBe(10);
+      })
     })
 })
