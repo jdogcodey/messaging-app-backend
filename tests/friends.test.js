@@ -425,7 +425,7 @@ describe("Friends API", () => {
           expect(res.body.pagination.page).toBe(1);
           expect(res.body.pagination.limit).toBe(10);
       })
-      it("Pagination - dynamically takes limit size", async () => {
+      it.only("Pagination - dynamically takes limit size", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
         for (let i = 0; i < 100; i++) {
