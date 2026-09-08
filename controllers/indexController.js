@@ -265,7 +265,8 @@ const indexController = {
     // - If single search term entered then search for 10 results just username. If less than ten then search names to end up with 10
     // - If two+ search terms entered then vice versa with names first and then usernames
 
-    const { search } = req.query; // Collects the search from the request
+    const { search, limit } = req.query; // Collects the search from the request
+    const searchLimit = parseInt(limit, 10) || 10;
     const fullSearch = search.trim().toLowerCase(); // Trims any surrounding spaces and get rid of any cases that may have been sent
     const searchTerms = fullSearch.split(/\s+/).filter(Boolean) // Split search terms (for use later) and filter to remove any double spaces etc. 
     const usernameSearch = fullSearch.replace(/\s+/g, '') // Remove whitespace but keep one single search term to search username
@@ -314,7 +315,7 @@ const indexController = {
           ],
         },
         select: {id: true, first_name: true, last_name: true, username: true},
-          take: 10,
+          take: searchLimit,
       });
 
       results = [...firstLastSearchResults]
@@ -330,7 +331,7 @@ const indexController = {
             username: {contains: usernameSearch, mode: 'insensitive'},
           },
           select: {id: true, first_name: true, last_name: true, username: true},
-          take: 10-firstLastSearchResults.length,
+          take: searchLimit-firstLastSearchResults.length,
         })
         results = results.concat(usernameSearchResults)
       }
@@ -346,7 +347,7 @@ const indexController = {
             username: {contains: usernameSearch, mode: 'insensitive'},
           },
           select: {id: true, first_name: true, last_name: true, username: true},
-          take: 10,
+          take: searchLimit,
         })
       
       results = [...usernameSearchResults]
@@ -371,7 +372,7 @@ const indexController = {
           ],
         },
         select: {id: true, first_name: true, last_name: true, username: true},
-        take: 10-usernameSearchResults.length,
+        take: searchLimit-usernameSearchResults.length,
       });
       results = results.concat(firstLastSearchResults)
       }
@@ -384,7 +385,7 @@ const indexController = {
       },
       pagination: {
         page: 1,
-        limit: 10,
+        limit: searchLimit,
       }
     });
   },
