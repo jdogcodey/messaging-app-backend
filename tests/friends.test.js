@@ -465,6 +465,67 @@ describe("Friends API", () => {
           expect(res.body.pagination.page).toBe(1);
           expect(res.body.pagination.limit).toBe(50);
       })
-      // it('Pagination - dynamically takes page')
+      it.only('Pagination - dynamically takes page', async () => {
+        const { token } = await succSignIn(newUser);
+        const usernameList = [];
+        for (let i = 0; i < 100; i++) {
+          usernameList.push(`John${i}`)
+        }
+        await dbUsernameSearch(usernameList)
+
+        const resP1 = await request(app)
+          .get('/user-search')
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: 'John', limit: '25', page: '1' })
+          .expect(200);
+
+          expect(resP1.body.pagination).toBeDefined();
+          expect(resP1.body.data.searchResults.length).toBe(25)
+          expect(resP1.body.pagination.page).toBe(1);
+          expect(resP1.body.pagination.limit).toBe(25);
+          
+        const resP2 = await request(app)
+          .get('/user-search')
+          .set('Authorization', `Bearer ${token}`)
+          .query({ search: 'John', limit: '25', page: '2' })
+          .expect(200);
+
+          expect(resP2.body.pagination).toBeDefined();
+          expect(resP2.body.data.searchResults.length).toBe(25)
+          expect(resP2.body.pagination.page).toBe(2);
+          expect(resP2.body.pagination.limit).toBe(25);
+
+        const resP3 = await request(app)
+          .get('/user-search')
+          .set('Authorization', `Bearer ${token}`)
+          .query({ search: 'John', limit: '25', page: '3' })
+          .expect(200);
+
+          expect(resP3.body.pagination).toBeDefined();
+          expect(resP3.body.data.searchResults.length).toBe(25)
+          expect(resP3.body.pagination.page).toBe(3);
+          expect(resP3.body.pagination.limit).toBe(25);
+
+        const resP4 = await request(app)
+          .get('/user-search')
+          .set('Authorization', `Bearer ${token}`)
+          .query({ search: 'John', limit: '25', page: '4' })
+          .expect(200);
+
+          expect(resP4.body.pagination).toBeDefined();
+          expect(resP4.body.data.searchResults.length).toBe(25)
+          expect(resP4.body.pagination.page).toBe(4);
+          expect(resP4.body.pagination.limit).toBe(25);
+
+
+          const combinedResults = [];
+          combinedResults.push(...resP1.body.data.searchResults, ...resP2.body.data.searchResults, ...resP3.body.data.searchResults, ...resP4.body.data.searchResults)
+          const combinedIDs = combinedResults.map((searchResult) => searchResult.id)
+          expect(combinedIDs.length).toBe(100)
+          console.log(combinedIDs)
+          let uniqueCombined = [...new Set(combinedIDs)]
+          console.log(uniqueCombined)
+          expect(uniqueCombined.length).toBe(100)
+      })
     })
 })
