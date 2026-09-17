@@ -425,7 +425,7 @@ describe("Friends API", () => {
           expect(res.body.pagination.page).toBe(1);
           expect(res.body.pagination.limit).toBe(10);
       })
-      it.only("Pagination - dynamically takes limit size", async () => {
+      it("Pagination - dynamically takes limit size", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
         for (let i = 0; i < 100; i++) {
@@ -445,5 +445,26 @@ describe("Friends API", () => {
           expect(res.body.pagination.page).toBe(1);
           expect(res.body.pagination.limit).toBe(25);
       })
+      it('Pagination - limit restricted to max 50', async () => {
+        const { token } = await succSignIn(newUser);
+        const usernameList = [];
+        for (let i = 0; i < 100; i++) {
+          usernameList.push(`John${i}`)
+        }
+        await dbUsernameSearch(usernameList)
+
+        const res = await request(app)
+          .get('/user-search')
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: 'John'})
+          .query({ limit: '100' })
+          .expect(200);
+
+          expect(res.body.pagination).toBeDefined();
+          expect(res.body.data.searchResults.length).toBe(50)
+          expect(res.body.pagination.page).toBe(1);
+          expect(res.body.pagination.limit).toBe(50);
+      })
+      // it('Pagination - dynamically takes page')
     })
 })
