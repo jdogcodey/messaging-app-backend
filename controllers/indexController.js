@@ -1,4 +1,4 @@
-import { validationResult } from "express-validator";
+import { validationResult, matchedData } from "express-validator";
 import bcrypt from "bcryptjs";
 import prisma from "../config/prisma-client.js";
 import jwt from "jsonwebtoken";
@@ -265,7 +265,7 @@ const indexController = {
     // - If single search term entered then search for 10 results just username. If less than ten then search names to end up with 10
     // - If two+ search terms entered then vice versa with names first and then usernames
 
-    const { search, limit } = req.query; // Collects the search from the request
+    const { search, limit } = matchedData(req) //Collects the search from the request
     const searchLimit = parseInt(limit, 10) || 10;
     const fullSearch = search.trim().toLowerCase(); // Trims any surrounding spaces and get rid of any cases that may have been sent
     const searchTerms = fullSearch.split(/\s+/).filter(Boolean) // Split search terms (for use later) and filter to remove any double spaces etc. 
