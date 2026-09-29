@@ -64,8 +64,16 @@ const validationController = {
       .withMessage("Search too long. Try searching the exact username"),
     query('limit')
       .optional()
+      .default(10)
       .isInt({ min: 1 })
       .withMessage('Limit must be positive integer')
+      .toInt()
+      .customSanitizer((value) => Math.min(value, 50)),
+    query('page')
+      .optional()
+      .default(1)
+      .isInt({ min: 1 })
+      .withMessage('Page must be a positive integer')
       .toInt()
       .customSanitizer((value) => Math.min(value, 50)),
   ],
