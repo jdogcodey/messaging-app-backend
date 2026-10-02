@@ -71,7 +71,7 @@ const validationController = {
       .customSanitizer((value) => Math.min(value, 50)),
     query('cursor')
       .optional()
-      .isSring()
+      .isString()
       .withMessage("Cursor must be a string")
       .trim(),
   ],
