@@ -406,7 +406,12 @@ describe("Friends API", () => {
         const results = res.body.data.searchResults;
         expect(results.length).toBe(1)
       })
-      it("Pagination - defaults to 1 page with limit 10", async () => {
+      describe('Pagination', () => {
+        // Separated these tests out for readability
+        // I want to rewrite the tests to use a base64 encoded cursor that can apply whether we are doing cursor based pagination or offset
+        // Roughly doing this https://peterevans.dev/posts/pagination-supporting-both-cursor-and-page-based-strategies/#:~:text=This%20means%20we%20can%20encode%20any%20pagination,but%20the%20server%20knows%20exactly%20what%20t
+        
+        it("Defaults to 1 page with limit 10", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
         for (let i = 0; i < 100; i++) {
@@ -422,10 +427,9 @@ describe("Friends API", () => {
 
           expect(res.body.pagination).toBeDefined();
           expect(res.body.data.searchResults.length).toBe(10)
-          expect(res.body.pagination.page).toBe(1);
-          expect(res.body.pagination.limit).toBe(10);
-      })
-      it("Pagination - dynamically takes limit size", async () => {
+          expect(res.body.pagination.nextCursor).toBeDefined();
+        })
+        it("Dynamically takes limit size", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
         for (let i = 0; i < 100; i++) {
@@ -444,8 +448,8 @@ describe("Friends API", () => {
           expect(res.body.data.searchResults.length).toBe(25)
           expect(res.body.pagination.page).toBe(1);
           expect(res.body.pagination.limit).toBe(25);
-      })
-      it('Pagination - limit restricted to max 50', async () => {
+        })
+        it('Limit restricted to max 50', async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
         for (let i = 0; i < 100; i++) {
@@ -464,8 +468,8 @@ describe("Friends API", () => {
           expect(res.body.data.searchResults.length).toBe(50)
           expect(res.body.pagination.page).toBe(1);
           expect(res.body.pagination.limit).toBe(50);
-      })
-      it.only('Pagination - dynamically takes page', async () => {
+        })
+        it.only('Dynamically takes page', async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
         for (let i = 0; i < 100; i++) {
@@ -526,6 +530,7 @@ describe("Friends API", () => {
           let uniqueCombined = [...new Set(combinedIDs)]
           console.log(uniqueCombined)
           expect(uniqueCombined.length).toBe(100)
+        })
       })
     })
 })
