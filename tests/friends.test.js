@@ -410,7 +410,7 @@ describe("Friends API", () => {
         // Separated these tests out for readability
         // I want to rewrite the tests to use a base64 encoded cursor that can apply whether we are doing cursor based pagination or offset
         // Roughly doing this https://peterevans.dev/posts/pagination-supporting-both-cursor-and-page-based-strategies/#:~:text=This%20means%20we%20can%20encode%20any%20pagination,but%20the%20server%20knows%20exactly%20what%20t
-        
+
         it("Defaults to 1 page with limit 10", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
@@ -428,6 +428,16 @@ describe("Friends API", () => {
           expect(res.body.pagination).toBeDefined();
           expect(res.body.data.searchResults.length).toBe(10)
           expect(res.body.pagination.nextCursor).toBeDefined();
+
+          // Decode the nextCursor
+          const decodedString = Buffer.from(res.body.pagination.nextCursor, 'base64').toString('utf-8');
+          const decodedCursor = JSON.parse(decodedString);
+
+          expect(decodedCursor.limit).toBe(10);
+          expect(decodedCursor.type).toBe('CURSOR');
+          expect(decodedCursor.id).toBeDefined();
+          expect(decodedCursor.id).toBe(res.body.data.searchResults[9].id)
+
         })
         it("Dynamically takes limit size", async () => {
         const { token } = await succSignIn(newUser);
