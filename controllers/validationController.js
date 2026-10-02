@@ -69,13 +69,11 @@ const validationController = {
       .withMessage('Limit must be positive integer')
       .toInt()
       .customSanitizer((value) => Math.min(value, 50)),
-    query('page')
+    query('cursor')
       .optional()
-      .default(1)
-      .isInt({ min: 1 })
-      .withMessage('Page must be a positive integer')
-      .toInt()
-      .customSanitizer((value) => Math.min(value, 50)),
+      .isSring()
+      .withMessage("Cursor must be a string")
+      .trim(),
   ],
 };
 
