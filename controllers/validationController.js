@@ -32,7 +32,7 @@ const validationController = {
       .withMessage("Password must contain at least one number")
       .matches(/[@$!%*?&]/)
       .withMessage(
-        "Password must contain at least one special character (@$!%*?&)"
+        "Password must contain at least one special character (@$!%*?&)",
       )
       .not()
       .isIn(["password", "123456", "qwerty"])
@@ -62,14 +62,14 @@ const validationController = {
       .withMessage("Can't search nothing!")
       .isLength({ max: 128 })
       .withMessage("Search too long. Try searching the exact username"),
-    query('limit')
-      .optional()
-      .default(10)
-      .isInt({ min: 1 })
-      .withMessage('Limit must be positive integer')
-      .toInt()
-      .customSanitizer((value) => Math.min(value, 50)),
-    query('cursor')
+    // query('limit')
+    //   .optional()
+    //   .default(10)
+    //   .isInt({ min: 1 })
+    //   .withMessage('Limit must be positive integer')
+    //   .toInt()
+    //   .customSanitizer((value) => Math.min(value, 50)),
+    query("cursor")
       .optional()
       .isString()
       .withMessage("Cursor must be a string")
