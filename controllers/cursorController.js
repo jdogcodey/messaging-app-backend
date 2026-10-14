@@ -48,8 +48,8 @@ export function decodeCursor(cursorString) {
     ) {
       return {
         type: "OFFSET",
-        page: parseInt(decoded.page, 10) || 1, // Default to the first page if they dont specify one, but they do specify they want paged results
-        limit: parseInt(decoded.limit, 10) || 10,
+        page: sanitisePage(decoded.page), // Default to the first page if they dont specify one, but they do specify they want paged results
+        limit: sanitiseLimit(decoded.limit),
       };
     }
 
