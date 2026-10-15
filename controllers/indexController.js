@@ -273,7 +273,6 @@ const indexController = {
     const currentCursor = decodeCursor(cursor);
 
     // TODO:
-    // Write a test suite for the cursor
     // Test Cursor
     // Destructure the cursor for use
     // Follow the guide here but we are going to mix that with our current primary and secondary methods
