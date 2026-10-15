@@ -280,10 +280,39 @@ const indexController = {
     // TODO:
     // Write page-based, phase 2
     // Write phase 1 with same routes
+    // Work way through the tests until it achieves the same functionality as before
 
     try {
       // Default 'route' - cursor-based without an id, phase 2
-      if (!cursor) {
+      if (currentCursor.type === "OFFSET" || currentCursor.type === "PAGE") {
+        defaultSearch = await prisma.user.findMany({
+          where: {
+            id: {
+              notIn: [...results.map((user) => user.id), req.user.id],
+            },
+            username: { contains: usernameSearch, mode: "insensitive" },
+          },
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            username: true,
+          },
+          take: currentCursor.limit,
+
+          orderBy: { id: "asc" },
+        });
+
+        results = [...defaultSearch];
+
+        res.status(200).json({
+          success: true,
+          message: "User search results",
+          data: {
+            searchResults: results,
+          },
+        });
+      } else {
         defaultSearch = await prisma.user.findMany({
           where: {
             id: {
@@ -314,7 +343,6 @@ const indexController = {
             searchResults: results,
           },
         });
-      } else if (currentCursor.type === "CURSOR" || !currentCursor.type) {
       }
     } catch {}
 

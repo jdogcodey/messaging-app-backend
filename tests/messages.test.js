@@ -8,7 +8,7 @@ import {
   dbKnowMessages,
   dbKnowSendReceive,
   dbMessageHistory,
-  dbMessageHistoryConvo
+  dbMessageHistoryConvo,
 } from "./utils/testUtils.js";
 import "dotenv";
 import jwt from "jsonwebtoken";
@@ -72,7 +72,7 @@ describe("Messages API", () => {
       const { token } = await succSignIn(newUser);
       const { user: user2 } = await succSignIn(newUser);
       const longString = faker.string.alpha(
-        Number(process.env.MAX_MSG_LENGTH) + 1
+        Number(process.env.MAX_MSG_LENGTH) + 1,
       );
       const res = await request(app)
         .post(`/Message/${user2.id}`)
@@ -155,10 +155,8 @@ describe("Messages API", () => {
   });
   describe("GET /my-messages", () => {
     it("Rejects if not logged in with 401", async () => {
-      const res = await request(app)
-      .get("/my-messages")
-      .expect(401) // Going back and ensuring errors are correct
-    })
+      const res = await request(app).get("/my-messages").expect(401); // Going back and ensuring errors are correct
+    });
     // This tests if our user is the recipient of all messages
     it("Returns list of users you've messaged with the latest message for each with 200 - if our user is the recipient of all messages", async () => {
       const fakeUname = "myMessagesTest123!";
@@ -183,12 +181,12 @@ describe("Messages API", () => {
         expect(res.body.data.conversations[i]).toHaveProperty("recipientId");
         expect(res.body.data.conversations[i]).toHaveProperty("otherUserId");
         expect(res.body.data.conversations[i].otherUserId).not.toBe(
-          res.body.data.user.id
+          res.body.data.user.id,
         );
         expect(res.body.data.conversations[i]).toHaveProperty("createdAt");
         expect(res.body.data.conversations[i]).toHaveProperty("content");
         expect(res.body.data.conversations[i].content).toEqual(
-          `testMessage${24 - i}`
+          `testMessage${24 - i}`,
         );
       }
     });
@@ -207,85 +205,98 @@ describe("Messages API", () => {
         .set("Authorization", `Bearer ${loggedIn.body.data.token}`)
         .expect(200);
 
-        expect(res.body.data.conversations).toBeDefined();
-        expect(res.body.data.conversations.length).toBe(10);
-        for (let i = 0; i < 10; i++) {
+      expect(res.body.data.conversations).toBeDefined();
+      expect(res.body.data.conversations.length).toBe(10);
+      for (let i = 0; i < 10; i++) {
         expect(res.body.data.conversations[i]).toHaveProperty("senderId");
         expect(res.body.data.conversations[i]).toHaveProperty("recipientId");
         expect(res.body.data.conversations[i]).toHaveProperty("otherUserId");
         expect(res.body.data.conversations[i].otherUserId).not.toBe(
-          res.body.data.user.id
+          res.body.data.user.id,
         );
         expect(res.body.data.conversations[i]).toHaveProperty("createdAt");
         expect(res.body.data.conversations[i]).toHaveProperty("content");
       }
-      expect(res.body.data.conversations[0].content).toEqual("singleChatReply1")
+      expect(res.body.data.conversations[0].content).toEqual(
+        "singleChatReply1",
+      );
       for (let i = 1; i < 4; i++) {
-        expect(res.body.data.conversations[i].content).toEqual(`testNewerMessage${4 - i}`)
+        expect(res.body.data.conversations[i].content).toEqual(
+          `testNewerMessage${4 - i}`,
+        );
       }
-      for (let i = 4; i < 8 ; i++) {
-        expect(res.body.data.conversations[i].content).toEqual(`testMessage${23 - i}`)
+      for (let i = 4; i < 8; i++) {
+        expect(res.body.data.conversations[i].content).toEqual(
+          `testMessage${23 - i}`,
+        );
       }
       for (let i = 8; i < 10; i++) {
-        expect(res.body.data.conversations[i].content).toEqual(`testMessage${23 - i}`)
+        expect(res.body.data.conversations[i].content).toEqual(
+          `testMessage${23 - i}`,
+        );
       }
-    })
+    });
   });
   describe("GET /convo/:userId", () => {
     it("Rejects if not logged in with 401", async () => {
-      const res = await request(app)
-      .get("/my-messages")
-      .expect(401) // Going back and ensuring errors are correct
-    })
+      const res = await request(app).get("/my-messages").expect(401); // Going back and ensuring errors are correct
+    });
     it("Rejects with 404 if userId is not valid", async () => {
-      const { token } = await succSignIn(newUser)
-      const res = await request(app).get('/convo/123').set('Authorization', `Bearer ${token}`).expect(404)
-    })
+      const { token } = await succSignIn(newUser);
+      const res = await request(app)
+        .get("/convo/123")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(404);
+    });
     it("Returns 10 most recent messages in the conversation with 200 - if messages all come from same user", async () => {
-      const fakeUname = 'myMessagesTest123!';
-      const fakePword = 'myPasswordTest123!';
+      const fakeUname = "myMessagesTest123!";
+      const fakePword = "myPasswordTest123!";
       const otherUserID = await dbMessageHistory(fakeUname, fakePword);
-      const loggedIn = await request(app).post('/login').send({
+      const loggedIn = await request(app).post("/login").send({
         username: fakeUname,
         password: fakePword,
       });
       const res = await request(app)
-      .get(`/convo/${otherUserID}`)
-      .set('Authorization', `Bearer ${loggedIn.body.data.token}`)
-      .expect(200);
+        .get(`/convo/${otherUserID}`)
+        .set("Authorization", `Bearer ${loggedIn.body.data.token}`)
+        .expect(200);
 
       expect(res.body.data.messages).toBeDefined();
       expect(res.body.data.messages.length).toBe(10);
       for (let i = 0; i < 10; i++) {
-        expect(res.body.data.messages[i]).toHaveProperty('id');
-        expect(res.body.data.messages[i]).toHaveProperty('content');
-        expect(res.body.data.messages[i]).toHaveProperty('createdAt');
-        expect(res.body.data.messages[i]).toHaveProperty('senderId');
-        expect(res.body.data.messages[i].content).toEqual(`testMessage${14-i}`)
+        expect(res.body.data.messages[i]).toHaveProperty("id");
+        expect(res.body.data.messages[i]).toHaveProperty("content");
+        expect(res.body.data.messages[i]).toHaveProperty("createdAt");
+        expect(res.body.data.messages[i]).toHaveProperty("senderId");
+        expect(res.body.data.messages[i].content).toEqual(
+          `testMessage${14 - i}`,
+        );
       }
-    })
+    });
     it("Returns 10 most recent messages in the conversation with 200 - if messages go back and forth", async () => {
-      const fakeUname = 'myMessagesTest123!';
-      const fakePword = 'myPasswordTest123!';
+      const fakeUname = "myMessagesTest123!";
+      const fakePword = "myPasswordTest123!";
       const otherUserID = await dbMessageHistoryConvo(fakeUname, fakePword);
-      const loggedIn = await request(app).post('/login').send({
+      const loggedIn = await request(app).post("/login").send({
         username: fakeUname,
         password: fakePword,
       });
       const res = await request(app)
-      .get(`/convo/${otherUserID}`)
-      .set('Authorization', `Bearer ${loggedIn.body.data.token}`)
-      .expect(200);
+        .get(`/convo/${otherUserID}`)
+        .set("Authorization", `Bearer ${loggedIn.body.data.token}`)
+        .expect(200);
 
       expect(res.body.data.messages).toBeDefined();
       expect(res.body.data.messages.length).toBe(10);
       for (let i = 0; i < 10; i++) {
-        expect(res.body.data.messages[i]).toHaveProperty('id');
-        expect(res.body.data.messages[i]).toHaveProperty('content');
-        expect(res.body.data.messages[i]).toHaveProperty('createdAt');
-        expect(res.body.data.messages[i]).toHaveProperty('senderId');
-        expect(res.body.data.messages[i].content).toEqual(`testMessage${10-i}`)
+        expect(res.body.data.messages[i]).toHaveProperty("id");
+        expect(res.body.data.messages[i]).toHaveProperty("content");
+        expect(res.body.data.messages[i]).toHaveProperty("createdAt");
+        expect(res.body.data.messages[i]).toHaveProperty("senderId");
+        expect(res.body.data.messages[i].content).toEqual(
+          `testMessage${10 - i}`,
+        );
       }
-    })
-  })
+    });
+  });
 });
