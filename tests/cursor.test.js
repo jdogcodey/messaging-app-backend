@@ -20,7 +20,21 @@ describe("Cursor Controller Tests", () => {
       limit: 10,
     });
   });
-  //   it("Make me immune to negative numbers - ew");
+  it("Make me immune to negative numbers - ew", () => {
+    const encodedLimit = encodeCursor({
+      type: "OFFSET",
+      phase: "SECONDARY",
+      page: 12,
+      limit: -13,
+    });
+    const negativeLimit = decodeCursor(encodedLimit);
+    expect(negativeLimit).toEqual({
+      type: "OFFSET",
+      phase: "SECONDARY",
+      page: 12,
+      limit: 10,
+    });
+  });
   //   it("Limit the maximum - or maximum the limit");
   //   it("Sanitise - ew");
   //   it("Return defaults if info doesnt make sense");
