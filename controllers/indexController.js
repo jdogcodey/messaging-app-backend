@@ -271,34 +271,45 @@ const indexController = {
     const currentCursor = decodeCursor(cursor);
 
     // TODO:
-    // Write default 'route' - cursor-based without an id, phase 2
     // Write cursor-based with an id, phase 2
     // Write page-based, phase 2
     // Write phase 1 with same routes
 
-    // Default 'route' - cursor-based without an id, phase 2
-    if (!cursor) {
-      defaultSearch = await prisma.user.findMany({
-        where: {
-          id: {
-            notIn: [...results, req.user.id],
+    try {
+      // Default 'route' - cursor-based without an id, phase 2
+      if (!cursor) {
+        defaultSearch = await prisma.user.findMany({
+          where: {
+            id: {
+              notIn: [...results, req.user.id],
+            },
+            username: { contains: usernameSearch, mode: "insensitive" },
           },
-          username: { contains: usernameSearch, mode: "insensitive" },
-        },
-        select: { id: true, first_name: true, last_name: true, username: true },
-        take: 10,
-      });
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            username: true,
+          },
+          take: 10,
+        });
 
-      results = [...defaultSearch];
+        results = [...defaultSearch];
 
-      res.status(200).json({
-        success: true,
-        message: "User search results",
-        data: {
-          searchResults: results,
-        },
-      });
-    }
+        res.status(200).json({
+          success: true,
+          message: "User search results",
+          data: {
+            searchResults: results,
+          },
+        });
+      } else {
+        if (currentCursor.type === "CURSOR" || !currentCursor.type) {
+          if (currentCursor.id) {
+          }
+        }
+      }
+    } catch {}
 
     // Old code to be refactored and then commented out/ deleted
     // const { search, limit, page } = matchedData(req); //Collects the search from the request
