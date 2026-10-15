@@ -263,17 +263,42 @@ const indexController = {
     // Going to start fresh as this is going to operate quite differently as I'm sure there is some overlap.
     // Following https://peterevans.dev/posts/pagination-supporting-both-cursor-and-page-based-strategies/#:~:text=This%20means%20we%20can%20encode%20any%20pagination,but%20the%20server%20knows%20exactly%20what%20t
     const { search, cursor } = matchedData(req); // Collects the search and the cursor
-    const searchLimit = parseInt(limit, 10) || 10;
     const fullSearch = search.trim().toLowerCase(); // Trims any surrounding spaces and get rid of any cases that may have been sent
     const searchTerms = fullSearch.split(/\s+/).filter(Boolean); // Split search terms (for use later) and filter to remove any double spaces etc.
     const usernameSearch = fullSearch.replace(/\s+/g, ""); // Remove whitespace but keep one single search term to search username
     let nameSearch; // Used to alter search based on number of submitted terms
     let results = []; // Creating the output here as I will be running multiple queries to fill up 10 results
-    let noDuplicate = [req.user.id];
     const currentCursor = decodeCursor(cursor);
 
     // TODO:
-    // Follow the guide here but we are going to mix that with our current primary and secondary methods
+    // Write default 'route' - cursor-based without an id, phase 2
+    // Write cursor-based with an id, phase 2
+    // Write page-based, phase 2
+    // Write phase 1 with same routes
+
+    // Default 'route' - cursor-based without an id, phase 2
+    if (!cursor) {
+      defaultSearch = await prisma.user.findMany({
+        where: {
+          id: {
+            notIn: [...results, req.user.id],
+          },
+          username: { contains: usernameSearch, mode: "insensitive" },
+        },
+        select: { id: true, first_name: true, last_name: true, username: true },
+        take: 10,
+      });
+
+      results = [...defaultSearch];
+
+      res.status(200).json({
+        success: true,
+        message: "User search results",
+        data: {
+          searchResults: results,
+        },
+      });
+    }
 
     // Old code to be refactored and then commented out/ deleted
     // const { search, limit, page } = matchedData(req); //Collects the search from the request
@@ -285,143 +310,143 @@ const indexController = {
     // let results = []; // Creating the output here as I will be running multiple queries to fill up 10 results
     // let noDuplicate = [req.user.id];
 
-    if (searchTerms.length > 1) {
-      // Basically if the user has searched where we think they could want a first and last name
-      const firstTerm = searchTerms[0];
-      //const firstTermSearch = `${firstTerm}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc.
-      const firstTermSearch = firstTerm;
+    // if (searchTerms.length > 1) {
+    //   // Basically if the user has searched where we think they could want a first and last name
+    //   const firstTerm = searchTerms[0];
+    //   //const firstTermSearch = `${firstTerm}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc.
+    //   const firstTermSearch = firstTerm;
 
-      //const lastTermSearch = searchTerms.slice(1).map((term) => `${term}:*`).join(' & '); // Slice to remove firstTerm, map to add prefix matching, join to create a single search that can be run
-      const lastTermSearch = searchTerms.slice(1).join(" ");
+    //   //const lastTermSearch = searchTerms.slice(1).map((term) => `${term}:*`).join(' & '); // Slice to remove firstTerm, map to add prefix matching, join to create a single search that can be run
+    //   const lastTermSearch = searchTerms.slice(1).join(" ");
 
-      firstLastSearchResults = await prisma.user.findMany({
-        where: {
-          id: {
-            notIn: noDuplicate,
-          },
-          OR: [
-            {
-              AND: [
-                {
-                  first_name: {
-                    startsWith: firstTermSearch,
-                    mode: "insensitive",
-                  },
-                  //  { search: firstTermSearch }
-                },
-                {
-                  last_name: {
-                    startsWith: lastTermSearch,
-                    mode: "insensitive",
-                  },
-                  // {search: lastTermSearch }
-                },
-              ],
-            },
-            {
-              AND: [
-                {
-                  first_name: {
-                    startsWith: lastTermSearch,
-                    mode: "insensitive",
-                  },
-                  //{ search: lastTermSearch }
-                },
-                {
-                  last_name: {
-                    startsWith: firstTermSearch,
-                    mode: "insensitive",
-                  },
-                  //{ search: firstTermSearch }
-                },
-              ],
-            },
-          ],
-        },
-        select: { id: true, first_name: true, last_name: true, username: true },
-        take: searchLimit,
-      });
+    //   firstLastSearchResults = await prisma.user.findMany({
+    //     where: {
+    //       id: {
+    //         notIn: noDuplicate,
+    //       },
+    //       OR: [
+    //         {
+    //           AND: [
+    //             {
+    //               first_name: {
+    //                 startsWith: firstTermSearch,
+    //                 mode: "insensitive",
+    //               },
+    //               //  { search: firstTermSearch }
+    //             },
+    //             {
+    //               last_name: {
+    //                 startsWith: lastTermSearch,
+    //                 mode: "insensitive",
+    //               },
+    //               // {search: lastTermSearch }
+    //             },
+    //           ],
+    //         },
+    //         {
+    //           AND: [
+    //             {
+    //               first_name: {
+    //                 startsWith: lastTermSearch,
+    //                 mode: "insensitive",
+    //               },
+    //               //{ search: lastTermSearch }
+    //             },
+    //             {
+    //               last_name: {
+    //                 startsWith: firstTermSearch,
+    //                 mode: "insensitive",
+    //               },
+    //               //{ search: firstTermSearch }
+    //             },
+    //           ],
+    //         },
+    //       ],
+    //     },
+    //     select: { id: true, first_name: true, last_name: true, username: true },
+    //     take: searchLimit,
+    //   });
 
-      results = [...firstLastSearchResults];
-      let usernameSearchResults;
-      noDuplicate.push(...results.map((u) => u.id));
+    //   results = [...firstLastSearchResults];
+    //   let usernameSearchResults;
+    //   noDuplicate.push(...results.map((u) => u.id));
 
-      if (firstLastSearchResults.length < 10) {
-        usernameSearchResults = await prisma.user.findMany({
-          where: {
-            id: {
-              notIn: noDuplicate,
-            },
-            username: { contains: usernameSearch, mode: "insensitive" },
-          },
-          select: {
-            id: true,
-            first_name: true,
-            last_name: true,
-            username: true,
-          },
-          take: searchLimit - firstLastSearchResults.length,
-        });
-        results = results.concat(usernameSearchResults);
-      }
-    } else {
-      // User is only searching one name
-      const singleTerm = searchTerms[0];
+    //   if (firstLastSearchResults.length < 10) {
+    //     usernameSearchResults = await prisma.user.findMany({
+    //       where: {
+    //         id: {
+    //           notIn: noDuplicate,
+    //         },
+    //         username: { contains: usernameSearch, mode: "insensitive" },
+    //       },
+    //       select: {
+    //         id: true,
+    //         first_name: true,
+    //         last_name: true,
+    //         username: true,
+    //       },
+    //       take: searchLimit - firstLastSearchResults.length,
+    //     });
+    //     results = results.concat(usernameSearchResults);
+    //   }
+    // } else {
+    //   // User is only searching one name
+    //   const singleTerm = searchTerms[0];
 
-      usernameSearchResults = await prisma.user.findMany({
-        where: {
-          id: {
-            notIn: noDuplicate,
-          },
-          username: { contains: usernameSearch, mode: "insensitive" },
-        },
-        select: { id: true, first_name: true, last_name: true, username: true },
-        take: searchLimit,
-      });
+    //   usernameSearchResults = await prisma.user.findMany({
+    //     where: {
+    //       id: {
+    //         notIn: noDuplicate,
+    //       },
+    //       username: { contains: usernameSearch, mode: "insensitive" },
+    //     },
+    //     select: { id: true, first_name: true, last_name: true, username: true },
+    //     take: searchLimit,
+    //   });
 
-      results = [...usernameSearchResults];
-      let firstLastSearchResults;
-      noDuplicate.push(...results.map((u) => u.id));
+    //   results = [...usernameSearchResults];
+    //   let firstLastSearchResults;
+    //   noDuplicate.push(...results.map((u) => u.id));
 
-      if (usernameSearchResults.length < 10) {
-        firstLastSearchResults = await prisma.user.findMany({
-          where: {
-            id: {
-              notIn: noDuplicate,
-            },
-            OR: [
-              {
-                last_name: { startsWith: singleTerm, mode: "insensitive" },
-                // { search: singleTerm }
-              },
-              {
-                first_name: { startsWith: singleTerm, mode: "insensitive" },
-                // { search: singleTerm }
-              },
-            ],
-          },
-          select: {
-            id: true,
-            first_name: true,
-            last_name: true,
-            username: true,
-          },
-          take: searchLimit - usernameSearchResults.length,
-        });
-        results = results.concat(firstLastSearchResults);
-      }
-    }
-    res.status(200).json({
-      success: true,
-      message: "User search results",
-      data: {
-        searchResults: results,
-      },
-      pagination: {
-        page: page,
-        limit: searchLimit,
-      },
-    });
+    //   if (usernameSearchResults.length < 10) {
+    //     firstLastSearchResults = await prisma.user.findMany({
+    //       where: {
+    //         id: {
+    //           notIn: noDuplicate,
+    //         },
+    //         OR: [
+    //           {
+    //             last_name: { startsWith: singleTerm, mode: "insensitive" },
+    //             // { search: singleTerm }
+    //           },
+    //           {
+    //             first_name: { startsWith: singleTerm, mode: "insensitive" },
+    //             // { search: singleTerm }
+    //           },
+    //         ],
+    //       },
+    //       select: {
+    //         id: true,
+    //         first_name: true,
+    //         last_name: true,
+    //         username: true,
+    //       },
+    //       take: searchLimit - usernameSearchResults.length,
+    //     });
+    //     results = results.concat(firstLastSearchResults);
+    //   }
+    // }
+    // res.status(200).json({
+    //   success: true,
+    //   message: "User search results",
+    //   data: {
+    //     searchResults: results,
+    //   },
+    //   pagination: {
+    //     page: page,
+    //     limit: searchLimit,
+    //   },
+    // });
   },
 };
 
