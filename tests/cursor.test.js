@@ -63,6 +63,39 @@ describe("Cursor Controller Tests", () => {
       id: "123",
     });
   });
-  //   it("Sanitise - ew");
-  //   it("Return defaults if info doesnt make sense");
+  it("Sanitise - ew", () => {
+    const encodedSanitiseCursor = encodeCursor({
+      type: "CURSO",
+      phase: "PRIMARY",
+      id: "123",
+      limit: 14,
+    });
+    const sanitiseCursor = decodeCursor(encodedSanitiseCursor);
+    expect(sanitiseCursor).toEqual({
+      type: "CURSOR",
+      phase: "PRIMARY",
+      id: "123",
+      limit: 14,
+    });
+    const encodedSanitiseOffset = encodeCursor({
+      type: "OFF",
+      page: 1,
+      limit: 20,
+    });
+    const sanitiseOffset = decodeCursor(encodedSanitiseOffset);
+    expect(sanitiseOffset).toEqual({
+      type: "OFFSET",
+      phase: "SECONDARY",
+      page: 1,
+      limit: 20,
+    });
+  });
+  it("Return defaults if the string is broken", () => {
+    const brokenDefaults = decodeCursor("123");
+    expect(brokenDefaults).toEqual({
+      type: "CURSOR",
+      phase: "SECONDARY",
+      limit: 10,
+    });
+  });
 });
