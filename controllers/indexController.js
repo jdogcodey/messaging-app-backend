@@ -268,10 +268,16 @@ const indexController = {
     const usernameSearch = fullSearch.replace(/\s+/g, ""); // Remove whitespace but keep one single search term to search username
     let nameSearch; // Used to alter search based on number of submitted terms
     let results = []; // Creating the output here as I will be running multiple queries to fill up 10 results
-    const currentCursor = decodeCursor(cursor);
+    const currentCursor = cursor
+      ? decodeCursor(cursor)
+      : {
+          type: "CURSOR",
+          phase: "SECONDARY",
+          limit: 10,
+          id: null,
+        };
 
     // TODO:
-    // Write cursor-based with an id, phase 2
     // Write page-based, phase 2
     // Write phase 1 with same routes
 
@@ -281,7 +287,7 @@ const indexController = {
         defaultSearch = await prisma.user.findMany({
           where: {
             id: {
-              notIn: [...results, req.user.id],
+              notIn: [...results.map((user) => user.id), req.user.id],
             },
             username: { contains: usernameSearch, mode: "insensitive" },
           },
@@ -291,7 +297,12 @@ const indexController = {
             last_name: true,
             username: true,
           },
-          take: 10,
+          take: currentCursor.limit,
+          ...(currentCursor.id && {
+            cursor: { id: currentCursor.id },
+            skip: 1,
+          }),
+          orderBy: { id: "asc" },
         });
 
         results = [...defaultSearch];
@@ -303,11 +314,7 @@ const indexController = {
             searchResults: results,
           },
         });
-      } else {
-        if (currentCursor.type === "CURSOR" || !currentCursor.type) {
-          if (currentCursor.id) {
-          }
-        }
+      } else if (currentCursor.type === "CURSOR" || !currentCursor.type) {
       }
     } catch {}
 
