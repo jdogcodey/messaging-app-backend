@@ -48,7 +48,21 @@ describe("Cursor Controller Tests", () => {
       limit: 15,
     });
   });
-  //   it("Limit the maximum - or maximum the limit");
+  it("Limit the maximum - or maximum the limit", () => {
+    const encodedMax = encodeCursor({
+      type: "CURSOR",
+      phase: "SECONDARY",
+      limit: 500,
+      id: "123",
+    });
+    const maxLimit = decodeCursor(encodedMax);
+    expect(maxLimit).toEqual({
+      type: "CURSOR",
+      phase: "SECONDARY",
+      limit: 50,
+      id: "123",
+    });
+  });
   //   it("Sanitise - ew");
   //   it("Return defaults if info doesnt make sense");
 });
