@@ -48,6 +48,9 @@ export function decodeCursor(cursorString) {
     ) {
       return {
         type: "OFFSET",
+        phase: ["PRIMARY", "SECONDARY"].includes(decoded.phase)
+          ? decoded.phase
+          : "SECONDARY", // Defaults to secondary phase if not specified
         page: sanitisePage(decoded.page), // Default to the first page if they dont specify one, but they do specify they want paged results
         limit: sanitiseLimit(decoded.limit),
       };
@@ -71,4 +74,11 @@ export function decodeCursor(cursorString) {
       limit: DEFAULT_LIMIT,
     };
   }
+}
+
+// This will be our encoder - taking the type, current phase, id (if necessary) and limit and turn it into a base64 string
+export function encodeCursor(cursorInfo) {
+  const cursorString = JSON.stringify(cursorInfo);
+  const cursorEncoded = Buffer.from(cursorString, "utf-8").toString("base64");
+  return cursorEncoded;
 }
