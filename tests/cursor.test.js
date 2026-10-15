@@ -34,6 +34,19 @@ describe("Cursor Controller Tests", () => {
       page: 12,
       limit: 10,
     });
+    const encodedPage = encodeCursor({
+      type: "OFFSET",
+      phase: "PRIMARY",
+      page: -4,
+      limit: 15,
+    });
+    const negativePage = decodeCursor(encodedPage);
+    expect(negativePage).toEqual({
+      type: "OFFSET",
+      phase: "PRIMARY",
+      page: 1,
+      limit: 15,
+    });
   });
   //   it("Limit the maximum - or maximum the limit");
   //   it("Sanitise - ew");
