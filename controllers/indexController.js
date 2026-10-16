@@ -303,12 +303,15 @@ const indexController = {
           }),
           orderBy: { id: "asc" },
         });
+        console.log(cursorUsernameSearch);
         results = [...cursorUsernameSearch];
         nextCursor = {
           type: "CURSOR",
           mode: "username",
           limit: currentCursor.limit,
-          id: cursorUsernameSearch[currentCursor.limit - 1].id,
+          ...(cursorUsernameSearch.length > 0 && {
+            id: cursorUsernameSearch[currentCursor.limit - 1].id,
+          }),
         };
       }
     }

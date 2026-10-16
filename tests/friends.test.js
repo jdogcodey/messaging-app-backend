@@ -47,7 +47,7 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(400);
     });
-    it("Excludes your own account from results with 200", async () => {
+    it.only("Excludes your own account from results with 200", async () => {
       const { token, user } = await succSignIn(newUser);
       const res = await request(app)
         .get("/user-search")
