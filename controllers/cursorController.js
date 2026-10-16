@@ -1,5 +1,6 @@
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
+const allowedModes = ["default", "username", "full-name"];
 
 //Helper function to safely parse the limit and keep it within the max
 function sanitiseLimit(limitValue) {
@@ -49,9 +50,10 @@ export function decodeCursor(cursorString) {
     ) {
       return {
         type: "OFFSET",
-        phase: ["PRIMARY", "SECONDARY"].includes(decoded.phase)
-          ? decoded.phase
-          : null, // If they don't specify the phase then we will work it out in the main function
+        mode: allowedModes.includes(decoded.mode) ? decoded.mode : null,
+        // phase: ["PRIMARY", "SECONDARY"].includes(decoded.phase)
+        //   ? decoded.phase
+        //   : null, // If they don't specify the phase then we will work it out in the main function
         page: sanitisePage(decoded.page), // Default to the first page if they dont specify one, but they do specify they want paged results
         limit: sanitiseLimit(decoded.limit),
       };
@@ -61,9 +63,10 @@ export function decodeCursor(cursorString) {
     // Preferable to be cursor as it is more flexible and quicker
     return {
       type: "CURSOR",
-      phase: ["PRIMARY", "SECONDARY"].includes(decoded.phase)
-        ? decoded.phase
-        : null, // If they don't specify the phase then we will work it out in the main function
+      mode: allowedModes.includes(decoded.mode) ? decoded.mode : null,
+      // phase: ["PRIMARY", "SECONDARY"].includes(decoded.phase)
+      //   ? decoded.phase
+      //   : null, // If they don't specify the phase then we will work it out in the main function
       id: typeof decoded.id === "string" ? decoded.id : null, // Handling if we aren't given a cursor id
       limit: sanitiseLimit(decoded.limit),
     };
