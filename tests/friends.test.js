@@ -70,7 +70,7 @@ describe("Friends API", () => {
       expect(res.body.data.searchResults).toEqual([]);
       expect(res.body.data.searchResults.length).toBe(0);
     });
-    it.only("Searches first names - exact match", async () => {
+    it("Searches first names - exact match", async () => {
       const { token } = await succSignIn(newUser);
       const nameList = [
         "Steve",
@@ -226,7 +226,7 @@ describe("Friends API", () => {
         expect(user.last_name.toLowerCase()).toContain("smit");
       });
     });
-    it("Searches usernames", async () => {
+    it.only("Searches usernames", async () => {
       const { token } = await succSignIn(newUser);
       const nameList = [
         "testUser1",

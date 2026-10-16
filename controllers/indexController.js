@@ -338,7 +338,7 @@ const indexController = {
             mode: "username",
             limit: currentCursor.limit,
             ...(cursorUsernameSearch.length > 0 && {
-              id: cursorUsernameSearch[currentCursor.limit - 1].id,
+              id: results[results.length - 1].id,
             }),
           };
         }
