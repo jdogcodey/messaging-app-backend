@@ -1,6 +1,6 @@
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
-const allowedModes = ["default", "username", "full-name"];
+const allowedModes = ["username", "full-name"];
 
 //Helper function to safely parse the limit and keep it within the max
 function sanitiseLimit(limitValue) {
