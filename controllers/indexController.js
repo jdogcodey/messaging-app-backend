@@ -299,6 +299,9 @@ const indexController = {
             username: true,
           },
           take: currentCursor.limit,
+          ...(currentCursor.page > 1 && {
+            skip: currentCursor.page * currentCursor.limit,
+          }),
 
           orderBy: { id: "asc" },
         });
