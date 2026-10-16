@@ -535,6 +535,9 @@ describe("Friends API", () => {
       // I want to rewrite the tests to use a base64 encoded cursor that can apply whether we are doing cursor based pagination or offset
       // Roughly doing this https://peterevans.dev/posts/pagination-supporting-both-cursor-and-page-based-strategies/#:~:text=This%20means%20we%20can%20encode%20any%20pagination,but%20the%20server%20knows%20exactly%20what%20t
 
+      // TODO
+      // Rewrite these tests to test our new implementation of pagination - both cursor and offset
+
       it("Defaults to 1 page with limit 10", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
