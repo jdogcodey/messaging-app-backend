@@ -272,80 +272,170 @@ const indexController = {
       ? decodeCursor(cursor)
       : {
           type: "CURSOR",
-          phase: "SECONDARY",
+          // phase: "SECONDARY",
           limit: 10,
           id: null,
         };
 
     // TODO:
-    // Write page-based, phase 2
     // Write phase 1 with same routes
     // Work way through the tests until it achieves the same functionality as before
 
     try {
-      // Default 'route' - cursor-based without an id, phase 2
-      if (currentCursor.type === "OFFSET" || currentCursor.type === "PAGE") {
-        defaultSearch = await prisma.user.findMany({
-          where: {
-            id: {
-              notIn: [...results.map((user) => user.id), req.user.id],
+      if (
+        currentCursor.phase === "PRIMARY" ||
+        (currentCursor.phase !== "SECONDARY" && searchTerms.length > 1)
+      ) {
+        if (currentCursor.type === "OFFSET" || currentCursor.type === "PAGE") {
+          // Basically if the user has searched where we think they could want a first and last name
+          const firstTerm = searchTerms[0];
+          //const firstTermSearch = `${firstTerm}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc.
+          const firstTermSearch = firstTerm;
+          //const lastTermSearch = searchTerms.slice(1).map((term) => `${term}:*`).join(' & '); // Slice to remove firstTerm, map to add prefix matching, join to create a single search that can be run
+          const lastTermSearch = searchTerms.slice(1).join(" ");
+          firstLastSearchResults = await prisma.user.findMany({
+            where: {
+              id: {
+                notIn: [...results.map((user) => user.id), req.user.id],
+              },
+              OR: [
+                {
+                  AND: [
+                    {
+                      first_name: {
+                        startsWith: firstTermSearch,
+                        mode: "insensitive",
+                      },
+                      //  { search: firstTermSearch }
+                    },
+                    {
+                      last_name: {
+                        startsWith: lastTermSearch,
+                        mode: "insensitive",
+                      },
+                      // {search: lastTermSearch }
+                    },
+                  ],
+                },
+                {
+                  AND: [
+                    {
+                      first_name: {
+                        startsWith: lastTermSearch,
+                        mode: "insensitive",
+                      },
+                      //{ search: lastTermSearch }
+                    },
+                    {
+                      last_name: {
+                        startsWith: firstTermSearch,
+                        mode: "insensitive",
+                      },
+                      //{ search: firstTermSearch }
+                    },
+                  ],
+                },
+              ],
             },
-            username: { contains: usernameSearch, mode: "insensitive" },
-          },
-          select: {
-            id: true,
-            first_name: true,
-            last_name: true,
-            username: true,
-          },
-          take: currentCursor.limit,
-          ...(currentCursor.page > 1 && {
-            skip: currentCursor.page * currentCursor.limit,
-          }),
-
-          orderBy: { id: "asc" },
-        });
-
-        results = [...defaultSearch];
-
-        res.status(200).json({
-          success: true,
-          message: "User search results",
-          data: {
-            searchResults: results,
-          },
-        });
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              username: true,
+            },
+            take: currentCursor.limit,
+            ...(currentCursor.page > 1 && {
+              skip: currentCursor.page * currentCursor.limit,
+            }),
+          });
+          results = [...firstLastSearchResults];
+          let usernameSearchResults;
+          noDuplicate.push(...results.map((u) => u.id));
+          if (firstLastSearchResults.length < 10) {
+            usernameSearchResults = await prisma.user.findMany({
+              where: {
+                id: {
+                  notIn: [...results.map((user) => user.id), req.user.id],
+                },
+                username: { contains: usernameSearch, mode: "insensitive" },
+              },
+              select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                username: true,
+              },
+              take: searchLimit - firstLastSearchResults.length,
+            });
+            results = results.concat(usernameSearchResults);
+          }
+        } else {
+        }
       } else {
-        defaultSearch = await prisma.user.findMany({
-          where: {
-            id: {
-              notIn: [...results.map((user) => user.id), req.user.id],
+        // If they are in secondary stage search (just username)
+        if (currentCursor.type === "OFFSET" || currentCursor.type === "PAGE") {
+          defaultSearch = await prisma.user.findMany({
+            where: {
+              id: {
+                notIn: [...results.map((user) => user.id), req.user.id],
+              },
+              username: { contains: usernameSearch, mode: "insensitive" },
             },
-            username: { contains: usernameSearch, mode: "insensitive" },
-          },
-          select: {
-            id: true,
-            first_name: true,
-            last_name: true,
-            username: true,
-          },
-          take: currentCursor.limit,
-          ...(currentCursor.id && {
-            cursor: { id: currentCursor.id },
-            skip: 1,
-          }),
-          orderBy: { id: "asc" },
-        });
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              username: true,
+            },
+            take: currentCursor.limit,
+            ...(currentCursor.page > 1 && {
+              skip: currentCursor.page * currentCursor.limit,
+            }),
 
-        results = [...defaultSearch];
+            orderBy: { id: "asc" },
+          });
 
-        res.status(200).json({
-          success: true,
-          message: "User search results",
-          data: {
-            searchResults: results,
-          },
-        });
+          results = [...defaultSearch];
+
+          res.status(200).json({
+            success: true,
+            message: "User search results",
+            data: {
+              searchResults: results,
+            },
+          });
+        } else {
+          defaultSearch = await prisma.user.findMany({
+            where: {
+              id: {
+                notIn: [...results.map((user) => user.id), req.user.id],
+              },
+              username: { contains: usernameSearch, mode: "insensitive" },
+            },
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              username: true,
+            },
+            take: currentCursor.limit,
+            ...(currentCursor.id && {
+              cursor: { id: currentCursor.id },
+              skip: 1,
+            }),
+            orderBy: { id: "asc" },
+          });
+
+          results = [...defaultSearch];
+
+          res.status(200).json({
+            success: true,
+            message: "User search results",
+            data: {
+              searchResults: results,
+            },
+          });
+        }
       }
     } catch {}
 

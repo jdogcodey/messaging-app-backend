@@ -21,7 +21,8 @@ export function decodeCursor(cursorString) {
   if (!cursorString) {
     return {
       type: "CURSOR",
-      phase: "SECONDARY", // Phase 2 as we presume that they are doing a single term search which is our second phase
+      // We don't want to assume they are on phase 2 as they might be trying to search two terms and therefore be phase one
+      // phase: "SECONDARY", // Phase 2 as we presume that they are doing a single term search which is our second phase
       limit: DEFAULT_LIMIT,
     };
   }
@@ -50,7 +51,7 @@ export function decodeCursor(cursorString) {
         type: "OFFSET",
         phase: ["PRIMARY", "SECONDARY"].includes(decoded.phase)
           ? decoded.phase
-          : "SECONDARY", // Defaults to secondary phase if not specified
+          : null, // If they don't specify the phase then we will work it out in the main function
         page: sanitisePage(decoded.page), // Default to the first page if they dont specify one, but they do specify they want paged results
         limit: sanitiseLimit(decoded.limit),
       };
@@ -62,7 +63,7 @@ export function decodeCursor(cursorString) {
       type: "CURSOR",
       phase: ["PRIMARY", "SECONDARY"].includes(decoded.phase)
         ? decoded.phase
-        : "SECONDARY", // Default to secondary phase if not specified
+        : null, // If they don't specify the phase then we will work it out in the main function
       id: typeof decoded.id === "string" ? decoded.id : null, // Handling if we aren't given a cursor id
       limit: sanitiseLimit(decoded.limit),
     };
@@ -70,7 +71,7 @@ export function decodeCursor(cursorString) {
     // Gracefully fall back if someone sends a malformed or tampered cursor string
     return {
       type: "CURSOR",
-      phase: "SECONDARY",
+      // phase: "SECONDARY",
       limit: DEFAULT_LIMIT,
     };
   }
