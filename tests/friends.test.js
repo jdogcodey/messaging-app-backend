@@ -47,7 +47,7 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(400);
     });
-    it.only("Excludes your own account from results with 200", async () => {
+    it("Excludes your own account from results with 200", async () => {
       const { token, user } = await succSignIn(newUser);
       const res = await request(app)
         .get("/user-search")
@@ -70,7 +70,7 @@ describe("Friends API", () => {
       expect(res.body.data.searchResults).toEqual([]);
       expect(res.body.data.searchResults.length).toBe(0);
     });
-    it("Searches first names - exact match", async () => {
+    it.only("Searches first names - exact match", async () => {
       const { token } = await succSignIn(newUser);
       const nameList = [
         "Steve",

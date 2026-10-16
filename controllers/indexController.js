@@ -265,67 +265,99 @@ const indexController = {
     const { search, cursor } = matchedData(req); // Collects the search and the cursor
     const fullSearch = search.trim().toLowerCase(); // Trims any surrounding spaces and get rid of any cases that may have been sent
     const searchTerms = fullSearch.split(/\s+/).filter(Boolean); // Split search terms (for use later) and filter to remove any double spaces etc.
-    const usernameSearch = fullSearch.replace(/\s+/g, ""); // Remove whitespace but keep one single search term to search username
+    const singleTerm = fullSearch.replace(/\s+/g, ""); // Remove whitespace but keep one single search term to search username
     let nameSearch; // Used to alter search based on number of submitted terms
     let results = []; // Creating the output here as I will be running multiple queries to fill up 10 results
     const currentCursor = decodeCursor(cursor);
     let nextCursor = {};
-
     // TODO:
     // Going to do this and slowly build up to passing all the tests
     // Work way through the tests until it achieves the same functionality as before
 
     // Again just going to start fresh but will have a lot we can clear soon lol
-    // If statement catching everything that isn't offset - they either want cursor or we want them to have it
-    if (currentCursor.type !== "OFFSET" && currentCursor.type !== "PAGE") {
-      // If they want to cursor paginate on username OR if they havent specified a mode and the length of their search is just one term
-      if (
-        currentCursor.mode === "username" ||
-        (!currentCursor.mode && searchTerms.length < 2)
-      ) {
-        cursorUsernameSearch = await prisma.user.findMany({
-          where: {
-            id: {
-              notIn: [...results.map((user) => user.id), req.user.id],
+    try {
+      if (currentCursor.type !== "OFFSET" && currentCursor.type !== "PAGE") {
+        // If they want to cursor paginate on username OR if they havent specified a mode and the length of their search is just one term
+        if (
+          currentCursor.mode === "username" ||
+          (!currentCursor.mode && searchTerms.length < 2)
+        ) {
+          cursorUsernameSearch = await prisma.user.findMany({
+            where: {
+              id: {
+                notIn: [...results.map((user) => user.id), req.user.id],
+              },
+              username: { contains: singleTerm, mode: "insensitive" },
             },
-            username: { contains: usernameSearch, mode: "insensitive" },
-          },
-          select: {
-            id: true,
-            first_name: true,
-            last_name: true,
-            username: true,
-          },
-          take: currentCursor.limit,
-          ...(currentCursor.id && {
-            cursor: { id: currentCursor.id },
-            skip: 1,
-          }),
-          orderBy: { id: "asc" },
-        });
-        console.log(cursorUsernameSearch);
-        results = [...cursorUsernameSearch];
-        nextCursor = {
-          type: "CURSOR",
-          mode: "username",
-          limit: currentCursor.limit,
-          ...(cursorUsernameSearch.length > 0 && {
-            id: cursorUsernameSearch[currentCursor.limit - 1].id,
-          }),
-        };
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              username: true,
+            },
+            take: currentCursor.limit,
+            ...(currentCursor.id && {
+              cursor: { id: currentCursor.id },
+              skip: 1,
+            }),
+            orderBy: { id: "asc" },
+          });
+          results = [...cursorUsernameSearch];
+          if (results.length < 10) {
+            cursorSingleNameSearch = await prisma.user.findMany({
+              where: {
+                id: {
+                  notIn: [...results.map((user) => user.id), req.user.id],
+                },
+                OR: [
+                  {
+                    last_name: { startsWith: singleTerm, mode: "insensitive" },
+                  },
+                  {
+                    first_name: { startsWith: singleTerm, mode: "insensitive" },
+                  },
+                ],
+              },
+              select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                username: true,
+              },
+              take: currentCursor.limit,
+              ...(currentCursor.id && {
+                cursor: { id: currentCursor.id },
+                skip: 1,
+              }),
+              orderBy: { id: "asc" },
+            });
+            results = results.concat(cursorSingleNameSearch);
+          }
+          nextCursor = {
+            type: "CURSOR",
+            mode: "username",
+            limit: currentCursor.limit,
+            ...(cursorUsernameSearch.length > 0 && {
+              id: cursorUsernameSearch[currentCursor.limit - 1].id,
+            }),
+          };
+        }
       }
+
+      const nextCursorEncoded = encodeCursor(nextCursor);
+
+      res.status(200).json({
+        success: true,
+        message: "User search results",
+        data: {
+          searchResults: results,
+          cursor: nextCursorEncoded,
+        },
+      });
+    } catch (err) {
+      console.error("Search failed with error:", err);
+      return res.status(500).json({ success: false, error: err.message });
     }
-
-    const nextCursorEncoded = encodeCursor(nextCursor);
-
-    res.status(200).json({
-      success: true,
-      message: "User search results",
-      data: {
-        searchResults: results,
-        cursor: nextCursorEncoded,
-      },
-    });
 
     // try {
     //   if (
