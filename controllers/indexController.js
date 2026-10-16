@@ -6,7 +6,7 @@ import "dotenv";
 import passport from "passport";
 import "../config/passport.js";
 import validationErrorController from "./validationErrorsController.js";
-import { decodeCursor } from "./cursorController.js";
+import { decodeCursor, encodeCursor } from "./cursorController.js";
 
 const indexController = {
   signup: async (req, res, next) => {
@@ -268,176 +268,304 @@ const indexController = {
     const usernameSearch = fullSearch.replace(/\s+/g, ""); // Remove whitespace but keep one single search term to search username
     let nameSearch; // Used to alter search based on number of submitted terms
     let results = []; // Creating the output here as I will be running multiple queries to fill up 10 results
-    const currentCursor = cursor
-      ? decodeCursor(cursor)
-      : {
-          type: "CURSOR",
-          // phase: "SECONDARY",
-          limit: 10,
-          id: null,
-        };
+    const currentCursor = decodeCursor(cursor);
+    let nextCursor = {};
 
     // TODO:
-    // Write phase 1 with same routes
+    // Going to do this and slowly build up to passing all the tests
     // Work way through the tests until it achieves the same functionality as before
 
-    try {
+    // Again just going to start fresh but will have a lot we can clear soon lol
+    // If statement catching everything that isn't offset - they either want cursor or we want them to have it
+    if (currentCursor.type !== "OFFSET" && currentCursor.type !== "PAGE") {
+      // If they want to cursor paginate on username OR if they havent specified a mode and the length of their search is just one term
       if (
-        currentCursor.phase === "PRIMARY" ||
-        (currentCursor.phase !== "SECONDARY" && searchTerms.length > 1)
+        currentCursor.mode === "username" ||
+        (!currentCursor.mode && searchTerms.length < 2)
       ) {
-        if (currentCursor.type === "OFFSET" || currentCursor.type === "PAGE") {
-          // Basically if the user has searched where we think they could want a first and last name
-          const firstTerm = searchTerms[0];
-          //const firstTermSearch = `${firstTerm}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc.
-          const firstTermSearch = firstTerm;
-          //const lastTermSearch = searchTerms.slice(1).map((term) => `${term}:*`).join(' & '); // Slice to remove firstTerm, map to add prefix matching, join to create a single search that can be run
-          const lastTermSearch = searchTerms.slice(1).join(" ");
-          firstLastSearchResults = await prisma.user.findMany({
-            where: {
-              id: {
-                notIn: [...results.map((user) => user.id), req.user.id],
-              },
-              OR: [
-                {
-                  AND: [
-                    {
-                      first_name: {
-                        startsWith: firstTermSearch,
-                        mode: "insensitive",
-                      },
-                      //  { search: firstTermSearch }
-                    },
-                    {
-                      last_name: {
-                        startsWith: lastTermSearch,
-                        mode: "insensitive",
-                      },
-                      // {search: lastTermSearch }
-                    },
-                  ],
-                },
-                {
-                  AND: [
-                    {
-                      first_name: {
-                        startsWith: lastTermSearch,
-                        mode: "insensitive",
-                      },
-                      //{ search: lastTermSearch }
-                    },
-                    {
-                      last_name: {
-                        startsWith: firstTermSearch,
-                        mode: "insensitive",
-                      },
-                      //{ search: firstTermSearch }
-                    },
-                  ],
-                },
-              ],
+        cursorUsernameSearch = await prisma.user.findMany({
+          where: {
+            id: {
+              notIn: [...results.map((user) => user.id), req.user.id],
             },
-            select: {
-              id: true,
-              first_name: true,
-              last_name: true,
-              username: true,
-            },
-            take: currentCursor.limit,
-            ...(currentCursor.page > 1 && {
-              skip: currentCursor.page * currentCursor.limit,
-            }),
-          });
-          results = [...firstLastSearchResults];
-          let usernameSearchResults;
-          noDuplicate.push(...results.map((u) => u.id));
-          if (firstLastSearchResults.length < 10) {
-            usernameSearchResults = await prisma.user.findMany({
-              where: {
-                id: {
-                  notIn: [...results.map((user) => user.id), req.user.id],
-                },
-                username: { contains: usernameSearch, mode: "insensitive" },
-              },
-              select: {
-                id: true,
-                first_name: true,
-                last_name: true,
-                username: true,
-              },
-              take: searchLimit - firstLastSearchResults.length,
-            });
-            results = results.concat(usernameSearchResults);
-          }
-        } else {
-        }
-      } else {
-        // If they are in secondary stage search (just username)
-        if (currentCursor.type === "OFFSET" || currentCursor.type === "PAGE") {
-          defaultSearch = await prisma.user.findMany({
-            where: {
-              id: {
-                notIn: [...results.map((user) => user.id), req.user.id],
-              },
-              username: { contains: usernameSearch, mode: "insensitive" },
-            },
-            select: {
-              id: true,
-              first_name: true,
-              last_name: true,
-              username: true,
-            },
-            take: currentCursor.limit,
-            ...(currentCursor.page > 1 && {
-              skip: currentCursor.page * currentCursor.limit,
-            }),
-
-            orderBy: { id: "asc" },
-          });
-
-          results = [...defaultSearch];
-
-          res.status(200).json({
-            success: true,
-            message: "User search results",
-            data: {
-              searchResults: results,
-            },
-          });
-        } else {
-          defaultSearch = await prisma.user.findMany({
-            where: {
-              id: {
-                notIn: [...results.map((user) => user.id), req.user.id],
-              },
-              username: { contains: usernameSearch, mode: "insensitive" },
-            },
-            select: {
-              id: true,
-              first_name: true,
-              last_name: true,
-              username: true,
-            },
-            take: currentCursor.limit,
-            ...(currentCursor.id && {
-              cursor: { id: currentCursor.id },
-              skip: 1,
-            }),
-            orderBy: { id: "asc" },
-          });
-
-          results = [...defaultSearch];
-
-          res.status(200).json({
-            success: true,
-            message: "User search results",
-            data: {
-              searchResults: results,
-            },
-          });
-        }
+            username: { contains: usernameSearch, mode: "insensitive" },
+          },
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            username: true,
+          },
+          take: currentCursor.limit,
+          ...(currentCursor.id && {
+            cursor: { id: currentCursor.id },
+            skip: 1,
+          }),
+          orderBy: { id: "asc" },
+        });
+        results = [...cursorUsernameSearch];
+        nextCursor = {
+          type: "CURSOR",
+          mode: "username",
+          limit: currentCursor.limit,
+          id: cursorUsernameSearch[currentCursor.limit - 1].id,
+        };
       }
-    } catch {}
+    }
+
+    const nextCursorEncoded = encodeCursor(nextCursor);
+
+    res.status(200).json({
+      success: true,
+      message: "User search results",
+      data: {
+        searchResults: results,
+        cursor: nextCursorEncoded,
+      },
+    });
+
+    // try {
+    //   if (
+    //     currentCursor.phase === "PRIMARY" ||
+    //     (currentCursor.phase !== "SECONDARY" && searchTerms.length > 1)
+    //   ) {
+    //     if (currentCursor.type === "OFFSET" || currentCursor.type === "PAGE") {
+    //       // Basically if the user has searched where we think they could want a first and last name
+    //       const firstTerm = searchTerms[0];
+    //       //const firstTermSearch = `${firstTerm}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc.
+    //       const firstTermSearch = firstTerm;
+    //       //const lastTermSearch = searchTerms.slice(1).map((term) => `${term}:*`).join(' & '); // Slice to remove firstTerm, map to add prefix matching, join to create a single search that can be run
+    //       const lastTermSearch = searchTerms.slice(1).join(" ");
+    //       firstLastSearchResults = await prisma.user.findMany({
+    //         where: {
+    //           id: {
+    //             notIn: [...results.map((user) => user.id), req.user.id],
+    //           },
+    //           OR: [
+    //             {
+    //               AND: [
+    //                 {
+    //                   first_name: {
+    //                     startsWith: firstTermSearch,
+    //                     mode: "insensitive",
+    //                   },
+    //                   //  { search: firstTermSearch }
+    //                 },
+    //                 {
+    //                   last_name: {
+    //                     startsWith: lastTermSearch,
+    //                     mode: "insensitive",
+    //                   },
+    //                   // {search: lastTermSearch }
+    //                 },
+    //               ],
+    //             },
+    //             {
+    //               AND: [
+    //                 {
+    //                   first_name: {
+    //                     startsWith: lastTermSearch,
+    //                     mode: "insensitive",
+    //                   },
+    //                   //{ search: lastTermSearch }
+    //                 },
+    //                 {
+    //                   last_name: {
+    //                     startsWith: firstTermSearch,
+    //                     mode: "insensitive",
+    //                   },
+    //                   //{ search: firstTermSearch }
+    //                 },
+    //               ],
+    //             },
+    //           ],
+    //         },
+    //         select: {
+    //           id: true,
+    //           first_name: true,
+    //           last_name: true,
+    //           username: true,
+    //         },
+    //         take: currentCursor.limit,
+    //         ...(currentCursor.page > 1 && {
+    //           skip: currentCursor.page * currentCursor.limit,
+    //         }),
+    //       });
+
+    //       results = [...firstLastSearchResults];
+    //       let usernameSearchResults;
+    //       // noDuplicate.push(...results.map((u) => u.id));
+    //       if (firstLastSearchResults.length < 10) {
+    //         usernameSearchResults = await prisma.user.findMany({
+    //           where: {
+    //             id: {
+    //               notIn: [...results.map((user) => user.id), req.user.id],
+    //             },
+    //             username: { contains: usernameSearch, mode: "insensitive" },
+    //           },
+    //           select: {
+    //             id: true,
+    //             first_name: true,
+    //             last_name: true,
+    //             username: true,
+    //           },
+    //           take: currentCursor.limit - firstLastSearchResults.length,
+    //         });
+    //         results = results.concat(usernameSearchResults);
+    //       }
+    //     } else {
+    //       // Basically if the user has searched where we think they could want a first and last name
+    //       const firstTerm = searchTerms[0];
+    //       //const firstTermSearch = `${firstTerm}:*`; // We add :* so that 'Jo' would find 'Joan' and 'Joanne' etc.
+    //       const firstTermSearch = firstTerm;
+    //       //const lastTermSearch = searchTerms.slice(1).map((term) => `${term}:*`).join(' & '); // Slice to remove firstTerm, map to add prefix matching, join to create a single search that can be run
+    //       const lastTermSearch = searchTerms.slice(1).join(" ");
+    //       firstLastSearchResults = await prisma.user.findMany({
+    //         where: {
+    //           id: {
+    //             notIn: [...results.map((user) => user.id), req.user.id],
+    //           },
+    //           OR: [
+    //             {
+    //               AND: [
+    //                 {
+    //                   first_name: {
+    //                     startsWith: firstTermSearch,
+    //                     mode: "insensitive",
+    //                   },
+    //                   //  { search: firstTermSearch }
+    //                 },
+    //                 {
+    //                   last_name: {
+    //                     startsWith: lastTermSearch,
+    //                     mode: "insensitive",
+    //                   },
+    //                   // {search: lastTermSearch }
+    //                 },
+    //               ],
+    //             },
+    //             {
+    //               AND: [
+    //                 {
+    //                   first_name: {
+    //                     startsWith: lastTermSearch,
+    //                     mode: "insensitive",
+    //                   },
+    //                   //{ search: lastTermSearch }
+    //                 },
+    //                 {
+    //                   last_name: {
+    //                     startsWith: firstTermSearch,
+    //                     mode: "insensitive",
+    //                   },
+    //                   //{ search: firstTermSearch }
+    //                 },
+    //               ],
+    //             },
+    //           ],
+    //         },
+    //         select: {
+    //           id: true,
+    //           first_name: true,
+    //           last_name: true,
+    //           username: true,
+    //         },
+    //         take: currentCursor.limit,
+    //         ...(currentCursor.id && {
+    //           cursor: { id: currentCursor.id },
+    //           skip: 1,
+    //         }),
+    //       });
+
+    //       results = [...firstLastSearchResults];
+    //       let usernameSearchResults;
+    //       // noDuplicate.push(...results.map((u) => u.id));
+    //       if (firstLastSearchResults.length < 10) {
+    //         usernameSearchResults = await prisma.user.findMany({
+    //           where: {
+    //             id: {
+    //               notIn: [...results.map((user) => user.id), req.user.id],
+    //             },
+    //             username: { contains: usernameSearch, mode: "insensitive" },
+    //           },
+    //           select: {
+    //             id: true,
+    //             first_name: true,
+    //             last_name: true,
+    //             username: true,
+    //           },
+    //           take: currentCursor.limit - firstLastSearchResults.length,
+    //         });
+    //         results = results.concat(usernameSearchResults);
+    //       }
+    //     }
+    //   } else {
+    //     // If they are in secondary stage search (just username)
+    //     if (currentCursor.type === "OFFSET" || currentCursor.type === "PAGE") {
+    //       defaultSearch = await prisma.user.findMany({
+    //         where: {
+    //           id: {
+    //             notIn: [...results.map((user) => user.id), req.user.id],
+    //           },
+    //           username: { contains: usernameSearch, mode: "insensitive" },
+    //         },
+    //         select: {
+    //           id: true,
+    //           first_name: true,
+    //           last_name: true,
+    //           username: true,
+    //         },
+    //         take: currentCursor.limit,
+    //         ...(currentCursor.page > 1 && {
+    //           skip: currentCursor.page * currentCursor.limit,
+    //         }),
+
+    //         orderBy: { id: "asc" },
+    //       });
+
+    //       results = [...defaultSearch];
+
+    //       res.status(200).json({
+    //         success: true,
+    //         message: "User search results",
+    //         data: {
+    //           searchResults: results,
+    //         },
+    //       });
+    //     } else {
+    //       defaultSearch = await prisma.user.findMany({
+    //         where: {
+    //           id: {
+    //             notIn: [...results.map((user) => user.id), req.user.id],
+    //           },
+    //           username: { contains: usernameSearch, mode: "insensitive" },
+    //         },
+    //         select: {
+    //           id: true,
+    //           first_name: true,
+    //           last_name: true,
+    //           username: true,
+    //         },
+    //         take: currentCursor.limit,
+    //         ...(currentCursor.id && {
+    //           cursor: { id: currentCursor.id },
+    //           skip: 1,
+    //         }),
+    //         orderBy: { id: "asc" },
+    //       });
+
+    //       results = [...defaultSearch];
+
+    //       res.status(200).json({
+    //         success: true,
+    //         message: "User search results",
+    //         data: {
+    //           searchResults: results,
+    //         },
+    //       });
+    //     }
+    //   }
+    // } catch {}
 
     // Old code to be refactored and then commented out/ deleted
     // const { search, limit, page } = matchedData(req); //Collects the search from the request
