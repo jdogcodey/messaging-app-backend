@@ -267,6 +267,8 @@ const indexController = {
     const searchTerms = fullSearch.split(/\s+/).filter(Boolean); // Split search terms (for use later) and filter to remove any double spaces etc.
     const singleTerm = fullSearch.replace(/\s+/g, ""); // Remove whitespace but keep one single search term to search username
     let nameSearch; // Used to alter search based on number of submitted terms
+    const firstTermSearch = searchTerms[0];
+    const lastTermSearch = searchTerms.slice(1).join(" ");
     let results = []; // Creating the output here as I will be running multiple queries to fill up 10 results
     const currentCursor = decodeCursor(cursor);
     let nextCursor = {};
@@ -337,7 +339,98 @@ const indexController = {
             type: "CURSOR",
             mode: "username",
             limit: currentCursor.limit,
-            ...(cursorUsernameSearch.length > 0 && {
+            ...(results.length > 0 && {
+              id: results[results.length - 1].id,
+            }),
+          };
+        } else if (
+          currentCursor.mode === "full-name" ||
+          (!currentCursor.mode && searchTerms.length > 1)
+        ) {
+          let cursorMode = "full-name";
+          cursorFullNameSearch = await prisma.user.findMany({
+            where: {
+              id: {
+                notIn: [...results.map((user) => user.id), req.user.id],
+              },
+              OR: [
+                {
+                  AND: [
+                    {
+                      first_name: {
+                        startsWith: firstTermSearch,
+                        mode: "insensitive",
+                      },
+                    },
+                    {
+                      last_name: {
+                        startsWith: lastTermSearch,
+                        mode: "insensitive",
+                      },
+                    },
+                  ],
+                },
+                {
+                  AND: [
+                    {
+                      first_name: {
+                        startsWith: lastTermSearch,
+                        mode: "insensitive",
+                      },
+                    },
+                    {
+                      last_name: {
+                        startsWith: firstTermSearch,
+                        mode: "insensitive",
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              username: true,
+            },
+            take: currentCursor.limit,
+            ...(currentCursor.id && {
+              cursor: { id: currentCursor.id },
+              skip: 1,
+            }),
+            orderBy: { id: "asc" },
+          });
+          results = [...cursorFullNameSearch];
+          if (results.length < 10) {
+            cursorMode = "username";
+            cursorUsernameSearch = await prisma.user.findMany({
+              where: {
+                id: {
+                  notIn: [...results.map((user) => user.id), req.user.id],
+                },
+                username: { contains: singleTerm, mode: "insensitive" },
+              },
+              select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                username: true,
+              },
+              take: currentCursor.limit,
+              ...(currentCursor.id && {
+                cursor: { id: currentCursor.id },
+                skip: 1,
+              }),
+              orderBy: { id: "asc" },
+            });
+            results = results.concat(cursorUsernameSearch);
+          }
+          nextCursor = {
+            type: "CURSOR",
+            mode: cursorMode,
+            limit: currentCursor.limit,
+            ...(results.length > 0 && {
               id: results[results.length - 1].id,
             }),
           };

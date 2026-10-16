@@ -226,7 +226,7 @@ describe("Friends API", () => {
         expect(user.last_name.toLowerCase()).toContain("smit");
       });
     });
-    it.only("Searches usernames", async () => {
+    it("Searches usernames", async () => {
       const { token } = await succSignIn(newUser);
       const nameList = [
         "testUser1",
