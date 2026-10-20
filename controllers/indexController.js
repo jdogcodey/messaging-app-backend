@@ -463,36 +463,36 @@ const indexController = {
             orderBy: { id: "asc" },
           });
           results = [...pageUsernameSearch];
-          if (results.length < 10) {
-            pageSingleNameSearch = await prisma.user.findMany({
-              where: {
-                id: {
-                  notIn: [...results.map((user) => user.id), req.user.id],
-                },
-                OR: [
-                  {
-                    last_name: { startsWith: singleTerm, mode: "insensitive" },
-                  },
-                  {
-                    first_name: { startsWith: singleTerm, mode: "insensitive" },
-                  },
-                ],
-              },
-              select: {
-                id: true,
-                first_name: true,
-                last_name: true,
-                username: true,
-              },
-              take: currentCursor.limit - results.length,
-              ...(currentCursor.page > 1 && {
-                skip: currentCursor.limit * (currentCursor.page - 1),
-              }),
-              orderBy: { id: "asc" },
-            });
-            results = results.concat(pageSingleNameSearch);
-            cursorMode = "full-name";
-          }
+          // if (results.length < 10) {
+          //   pageSingleNameSearch = await prisma.user.findMany({
+          //     where: {
+          //       id: {
+          //         notIn: [...results.map((user) => user.id), req.user.id],
+          //       },
+          //       OR: [
+          //         {
+          //           last_name: { startsWith: singleTerm, mode: "insensitive" },
+          //         },
+          //         {
+          //           first_name: { startsWith: singleTerm, mode: "insensitive" },
+          //         },
+          //       ],
+          //     },
+          //     select: {
+          //       id: true,
+          //       first_name: true,
+          //       last_name: true,
+          //       username: true,
+          //     },
+          //     take: currentCursor.limit - results.length,
+          //     ...(currentCursor.page > 1 && {
+          //       skip: currentCursor.limit * (currentCursor.page - 1),
+          //     }),
+          //     orderBy: { id: "asc" },
+          //   });
+          //   results = results.concat(pageSingleNameSearch);
+          //   cursorMode = "full-name";
+          // }
           nextCursor = {
             type: "OFFSET",
             mode: cursorMode,
@@ -560,30 +560,30 @@ const indexController = {
             orderBy: { id: "asc" },
           });
           results = [...pageFullNameSearch];
-          if (results.length < 10) {
-            cursorMode = "username";
-            pageUsernameSearch = await prisma.user.findMany({
-              where: {
-                id: {
-                  notIn: [...results.map((user) => user.id), req.user.id],
-                },
-                username: { contains: singleTerm, mode: "insensitive" },
-              },
-              select: {
-                id: true,
-                first_name: true,
-                last_name: true,
-                username: true,
-              },
-              take: currentCursor.limit,
-              ...(currentCursor.id && {
-                cursor: { id: currentCursor.id },
-                skip: 1,
-              }),
-              orderBy: { id: "asc" },
-            });
-            results = results.concat(pageUsernameSearch);
-          }
+          // if (results.length < 10) {
+          //   cursorMode = "username";
+          //   pageUsernameSearch = await prisma.user.findMany({
+          //     where: {
+          //       id: {
+          //         notIn: [...results.map((user) => user.id), req.user.id],
+          //       },
+          //       username: { contains: singleTerm, mode: "insensitive" },
+          //     },
+          //     select: {
+          //       id: true,
+          //       first_name: true,
+          //       last_name: true,
+          //       username: true,
+          //     },
+          //     take: currentCursor.limit,
+          //     ...(currentCursor.id && {
+          //       cursor: { id: currentCursor.id },
+          //       skip: 1,
+          //     }),
+          //     orderBy: { id: "asc" },
+          //   });
+          //   results = results.concat(pageUsernameSearch);
+          // }
           nextCursor = {
             type: "CURSOR",
             mode: cursorMode,
