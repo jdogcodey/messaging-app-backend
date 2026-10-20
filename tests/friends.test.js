@@ -670,7 +670,7 @@ describe("Friends API", () => {
         const resP3NextCursor = decodeCursor(resP3.body.data.cursor);
 
         expect(resP3.body.data.searchResults.length).toBe(25);
-        expect(resP3NextCursor.page).toBe(2); // Next cursor so we want it to tell us to get second page
+        expect(resP3NextCursor.page).toBe(4); // Next cursor so we want it to tell us to get second page
         expect(resP3NextCursor.limit).toBe(25);
 
         const resP4 = await request(app)
@@ -683,7 +683,7 @@ describe("Friends API", () => {
         const resP4NextCursor = decodeCursor(resP4.body.data.cursor);
 
         expect(resP4.body.data.searchResults.length).toBe(25);
-        expect(resP4NextCursor.page).toBe(2); // Next cursor so we want it to tell us to get second page
+        expect(resP4NextCursor.page).toBe(5); // Next cursor so we want it to tell us to get second page
         expect(resP4NextCursor.limit).toBe(25);
 
         const combinedResults = [];
