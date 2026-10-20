@@ -621,7 +621,7 @@ describe("Friends API", () => {
         expect(nextCursor.type).toBe("CURSOR");
         expect(nextCursor.limit).toBe(50);
       });
-      it("Dynamically takes page", async () => {
+      it.only("Offset progresses as expected", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
         for (let i = 0; i < 100; i++) {
@@ -629,49 +629,62 @@ describe("Friends API", () => {
         }
         await dbUsernameSearch(usernameList);
 
+        const resP1cursor = encodeCursor({
+          limit: "25",
+          page: "1",
+        });
+
         const resP1 = await request(app)
           .get("/user-search")
           .set("Authorization", `Bearer ${token}`)
-          .query({ search: "John", limit: "25", page: "1" })
+          .query({ search: "John" })
+          .query({ cursor: resP1cursor })
           .expect(200);
 
-        expect(resP1.body.pagination).toBeDefined();
+        const resP1NextCursor = decodeCursor(resP1.body.data.cursor);
+
         expect(resP1.body.data.searchResults.length).toBe(25);
-        expect(resP1.body.pagination.page).toBe(1);
-        expect(resP1.body.pagination.limit).toBe(25);
+        expect(resP1NextCursor.page).toBe(2); // Next cursor so we want it to tell us to get second page
+        expect(resP1NextCursor.limit).toBe(25);
 
         const resP2 = await request(app)
           .get("/user-search")
           .set("Authorization", `Bearer ${token}`)
-          .query({ search: "John", limit: "25", page: "2" })
+          .query({ search: "John" })
+          .query({ cursor: resP1NextCursor })
           .expect(200);
 
-        expect(resP2.body.pagination).toBeDefined();
+        const resP2NextCursor = decodeCursor(resP2.body.data.cursor);
+
         expect(resP2.body.data.searchResults.length).toBe(25);
-        expect(resP2.body.pagination.page).toBe(2);
-        expect(resP2.body.pagination.limit).toBe(25);
+        expect(resP2NextCursor.page).toBe(3); // Next cursor so we want it to tell us to get second page
+        expect(resP2NextCursor.limit).toBe(25);
 
         const resP3 = await request(app)
           .get("/user-search")
           .set("Authorization", `Bearer ${token}`)
-          .query({ search: "John", limit: "25", page: "3" })
+          .query({ search: "John" })
+          .query({ cursor: resP2NextCursor })
           .expect(200);
 
-        expect(resP3.body.pagination).toBeDefined();
+        const resP3NextCursor = decodeCursor(resP3.body.data.cursor);
+
         expect(resP3.body.data.searchResults.length).toBe(25);
-        expect(resP3.body.pagination.page).toBe(3);
-        expect(resP3.body.pagination.limit).toBe(25);
+        expect(resP3NextCursor.page).toBe(2); // Next cursor so we want it to tell us to get second page
+        expect(resP3NextCursor.limit).toBe(25);
 
         const resP4 = await request(app)
           .get("/user-search")
           .set("Authorization", `Bearer ${token}`)
-          .query({ search: "John", limit: "25", page: "4" })
+          .query({ search: "John" })
+          .query({ cursor: resP3NextCursor })
           .expect(200);
 
-        expect(resP4.body.pagination).toBeDefined();
+        const resP4NextCursor = decodeCursor(resP4.body.data.cursor);
+
         expect(resP4.body.data.searchResults.length).toBe(25);
-        expect(resP4.body.pagination.page).toBe(4);
-        expect(resP4.body.pagination.limit).toBe(25);
+        expect(resP4NextCursor.page).toBe(2); // Next cursor so we want it to tell us to get second page
+        expect(resP4NextCursor.limit).toBe(25);
 
         const combinedResults = [];
         combinedResults.push(
@@ -684,9 +697,7 @@ describe("Friends API", () => {
           (searchResult) => searchResult.id,
         );
         expect(combinedIDs.length).toBe(100);
-        console.log(combinedIDs);
         let uniqueCombined = [...new Set(combinedIDs)];
-        console.log(uniqueCombined);
         expect(uniqueCombined.length).toBe(100);
       });
     });
