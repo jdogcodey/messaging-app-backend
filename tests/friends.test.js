@@ -771,7 +771,37 @@ describe("Friends API", () => {
         let uniqueCombined = [...new Set(combinedIDs)];
         expect(uniqueCombined.length).toBe(100);
       });
-      // it("Returns an empty array and null cursor when no more results exist");
+      //TODO
+      // it("Returns an empty array and null cursor when no more results exist", async () => {
+      //   const { token } = await succSignIn(newUser);
+      //   const usernameList = [];
+      //   for (let i = 0; i < 10; i++) {
+      //     usernameList.push(`John${i}`);
+      //   }
+      //   await dbUsernameSearch(usernameList);
+
+      //   const res = await request(app)
+      //     .get("/user-search")
+      //     .set("Authorization", `Bearer ${token}`)
+      //     .query({ search: "John" })
+      //     .expect(200);
+
+      //   expect(res.body.data.cursor).toBeDefined();
+      //   expect(res.body.data.searchResults.length).toBe(10);
+
+      //   // Decode the nextCursor
+      //   const nextCursor = res.body.data.cursor;
+
+      //   const resP2 = await request(app)
+      //     .get('/user-search')
+      //     .set('Authorization', `Bearer ${token}`)
+      //     .query({ search: 'John' })
+      //     .query({ cursor: nextCursor })
+      //     .expect(200);
+
+      //   expect(resP2.body.data.cursor).toEqual(null)
+      //   expect
+      // });
       // it("Handles invalid or corrupted base64 strings");
       // it("Handles zero or negative page values");
       // it("Final offset page handled appropriately");
