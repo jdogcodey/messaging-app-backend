@@ -651,7 +651,7 @@ describe("Friends API", () => {
           .get("/user-search")
           .set("Authorization", `Bearer ${token}`)
           .query({ search: "John" })
-          .query({ cursor: resP1NextCursor })
+          .query({ cursor: resP1.body.data.cursor })
           .expect(200);
 
         const resP2NextCursor = decodeCursor(resP2.body.data.cursor);
@@ -664,7 +664,7 @@ describe("Friends API", () => {
           .get("/user-search")
           .set("Authorization", `Bearer ${token}`)
           .query({ search: "John" })
-          .query({ cursor: resP2NextCursor })
+          .query({ cursor: resP2.body.data.cursor })
           .expect(200);
 
         const resP3NextCursor = decodeCursor(resP3.body.data.cursor);
@@ -677,7 +677,7 @@ describe("Friends API", () => {
           .get("/user-search")
           .set("Authorization", `Bearer ${token}`)
           .query({ search: "John" })
-          .query({ cursor: resP3NextCursor })
+          .query({ cursor: resP3.body.data.cursor })
           .expect(200);
 
         const resP4NextCursor = decodeCursor(resP4.body.data.cursor);
