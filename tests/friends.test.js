@@ -538,7 +538,7 @@ describe("Friends API", () => {
       // TODO
       // Rewrite these tests to test our new implementation of pagination - both cursor and offset
 
-      it("Defaults to 1 page with limit 10", async () => {
+      it.only("Defaults to cursor-based with 10 limit", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
         for (let i = 0; i < 100; i++) {
@@ -552,13 +552,12 @@ describe("Friends API", () => {
           .query({ search: "John" })
           .expect(200);
 
-        expect(res.body.pagination).toBeDefined();
+        expect(res.body.data.cursor).toBeDefined();
         expect(res.body.data.searchResults.length).toBe(10);
-        expect(res.body.pagination.nextCursor).toBeDefined();
 
         // Decode the nextCursor
         const decodedString = Buffer.from(
-          res.body.pagination.nextCursor,
+          res.body.data.cursor,
           "base64",
         ).toString("utf-8");
         const decodedCursor = JSON.parse(decodedString);
