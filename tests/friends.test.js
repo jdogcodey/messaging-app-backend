@@ -16,9 +16,10 @@ import {
   dbWholeUserSearch,
 } from "./utils/testUtils.js";
 import "dotenv";
-import jwt from "jsonwebtoken";
+import jwt, { decode } from "jsonwebtoken";
 import { response } from "express";
 import { faker } from "@faker-js/faker";
+import { encodeCursor, decodeCursor } from "../controllers/cursorController.js";
 
 beforeEach(async () => {
   // Reset DB
@@ -538,7 +539,7 @@ describe("Friends API", () => {
       // TODO
       // Rewrite these tests to test our new implementation of pagination - both cursor and offset
 
-      it.only("Defaults to cursor-based with 10 limit", async () => {
+      it("Defaults to cursor-based with 10 limit", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
         for (let i = 0; i < 100; i++) {
@@ -556,16 +557,12 @@ describe("Friends API", () => {
         expect(res.body.data.searchResults.length).toBe(10);
 
         // Decode the nextCursor
-        const decodedString = Buffer.from(
-          res.body.data.cursor,
-          "base64",
-        ).toString("utf-8");
-        const decodedCursor = JSON.parse(decodedString);
+        const nextCursor = decodeCursor(res.body.data.cursor);
 
-        expect(decodedCursor.limit).toBe(10);
-        expect(decodedCursor.type).toBe("CURSOR");
-        expect(decodedCursor.id).toBeDefined();
-        expect(decodedCursor.id).toBe(res.body.data.searchResults[9].id);
+        expect(nextCursor.limit).toBe(10);
+        expect(nextCursor.type).toBe("CURSOR");
+        expect(nextCursor.id).toBeDefined();
+        expect(nextCursor.id).toBe(res.body.data.searchResults[9].id);
       });
       it("Dynamically takes limit size", async () => {
         const { token } = await succSignIn(newUser);
@@ -575,17 +572,26 @@ describe("Friends API", () => {
         }
         await dbUsernameSearch(usernameList);
 
+        const cursor = {
+          limit: 25,
+        };
+
+        const ourCursor = encodeCursor(cursor);
+
         const res = await request(app)
           .get("/user-search")
           .set("Authorization", `Bearer ${token}`)
           .query({ search: "John" })
-          .query({ limit: "25" })
+          .query({ cursor: ourCursor })
           .expect(200);
 
-        expect(res.body.pagination).toBeDefined();
+        expect(res.body.data.cursor).toBeDefined();
         expect(res.body.data.searchResults.length).toBe(25);
-        expect(res.body.pagination.page).toBe(1);
-        expect(res.body.pagination.limit).toBe(25);
+
+        const nextCursor = decodeCursor(res.body.data.cursor);
+
+        expect(nextCursor.type).toBe("CURSOR");
+        expect(nextCursor.limit).toBe(25);
       });
       it("Limit restricted to max 50", async () => {
         const { token } = await succSignIn(newUser);
