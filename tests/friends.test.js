@@ -532,13 +532,6 @@ describe("Friends API", () => {
       expect(results.length).toBe(1);
     });
     describe("Pagination", () => {
-      // Separated these tests out for readability
-      // I want to rewrite the tests to use a base64 encoded cursor that can apply whether we are doing cursor based pagination or offset
-      // Roughly doing this https://peterevans.dev/posts/pagination-supporting-both-cursor-and-page-based-strategies/#:~:text=This%20means%20we%20can%20encode%20any%20pagination,but%20the%20server%20knows%20exactly%20what%20t
-
-      // TODO
-      // Rewrite these tests to test our new implementation of pagination - both cursor and offset
-
       it("Defaults to cursor-based with 10 limit", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
@@ -621,7 +614,7 @@ describe("Friends API", () => {
         expect(nextCursor.type).toBe("CURSOR");
         expect(nextCursor.limit).toBe(50);
       });
-      it.only("Offset progresses as expected", async () => {
+      it("Offset progresses as expected", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
         for (let i = 0; i < 100; i++) {
@@ -700,6 +693,90 @@ describe("Friends API", () => {
         let uniqueCombined = [...new Set(combinedIDs)];
         expect(uniqueCombined.length).toBe(100);
       });
+      it("Cursor based progresses as expected", async () => {
+        const { token } = await succSignIn(newUser);
+        const usernameList = [];
+        for (let i = 0; i < 100; i++) {
+          usernameList.push(`John${i}`);
+        }
+        await dbUsernameSearch(usernameList);
+
+        const resP1cursor = encodeCursor({
+          limit: "25",
+        });
+
+        const resP1 = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: resP1cursor })
+          .expect(200);
+
+        const resP1NextCursor = decodeCursor(resP1.body.data.cursor);
+
+        expect(resP1.body.data.searchResults.length).toBe(25);
+        expect(resP1NextCursor.type).toBe("CURSOR");
+        expect(resP1NextCursor.limit).toBe(25);
+
+        const resP2 = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: resP1.body.data.cursor })
+          .expect(200);
+
+        const resP2NextCursor = decodeCursor(resP2.body.data.cursor);
+
+        expect(resP2.body.data.searchResults.length).toBe(25);
+        expect(resP2NextCursor.type).toBe("CURSOR");
+        expect(resP2NextCursor.limit).toBe(25);
+
+        const resP3 = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: resP2.body.data.cursor })
+          .expect(200);
+
+        const resP3NextCursor = decodeCursor(resP3.body.data.cursor);
+
+        expect(resP3.body.data.searchResults.length).toBe(25);
+        expect(resP3NextCursor.type).toBe("CURSOR");
+        expect(resP3NextCursor.limit).toBe(25);
+
+        const resP4 = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: resP3.body.data.cursor })
+          .expect(200);
+
+        const resP4NextCursor = decodeCursor(resP4.body.data.cursor);
+
+        expect(resP4.body.data.searchResults.length).toBe(25);
+        expect(resP4NextCursor.type).toBe("CURSOR");
+        expect(resP4NextCursor.limit).toBe(25);
+
+        const combinedResults = [];
+        combinedResults.push(
+          ...resP1.body.data.searchResults,
+          ...resP2.body.data.searchResults,
+          ...resP3.body.data.searchResults,
+          ...resP4.body.data.searchResults,
+        );
+        const combinedIDs = combinedResults.map(
+          (searchResult) => searchResult.id,
+        );
+        expect(combinedIDs.length).toBe(100);
+        let uniqueCombined = [...new Set(combinedIDs)];
+        expect(uniqueCombined.length).toBe(100);
+      });
+      // it("Returns an empty array and null cursor when no more results exist");
+      // it("Handles invalid or corrupted base64 strings");
+      // it("Handles zero or negative page values");
+      // it("Final offset page handled appropriately");
+      // it("Limit minimum restriction");
+      // it("Handles malformed type");
     });
   });
 });
