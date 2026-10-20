@@ -601,17 +601,25 @@ describe("Friends API", () => {
         }
         await dbUsernameSearch(usernameList);
 
+        const cursor = {
+          limit: "100",
+        };
+
+        const ourCursor = encodeCursor(cursor);
+
         const res = await request(app)
           .get("/user-search")
           .set("Authorization", `Bearer ${token}`)
           .query({ search: "John" })
-          .query({ limit: "100" })
+          .query({ cursor: ourCursor })
           .expect(200);
 
-        expect(res.body.pagination).toBeDefined();
+        const nextCursor = decodeCursor(res.body.data.cursor);
+
+        expect(nextCursor).toBeDefined();
         expect(res.body.data.searchResults.length).toBe(50);
-        expect(res.body.pagination.page).toBe(1);
-        expect(res.body.pagination.limit).toBe(50);
+        expect(nextCursor.type).toBe("CURSOR");
+        expect(nextCursor.limit).toBe(50);
       });
       it("Dynamically takes page", async () => {
         const { token } = await succSignIn(newUser);
