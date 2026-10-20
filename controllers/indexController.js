@@ -272,6 +272,8 @@ const indexController = {
     let results = []; // Creating the output here as I will be running multiple queries to fill up 10 results
     const currentCursor = decodeCursor(cursor);
     let nextCursor = {};
+    let cursorMode = "username";
+
     // TODO:
     // Going to do this and slowly build up to passing all the tests
     // Work way through the tests until it achieves the same functionality as before
@@ -326,7 +328,7 @@ const indexController = {
                 last_name: true,
                 username: true,
               },
-              take: currentCursor.limit,
+              take: currentCursor.limit - results.length,
               ...(currentCursor.id && {
                 cursor: { id: currentCursor.id },
                 skip: 1,
@@ -334,10 +336,11 @@ const indexController = {
               orderBy: { id: "asc" },
             });
             results = results.concat(cursorSingleNameSearch);
+            cursorMode = "full-name";
           }
           nextCursor = {
             type: "CURSOR",
-            mode: "username",
+            mode: cursorMode,
             limit: currentCursor.limit,
             ...(results.length > 0 && {
               id: results[results.length - 1].id,
@@ -347,7 +350,7 @@ const indexController = {
           currentCursor.mode === "full-name" ||
           (!currentCursor.mode && searchTerms.length > 1)
         ) {
-          let cursorMode = "full-name";
+          cursorMode = "full-name";
           cursorFullNameSearch = await prisma.user.findMany({
             where: {
               id: {
@@ -417,7 +420,7 @@ const indexController = {
                 last_name: true,
                 username: true,
               },
-              take: currentCursor.limit,
+              take: currentCursor.limit - results.length,
               ...(currentCursor.id && {
                 cursor: { id: currentCursor.id },
                 skip: 1,
@@ -432,6 +435,161 @@ const indexController = {
             limit: currentCursor.limit,
             ...(results.length > 0 && {
               id: results[results.length - 1].id,
+            }),
+          };
+        }
+      } else {
+        if (
+          currentCursor.mode === "username" ||
+          (!currentCursor.mode && searchTerms.length < 2)
+        ) {
+          pageUsernameSearch = await prisma.user.findMany({
+            where: {
+              id: {
+                notIn: [...results.map((user) => user.id), req.user.id],
+              },
+              username: { contains: singleTerm, mode: "insensitive" },
+            },
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              username: true,
+            },
+            take: currentCursor.limit,
+            ...(currentCursor.page > 1 && {
+              skip: currentCursor.limit * (currentCursor.page - 1),
+            }),
+            orderBy: { id: "asc" },
+          });
+          results = [...pageUsernameSearch];
+          if (results.length < 10) {
+            pageSingleNameSearch = await prisma.user.findMany({
+              where: {
+                id: {
+                  notIn: [...results.map((user) => user.id), req.user.id],
+                },
+                OR: [
+                  {
+                    last_name: { startsWith: singleTerm, mode: "insensitive" },
+                  },
+                  {
+                    first_name: { startsWith: singleTerm, mode: "insensitive" },
+                  },
+                ],
+              },
+              select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                username: true,
+              },
+              take: currentCursor.limit - results.length,
+              ...(currentCursor.page > 1 && {
+                skip: currentCursor.limit * (currentCursor.page - 1),
+              }),
+              orderBy: { id: "asc" },
+            });
+            results = results.concat(pageSingleNameSearch);
+            cursorMode = "full-name";
+          }
+          nextCursor = {
+            type: "OFFSET",
+            mode: cursorMode,
+            limit: currentCursor.limit,
+            ...(results.length > 0 && {
+              page: currentCursor.page + 1,
+            }),
+          };
+        } else if (
+          currentCursor.mode === "full-name" ||
+          (!currentCursor.mode && searchTerms.length > 1)
+        ) {
+          cursorMode = "full-name";
+          pageFullNameSearch = await prisma.user.findMany({
+            where: {
+              id: {
+                notIn: [...results.map((user) => user.id), req.user.id],
+              },
+              OR: [
+                {
+                  AND: [
+                    {
+                      first_name: {
+                        startsWith: firstTermSearch,
+                        mode: "insensitive",
+                      },
+                    },
+                    {
+                      last_name: {
+                        startsWith: lastTermSearch,
+                        mode: "insensitive",
+                      },
+                    },
+                  ],
+                },
+                {
+                  AND: [
+                    {
+                      first_name: {
+                        startsWith: lastTermSearch,
+                        mode: "insensitive",
+                      },
+                    },
+                    {
+                      last_name: {
+                        startsWith: firstTermSearch,
+                        mode: "insensitive",
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              username: true,
+            },
+            take: currentCursor.limit,
+            ...(currentCursor.id && {
+              cursor: { id: currentCursor.id },
+              skip: 1,
+            }),
+            orderBy: { id: "asc" },
+          });
+          results = [...pageFullNameSearch];
+          if (results.length < 10) {
+            cursorMode = "username";
+            pageUsernameSearch = await prisma.user.findMany({
+              where: {
+                id: {
+                  notIn: [...results.map((user) => user.id), req.user.id],
+                },
+                username: { contains: singleTerm, mode: "insensitive" },
+              },
+              select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                username: true,
+              },
+              take: currentCursor.limit,
+              ...(currentCursor.id && {
+                cursor: { id: currentCursor.id },
+                skip: 1,
+              }),
+              orderBy: { id: "asc" },
+            });
+            results = results.concat(pageUsernameSearch);
+          }
+          nextCursor = {
+            type: "CURSOR",
+            mode: cursorMode,
+            limit: currentCursor.limit,
+            ...(results.length > 0 && {
+              page: currentCursor.page + 1,
             }),
           };
         }
