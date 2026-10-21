@@ -2,6 +2,7 @@ import passport from "passport";
 
 const authController = {
   jwtAuth: (req, res, next) => {
+    console.log("test");
     // Checks that the user is signed in - anyone logged in is let past
     passport.authenticate("jwt", { session: false }, (err, user, info) => {
       if (err || !user) {

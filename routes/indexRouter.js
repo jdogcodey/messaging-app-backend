@@ -11,14 +11,14 @@ router.post(
   "/signup",
   validationController.signup(),
   validationErrorController,
-  indexController.signup
+  indexController.signup,
 );
 
 router.post(
   "/login",
   validationController.login(),
   validationErrorController,
-  indexController.login
+  indexController.login,
 );
 
 router.get("/auth/verify", authController.jwtAuth, indexController.getUser);
@@ -29,20 +29,29 @@ router.post(
   validationErrorController,
   authController.jwtAuth,
   confirmUserController,
-  indexController.postMessage
+  indexController.postMessage,
 );
 
 router.get(
   "/my-messages",
   authController.jwtAuth,
-  indexController.getMyMessages
+  indexController.getMyMessages,
 );
 
-router.get("/convo/:userId",
-  authController.jwtAuth,
-  indexController.getConvo,
-)
+router.get("/convo/:userId", authController.jwtAuth, indexController.getConvo);
 
-router.get("/user-search", validationController.userSearch(), validationErrorController, authController.jwtAuth, indexController.userSearch)
+router.get(
+  "/user-search",
+  validationController.userSearch(),
+  validationErrorController,
+  authController.jwtAuth,
+  indexController.userSearch,
+);
+
+router.post(
+  "/friend-request/:userId",
+  authController.jwtAuth,
+  indexController.postFriendRequest,
+);
 
 export default router;
