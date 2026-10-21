@@ -772,7 +772,7 @@ describe("Friends API", () => {
         expect(uniqueCombined.length).toBe(100);
       });
       //TODO
-      it.only("Returns an empty array when no more results exist", async () => {
+      it("Returns an empty array when no more results exist", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
         // Adding 15 users to the DB
@@ -825,7 +825,29 @@ describe("Friends API", () => {
         expect(resP3.body.data.searchResults.length).toEqual(0);
         expect(decodeCursor(resP3.body.data.cursor).id).toEqual(null);
       });
-      // it("Handles invalid or corrupted base64 strings");
+      it("Handles invalid or corrupted base64 strings", async () => {
+        const { token } = await succSignIn(newUser);
+        const usernameList = [];
+        // Adding 10 users to the DB
+        for (let i = 0; i < 10; i++) {
+          usernameList.push(`John${i}`);
+        }
+        await dbUsernameSearch(usernameList);
+
+        // Requesting with an invalid cursor string
+        const res = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: "thisisnotacursor" })
+          .expect(200);
+
+        const decodedCursor = decodeCursor(res.body.data.cursor);
+
+        expect(res.body.data.searchResults.length).toBe(10);
+        expect(decodedCursor.type).toBe("CURSOR");
+        expect(decodedCursor.limit).toBe(10);
+      });
       // it("Handles zero or negative page values");
       // it("Final offset page handled appropriately");
       // it("Limit minimum restriction");
