@@ -772,36 +772,59 @@ describe("Friends API", () => {
         expect(uniqueCombined.length).toBe(100);
       });
       //TODO
-      // it("Returns an empty array and null cursor when no more results exist", async () => {
-      //   const { token } = await succSignIn(newUser);
-      //   const usernameList = [];
-      //   for (let i = 0; i < 10; i++) {
-      //     usernameList.push(`John${i}`);
-      //   }
-      //   await dbUsernameSearch(usernameList);
+      it.only("Returns an empty array when no more results exist", async () => {
+        const { token } = await succSignIn(newUser);
+        const usernameList = [];
+        // Adding 15 users to the DB
+        for (let i = 0; i < 15; i++) {
+          usernameList.push(`John${i}`);
+        }
+        await dbUsernameSearch(usernameList);
 
-      //   const res = await request(app)
-      //     .get("/user-search")
-      //     .set("Authorization", `Bearer ${token}`)
-      //     .query({ search: "John" })
-      //     .expect(200);
+        // Requesting the first 10 from the DB
+        const res = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .expect(200);
 
-      //   expect(res.body.data.cursor).toBeDefined();
-      //   expect(res.body.data.searchResults.length).toBe(10);
+        expect(res.body.data.cursor).toBeDefined();
+        expect(res.body.data.searchResults.length).toBe(10);
 
-      //   // Decode the nextCursor
-      //   const nextCursor = res.body.data.cursor;
+        // console.log(res.body.data.searchResults.map((result) => result.id));
 
-      //   const resP2 = await request(app)
-      //     .get('/user-search')
-      //     .set('Authorization', `Bearer ${token}`)
-      //     .query({ search: 'John' })
-      //     .query({ cursor: nextCursor })
-      //     .expect(200);
+        // Currently not decoding as I need it encoded in the next call
+        const nextCursor = res.body.data.cursor;
 
-      //   expect(resP2.body.data.cursor).toEqual(null)
-      //   expect
-      // });
+        // console.log(decodeCursor(res.body.data.cursor));
+
+        // Requesting the next 10
+        const resP2 = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: nextCursor })
+          .expect(200);
+
+        // console.log(resP2.body.data.searchResults.map((result) => result.id));
+
+        // Hopefully only get 5 back as that is all there is
+        expect(resP2.body.data.searchResults.length).toEqual(5);
+
+        const thirdCursor = resP2.body.data.cursor;
+
+        // Requestig again to check if we get an empty results array
+        const resP3 = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: thirdCursor })
+          .expect(200);
+
+        // Checking if we get an empty results array and a null next cursor id
+        expect(resP3.body.data.searchResults.length).toEqual(0);
+        expect(decodeCursor(resP3.body.data.cursor).id).toEqual(null);
+      });
       // it("Handles invalid or corrupted base64 strings");
       // it("Handles zero or negative page values");
       // it("Final offset page handled appropriately");
