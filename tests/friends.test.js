@@ -1067,10 +1067,14 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(400);
     });
-    // it(
-    //   "Rejects if friend request already exists (pending or they accepted) with 400",
-    // );
-    // it("Rejects if userId does not exist with 404");
+    it("Rejects if userId does not exist with 404", async () => {
+      const { token } = await succSignIn(newUser);
+      const res = await request(app)
+        .post("/friend-request/123")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(400);
+    });
+    // it("Rejects if friend request already exists (pending or they accepted) with 400");
     // it("Creates a friend request is userId exists and is not already a friend with 201")
   });
 });
