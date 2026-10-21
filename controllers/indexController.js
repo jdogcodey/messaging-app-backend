@@ -488,14 +488,17 @@ const indexController = {
           //   results = results.concat(pageSingleNameSearch);
           //   cursorMode = "full-name";
           // }
-          nextCursor = {
-            type: "OFFSET",
-            mode: cursorMode,
-            limit: currentCursor.limit,
-            ...(results.length > 0 && {
-              page: currentCursor.page + 1,
-            }),
-          };
+          nextCursor =
+            results.length < currentCursor.limit
+              ? null
+              : {
+                  type: "OFFSET",
+                  mode: cursorMode,
+                  limit: currentCursor.limit,
+                  ...(results.length > 0 && {
+                    page: currentCursor.page + 1,
+                  }),
+                };
         } else if (
           currentCursor.mode === "full-name" ||
           (!currentCursor.mode && searchTerms.length > 1)
@@ -579,18 +582,26 @@ const indexController = {
           //   });
           //   results = results.concat(pageUsernameSearch);
           // }
-          nextCursor = {
-            type: "CURSOR",
-            mode: cursorMode,
-            limit: currentCursor.limit,
-            ...(results.length > 0 && {
-              page: currentCursor.page + 1,
-            }),
-          };
+          nextCursor =
+            results.length < currentCursor.limit
+              ? null
+              : {
+                  type: "CURSOR",
+                  mode: cursorMode,
+                  limit: currentCursor.limit,
+                  ...(results.length > 0 && {
+                    page: currentCursor.page + 1,
+                  }),
+                };
         }
       }
 
-      const nextCursorEncoded = encodeCursor(nextCursor);
+      let nextCursorEncoded;
+      if (nextCursor) {
+        nextCursorEncoded = encodeCursor(nextCursor);
+      } else {
+        nextCursorEncoded = null;
+      }
 
       res.status(200).json({
         success: true,
