@@ -891,7 +891,6 @@ describe("Friends API", () => {
         expect(decodedCursorZero.type).toBe("OFFSET");
         expect(decodedCursorZero.page).toBe(2);
       });
-      //TODO
       it("Final offset page handled appropriately", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
@@ -961,7 +960,59 @@ describe("Friends API", () => {
         expect(resP57.body.data.searchResults.length).toBe(0);
         expect(resP57.body.data.cursor).toBe(null);
       });
-      // it("Limit minimum restriction");
+      //TODO
+      it("Limit minimum restriction", async () => {
+        const { token } = await succSignIn(newUser);
+        const usernameList = [];
+        // Adding 10 users to the DB
+        for (let i = 0; i < 10; i++) {
+          usernameList.push(`John${i}`);
+        }
+        await dbUsernameSearch(usernameList);
+
+        const encodedNegativeLimit = encodeCursor({ limit: -30 });
+        const encodedZeroLimit = encodeCursor({ limit: 0 });
+        const encodedStringLimit = encodeCursor({ limit: "words" });
+
+        const res = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: encodedNegativeLimit })
+          .expect(200);
+
+        const res1Cursor = decodeCursor(res.body.data.cursor);
+
+        expect(res.body.data.searchResults.length).toBe(10);
+        expect(res1Cursor.type).toBe("CURSOR");
+        expect(res1Cursor.limit).toBe(10);
+
+        const res2 = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: encodedZeroLimit })
+          .expect(200);
+
+        const res2Cursor = decodeCursor(res2.body.data.cursor);
+
+        expect(res2.body.data.searchResults.length).toBe(10);
+        expect(res2Cursor.type).toBe("CURSOR");
+        expect(res2Cursor.limit).toBe(10);
+
+        const res3 = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: encodedNegativeLimit })
+          .expect(200);
+
+        const res3Cursor = decodeCursor(res3.body.data.cursor);
+
+        expect(res3.body.data.searchResults.length).toBe(10);
+        expect(res3Cursor.type).toBe("CURSOR");
+        expect(res3Cursor.limit).toBe(10);
+      });
       // it("Handles malformed type");
     });
   });
