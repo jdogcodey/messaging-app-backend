@@ -1057,7 +1057,9 @@ describe("Friends API", () => {
   });
   describe("POST /friend-request/:userId", () => {
     //TODO
-    it("Rejects if not authenticated with 401");
+    it.only("Rejects if not authenticated with 401", async () => {
+      const res = await request(app).post("/friend-request/123").expect(401);
+    });
     // it("Rejects if sender is receiver with 400");
     // it(
     //   "Rejects if friend request already exists (pending or they accepted) with 400",
