@@ -274,11 +274,6 @@ const indexController = {
     let nextCursor = {};
     let cursorMode = "username";
 
-    // TODO:
-    // Going to do this and slowly build up to passing all the tests
-    // Work way through the tests until it achieves the same functionality as before
-
-    // Again just going to start fresh but will have a lot we can clear soon lol
     try {
       if (currentCursor.type !== "OFFSET" && currentCursor.type !== "PAGE") {
         // If they want to cursor paginate on username OR if they havent specified a mode and the length of their search is just one term

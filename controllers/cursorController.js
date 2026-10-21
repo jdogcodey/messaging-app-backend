@@ -44,7 +44,8 @@ export function decodeCursor(cursorString) {
 
     //2. Determine type based on which fields are populated
     if (
-      decoded.page > 0 ||
+      decoded.page ||
+      decoded.page === 0 ||
       decoded.type === "OFFSET" ||
       decoded.type === "PAGE"
     ) {
