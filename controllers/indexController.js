@@ -1016,10 +1016,14 @@ const indexController = {
         message: "You want to be your own friend?",
       });
     } else {
-      res.status(200).json({
-        success: true,
-        message: "Authorised",
+      res.status(404).json({
+        success: false,
+        message: "Cant find user",
       });
+      // res.status(200).json({
+      //   success: true,
+      //   message: "Authorised",
+      // });
     }
   },
 };
