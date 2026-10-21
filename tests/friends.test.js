@@ -1060,7 +1060,7 @@ describe("Friends API", () => {
     it("Rejects if not authenticated with 401", async () => {
       const res = await request(app).post("/friend-request/123").expect(401);
     });
-    it.only("Rejects if sender is receiver with 400", async () => {
+    it("Rejects if sender is receiver with 400", async () => {
       const { token, user } = await succSignIn(newUser);
       const res = await request(app)
         .post(`/friend-request/${user.id}`)

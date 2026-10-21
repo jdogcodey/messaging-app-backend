@@ -1008,10 +1008,19 @@ const indexController = {
     // });
   },
   postFriendRequest: (req, res, next) => {
-    res.status(200).json({
-      success: true,
-      message: "Authorised",
-    });
+    const userId = req.user.id;
+    const searchId = req.params.userId;
+    if (userId === searchId) {
+      res.status(400).json({
+        success: false,
+        message: "You want to be your own friend?",
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "Authorised",
+      });
+    }
   },
 };
 
