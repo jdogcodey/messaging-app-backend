@@ -27,7 +27,7 @@ Testing:
 
 On this project I want to start by writing some decent tests and then making functions to meet them.
 
-### Authentication
+## Authentication
 
 - Signup:
   - [x] Returns 201
@@ -41,14 +41,14 @@ On this project I want to start by writing some decent tests and then making fun
   - [x] Rejects 401 with wrong password
   - [x] Rejects 401 with unknown email
 
-### Authorisation
+## Authorisation
 
 - JWT Auth:
   - [x] returns 401 if not logged in
   - [x] continues to next middleware if logged in
   - [x] return 401 if JWT is expired or invalid
 
-### Messages
+## Messages
 
 - POST message:
   - [x] Creates message if sender and receiver are valid with 201
@@ -68,7 +68,7 @@ On this project I want to start by writing some decent tests and then making fun
   - [x] Rejects if unauthenticated with 401
   - [x] Rejects with 404 if userId is not valid
 
-### Friends
+## Friends
 
 - GET /user-search
   - [ ] Returns matching named users with 200
@@ -83,9 +83,9 @@ On this project I want to start by writing some decent tests and then making fun
   - [x] Search usernames
   - [x] Search targets first, last and username at once
   - [x] Username search ignores spaces
-  - [ ] Search first and last combined ('John Smith' doesn't show all 'John' and 'Smith' but rather 'John Smith')
-  - [ ] Search with spaces separates after first space and searches first and last OR username ('jo h n' searches first:'jo' last: 'hn' and username:'john')
-  - [ ] Search orders in a sensible order
+  - [x] Search first and last combined ('John Smith' doesn't show all 'John' and 'Smith' but rather 'John Smith')
+  - [x] Search with spaces separates after first space and searches first and last OR username ('jo h n' searches first:'jo' last: 'hn' and username:'john')
+  - [x] Search orders in a sensible order
 - POST /friend-request/:userId
   - [ ] Creates a friend request is userId exists and is not already a friend with 201
   - [ ] Rejects if not authenticated with 401
