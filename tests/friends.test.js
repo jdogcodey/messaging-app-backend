@@ -1055,4 +1055,14 @@ describe("Friends API", () => {
       });
     });
   });
+  describe("POST /friend-request/:userId", () => {
+    //TODO
+    it("Rejects if not authenticated with 401");
+    // it("Rejects if sender is receiver with 400");
+    // it(
+    //   "Rejects if friend request already exists (pending or they accepted) with 400",
+    // );
+    // it("Rejects if userId does not exist with 404");
+    // it("Creates a friend request is userId exists and is not already a friend with 201")
+  });
 });
