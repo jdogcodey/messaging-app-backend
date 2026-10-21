@@ -771,7 +771,6 @@ describe("Friends API", () => {
         let uniqueCombined = [...new Set(combinedIDs)];
         expect(uniqueCombined.length).toBe(100);
       });
-      //TODO
       it("Returns an empty array when no more results exist", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
@@ -844,11 +843,55 @@ describe("Friends API", () => {
 
         const decodedCursor = decodeCursor(res.body.data.cursor);
 
-        expect(res.body.data.searchResults.length).toBe(10);
         expect(decodedCursor.type).toBe("CURSOR");
         expect(decodedCursor.limit).toBe(10);
       });
-      // it("Handles zero or negative page values");
+      //TODO
+      it("Handles zero or negative page values", async () => {
+        const { token } = await succSignIn(newUser);
+        const usernameList = [];
+        // Adding 10 users to the DB
+        for (let i = 0; i < 10; i++) {
+          usernameList.push(`John${i}`);
+        }
+        await dbUsernameSearch(usernameList);
+
+        const negativePageCursor = encodeCursor({
+          page: -1,
+        });
+
+        // Requesting with a cursor with a negative page
+        const res = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: negativePageCursor })
+          .expect(200);
+
+        const decodedCursor = decodeCursor(res.body.data.cursor);
+
+        expect(res.body.data.searchResults.length).toBe(10);
+        expect(decodedCursor.type).toBe("OFFSET");
+        expect(decodedCursor.page).toBe(2);
+
+        const zeroPageCursor = encodeCursor({
+          page: 0,
+        });
+
+        // Requesting with a cursor with a zero page
+        const resZero = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: zeroPageCursor })
+          .expect(200);
+
+        const decodedCursorZero = decodeCursor(resZero.body.data.cursor);
+
+        expect(resZero.body.data.searchResults.length).toBe(10);
+        expect(decodedCursorZero.type).toBe("OFFSET");
+        expect(decodedCursorZero.page).toBe(2);
+      });
       // it("Final offset page handled appropriately");
       // it("Limit minimum restriction");
       // it("Handles malformed type");
