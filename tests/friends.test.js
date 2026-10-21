@@ -930,6 +930,36 @@ describe("Friends API", () => {
         expect(resP2.body.data.searchResults.length).toEqual(5);
         // Null for the next cursor so we know there are no more pages
         expect(resP2.body.data.cursor).toBe(null);
+
+        // Page beyond the dataset
+        const page3 = encodeCursor({ page: 3 });
+
+        // Requesting using our page 3 cursor
+        const resP3 = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: page3 })
+          .expect(200);
+
+        // Hopefully getting no search results and no new cursor
+        expect(resP3.body.data.searchResults.length).toBe(0);
+        expect(resP3.body.data.cursor).toBe(null);
+
+        // Page beyond the dataset
+        const page57 = encodeCursor({ page: 57 });
+
+        // Requesting using our page 3 cursor
+        const resP57 = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: page57 })
+          .expect(200);
+
+        // Hopefully getting no search results and no new cursor
+        expect(resP57.body.data.searchResults.length).toBe(0);
+        expect(resP57.body.data.cursor).toBe(null);
       });
       // it("Limit minimum restriction");
       // it("Handles malformed type");
