@@ -846,7 +846,6 @@ describe("Friends API", () => {
         expect(decodedCursor.type).toBe("CURSOR");
         expect(decodedCursor.limit).toBe(10);
       });
-      //TODO
       it("Handles zero or negative page values", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
@@ -892,7 +891,46 @@ describe("Friends API", () => {
         expect(decodedCursorZero.type).toBe("OFFSET");
         expect(decodedCursorZero.page).toBe(2);
       });
-      // it("Final offset page handled appropriately");
+      //TODO
+      it("Final offset page handled appropriately", async () => {
+        const { token } = await succSignIn(newUser);
+        const usernameList = [];
+        // Adding 15 users to the DB
+        for (let i = 0; i < 15; i++) {
+          usernameList.push(`John${i}`);
+        }
+        await dbUsernameSearch(usernameList);
+
+        const encodedCursor = encodeCursor({ type: "OFFSET" });
+
+        // Requesting the first page
+        const res = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: encodedCursor })
+          .expect(200);
+
+        const firstCursor = decodeCursor(res.body.data.cursor);
+
+        expect(res.body.data.cursor).toBeDefined();
+        expect(firstCursor.type).toBe("OFFSET");
+        expect(firstCursor.page).toBe(2);
+        expect(res.body.data.searchResults.length).toBe(10);
+
+        // Requesting the second page
+        const resP2 = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: res.body.data.cursor })
+          .expect(200);
+
+        // Hopefully only get 5 back as that is all there is
+        expect(resP2.body.data.searchResults.length).toEqual(5);
+        // Null for the next cursor so we know there are no more pages
+        expect(resP2.body.data.cursor).toBe(null);
+      });
       // it("Limit minimum restriction");
       // it("Handles malformed type");
     });
