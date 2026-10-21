@@ -1056,7 +1056,6 @@ describe("Friends API", () => {
     });
   });
   describe("POST /friend-request/:userId", () => {
-    //TODO
     it("Rejects if not authenticated with 401", async () => {
       const res = await request(app).post("/friend-request/123").expect(401);
     });
@@ -1074,7 +1073,12 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(404);
     });
-    // it("Rejects if friend request already exists (pending or they accepted) with 400");
+    // TODO
+    // Need to update prisma schema to include friendship model
+    // Then these can be added
+    it(
+      "Rejects if friend request already exists (pending or they accepted) with 400",
+    );
     // it("Creates a friend request is userId exists and is not already a friend with 201")
   });
 });
