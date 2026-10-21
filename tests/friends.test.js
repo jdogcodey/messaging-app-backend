@@ -960,7 +960,6 @@ describe("Friends API", () => {
         expect(resP57.body.data.searchResults.length).toBe(0);
         expect(resP57.body.data.cursor).toBe(null);
       });
-      //TODO
       it("Limit minimum restriction", async () => {
         const { token } = await succSignIn(newUser);
         const usernameList = [];
@@ -1004,7 +1003,7 @@ describe("Friends API", () => {
           .get("/user-search")
           .set("Authorization", `Bearer ${token}`)
           .query({ search: "John" })
-          .query({ cursor: encodedNegativeLimit })
+          .query({ cursor: encodedStringLimit })
           .expect(200);
 
         const res3Cursor = decodeCursor(res3.body.data.cursor);
@@ -1013,7 +1012,47 @@ describe("Friends API", () => {
         expect(res3Cursor.type).toBe("CURSOR");
         expect(res3Cursor.limit).toBe(10);
       });
-      // it("Handles malformed type");
+      it("Handles malformed type", async () => {
+        const { token } = await succSignIn(newUser);
+        const usernameList = [];
+        // Adding 20 users to the DB
+        for (let i = 0; i < 10; i++) {
+          usernameList.push(`John${i}`);
+        }
+        await dbUsernameSearch(usernameList);
+
+        const encodedMalformedType = encodeCursor({ type: "BEEPBOOP" });
+        const encodedMalformedTypePage = encodeCursor({
+          type: "OFFSIDE",
+          page: 1,
+        });
+
+        // Requesting with a malformed type
+        const res = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: encodedMalformedType })
+          .expect(200);
+
+        const res1Cursor = decodeCursor(res.body.data.cursor);
+
+        expect(res.body.data.searchResults.length).toBe(10);
+        expect(res1Cursor.type).toBe("CURSOR");
+
+        // Requesting with a malformed type and a page
+        const res2 = await request(app)
+          .get("/user-search")
+          .set("Authorization", `Bearer ${token}`)
+          .query({ search: "John" })
+          .query({ cursor: encodedMalformedTypePage })
+          .expect(200);
+
+        const res2Cursor = decodeCursor(res2.body.data.cursor);
+
+        expect(res2.body.data.searchResults.length).toBe(10);
+        expect(res2Cursor.type).toBe("OFFSET");
+      });
     });
   });
 });
