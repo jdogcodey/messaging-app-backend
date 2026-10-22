@@ -1074,11 +1074,20 @@ describe("Friends API", () => {
         .expect(404);
     });
     // TODO
-    // Need to update prisma schema to include friendship model
-    // Then these can be added
     it(
-      "Rejects if friend request already exists (pending or they accepted) with 400",
+      "Creates a friend request is userId exists and is not already a friend with 201",
     );
-    // it("Creates a friend request is userId exists and is not already a friend with 201")
+    // it("Rejects if friend request already exists (pending or they accepted) with 400", async () => {
+    //   const { token } = await succSignIn(newUser);
+    // Add pending friend to db
+    // Try sending friend request to them - expect 400 and no change to db
+    // Add accepted friend to db
+    // Try sending friend request to them - expect 400 and no change to db
+
+    // const res = await request(app)
+    //   .post(`/friend-request/${friendId}`)
+    //   .set('Authorization', `Bearer ${token}`)
+    //   .expect(400)
+    // });
   });
 });
