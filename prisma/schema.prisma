@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearchPostgres"]
 }
 
@@ -9,14 +9,16 @@ datasource db {
 }
 
 model User {
-  id               String             @id @default(uuid())
-  first_name       String
-  last_name        String
-  username         String             @unique
-  email            String             @unique
-  password         String
-  sentMessages     Message[]          @relation("SentMessages")
-  receivedMessages MessageRecipient[]
+  id                     String             @id @default(uuid())
+  first_name             String
+  last_name              String
+  username               String             @unique
+  email                  String             @unique
+  password               String
+  sentMessages           Message[]          @relation("SentMessages")
+  receivedMessages       MessageRecipient[]
+  sentFriendRequests     Friendship[]       @relation("SentFriendRequests")
+  receivedFriendRequests Friendship[]       @relation("ReceivedFriendRequests")
 
   @@index([first_name])
   @@index([last_name])
@@ -37,4 +39,26 @@ model MessageRecipient {
   user      User    @relation(fields: [userId], references: [id])
   messageId String
   userId    String
+}
+
+model Friendship {
+  id         String           @id @default(uuid())
+  senderId   String
+  receiverId String
+  status     FriendshipStatus @default(PENDING)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  sender   User @relation("SentFriendRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ReceivedFriendRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([senderId])
+  @@index([receiverId])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
