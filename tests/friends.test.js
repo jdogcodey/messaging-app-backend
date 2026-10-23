@@ -1230,8 +1230,6 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(200);
 
-      console.log(res.body.data.friendship.requests);
-
       const requestSenderIDs = res.body.data.friendship.requests.map(
         (request) => request.senderId,
       );
@@ -1363,7 +1361,15 @@ describe("Friends API", () => {
     it("Rejects if not authenticated with 401", async () => {
       const res = await request(app).get("/friend-request/sent").expect(401);
     });
-    // it("Returns an empty array when there are no friend requests with 200");
+    it.only("Returns an empty array when there are no friend requests with 200", async () => {
+      const { token } = await succSignIn(newUser);
+      const res = await request(app)
+        .get("/friend-request/sent")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+
+      expect(res.body.data.friendship.requests.length).toBe(0);
+    });
     // it("Returns list of users who you have sent requests to with 200");
     // it("Includes timestamp of when request was sent");
     // it("Only returns pending requests and ignores accepted or rejected");
