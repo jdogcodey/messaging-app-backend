@@ -1055,14 +1055,36 @@ const indexController = {
             ],
           },
         });
-        console.log(friendshipCheck);
         if (friendshipCheck.length < 1) {
+          const friendshipUpdate = await prisma.friendship.create({
+            data: {
+              senderId: userId,
+              receiverId: searchId,
+            },
+          });
+
           res.status(201).json({
             success: true,
             message: "Friendship request sent",
+            data: {
+              friendship: {
+                update: {
+                  request: {
+                    senderId: friendshipUpdate.senderId,
+                    receiverId: friendshipUpdate.receiverId,
+                    status: friendshipUpdate.status,
+                    createdAt: friendshipUpdate.createdAt,
+                  },
+                },
+              },
+            },
+          });
+        } else {
+          res.status(400).json({
+            success: false,
+            message: "Friendship request already exists",
           });
         }
-        // Update friendship connection
       }
     }
   },
