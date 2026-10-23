@@ -1140,7 +1140,37 @@ const indexController = {
       },
     });
   },
-  getFriendRequestAccept: async (req, res, next) => {},
+  getFriendRequestAccept: async (req, res, next) => {
+    // Find the request they are trying to accept
+    const request = await prisma.friendship.findUnique({
+      where: {
+        id: req.params.requestId,
+      },
+    });
+    // If the request is actually sent to them
+    if (request.receiverId === req.user.id) {
+      // If the status is pending
+      if (request.status === "PENDING") {
+        // Update the status in the DB
+        const updatedStatus = await prisma.friendship.update({
+          where: { id: req.params.requestId },
+          data: { status: "ACCEPTED" },
+        });
+        // Send this to the user
+        res.status(200).json({
+          success: true,
+          message: "Accepted Friendship Request",
+          data: {
+            friendship: {
+              requests: updatedStatus || [],
+            },
+          },
+        });
+      } else {
+      }
+    } else {
+    }
+  },
 };
 
 export default indexController;
