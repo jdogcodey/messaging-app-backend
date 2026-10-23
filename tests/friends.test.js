@@ -1074,7 +1074,6 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(404);
     });
-    // TODO
     it("Creates a friend request if userId exists and is not already a friend with 201", async () => {
       // Add our user to the DB
       const { token, user } = await succSignIn(newUser);
@@ -1094,17 +1093,26 @@ describe("Friends API", () => {
       expect(friendshipStatus[0].receiverId).toBe(knownID[0]);
       expect(friendshipStatus[0].status).toBe("PENDING");
     });
-    // it("Rejects if friend request already exists (pending or they accepted) with 400", async () => {
-    //   const { token } = await succSignIn(newUser);
-    // Add pending friend to db
-    // Try sending friend request to them - expect 400 and no change to db
-    // Add accepted friend to db
-    // Try sending friend request to them - expect 400 and no change to db
-
-    // const res = await request(app)
-    //   .post(`/friend-request/${friendId}`)
-    //   .set('Authorization', `Bearer ${token}`)
-    //   .expect(400)
-    // });
+    // TODO
+    it("Rejects if friend request already exists (pending or they accepted) with 400", async () => {
+      const { token, user } = await succSignIn(newUser);
+      // Add another user to the DB who's ID we know
+      const knownID = ["1234"];
+      const idInDB = await dbKnownIDs(knownID);
+      // Add pending friend request
+      const pendingRequest = await prisma.friendship.create({
+        data: {
+          senderId: user.id,
+          receiverId: knownID[0],
+        },
+      });
+      // Try sending friend request to them - expect 400 and no change to db
+      const res = await request(app)
+        .post(`/friend-request/${knownID[0]}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(400);
+      // Add accepted friend to db
+      // Try sending friend request to them - expect 400 and no change to db
+    });
   });
 });

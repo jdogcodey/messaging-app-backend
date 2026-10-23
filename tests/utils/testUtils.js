@@ -452,7 +452,7 @@ export async function dbWholeUserSearch(user) {
 }
 
 export async function dbKnownIDs(IDlist) {
-  for (i = 0; i < IDlist; i++) {
+  for (i = 0; i < IDlist.length; i++) {
     const newUser = await prisma.user.create({
       data: {
         id: IDlist[i],
