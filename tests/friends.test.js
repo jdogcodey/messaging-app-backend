@@ -1075,7 +1075,7 @@ describe("Friends API", () => {
         .expect(404);
     });
     // TODO
-    it.only("Creates a friend request if userId exists and is not already a friend with 201", async () => {
+    it("Creates a friend request if userId exists and is not already a friend with 201", async () => {
       // Add our user to the DB
       const { token, user } = await succSignIn(newUser);
       // Add another user to the DB who's ID we know
