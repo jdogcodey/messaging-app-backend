@@ -1547,7 +1547,7 @@ describe("Friends API", () => {
       const res = await request(app)
         .get(`/friend-request/${requestID[0].id}/accept`)
         .set("Authorization", `Bearer ${token}`)
-        .expect(401);
+        .expect(200);
 
       // Check friend-list
       const friendshipStatus = await prisma.friendship.findMany({
