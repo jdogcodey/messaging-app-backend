@@ -1093,6 +1093,16 @@ const indexController = {
       where: {
         AND: [{ receiverId: req.user.id }, { status: "PENDING" }],
       },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            first_name: true,
+            last_name: true,
+          },
+        },
+      },
     });
     res.status(200).json({
       success: true,
