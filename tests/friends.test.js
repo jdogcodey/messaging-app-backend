@@ -1234,8 +1234,12 @@ describe("Friends API", () => {
         (request) => request.senderId,
       );
       expect(requestSenderIDs.sort()).toEqual(listOfIDs.sort());
+      res.body.data.friendship.requests.forEach((e) =>
+        expect(e.createdAt).toMatch(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+        ),
+      );
     });
-    // it("Includes timestamp of when request was sent");
     // it("Only returns pending requests and ignores accepted or rejected");
     // it(
     //   "Includes the senders user details (id, username, names) along with the request info",
