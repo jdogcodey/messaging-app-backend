@@ -1213,7 +1213,27 @@ describe("Friends API", () => {
 
       expect(res.body.data.friendship.requests.length).toBe(0);
     });
-    // it("Returns list of users who have sent you requests with 200");
+    it("Returns list of users who have sent you requests with 200", async () => {
+      const { token, user } = await succSignIn(newUser);
+      const listOfIDs = ["123", "765", "636363", "909090", "1234987"];
+      const idInDB = await dbKnownIDs(listOfIDs);
+      for (let i = 0; i < listOfIDs.length; i++) {
+        const requestSent = await prisma.friendship.create({
+          data: {
+            senderId: listOfIDs[i],
+            receiverId: user.id,
+          },
+        });
+      }
+      const res = await request(app)
+        .get("/friend-request/received")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+
+      expect(res.body.data.friendship.requests.sort()).toEqual(
+        listOfIDs.sort(),
+      );
+    });
     // it("Includes timestamp of when request was sent");
     // it("Only returns pending requests and ignores accepted or rejected");
     // it(
