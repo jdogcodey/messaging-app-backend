@@ -1056,21 +1056,23 @@ describe("Friends API", () => {
       });
     });
   });
-  describe("POST /friend-request/:userId", () => {
+  describe("POST /friend-request/new/:userId", () => {
     it("Rejects if not authenticated with 401", async () => {
-      const res = await request(app).post("/friend-request/123").expect(401);
+      const res = await request(app)
+        .post("/friend-request/new/123")
+        .expect(401);
     });
     it("Rejects if sender is receiver with 400", async () => {
       const { token, user } = await succSignIn(newUser);
       const res = await request(app)
-        .post(`/friend-request/${user.id}`)
+        .post(`/friend-request/new/${user.id}`)
         .set("Authorization", `Bearer ${token}`)
         .expect(400);
     });
     it("Rejects if userId does not exist with 404", async () => {
       const { token } = await succSignIn(newUser);
       const res = await request(app)
-        .post("/friend-request/123")
+        .post("/friend-request/new/123")
         .set("Authorization", `Bearer ${token}`)
         .expect(404);
     });
@@ -1083,7 +1085,7 @@ describe("Friends API", () => {
 
       // Request to add them as a friend
       const res = await request(app)
-        .post(`/friend-request/${knownID[0]}`)
+        .post(`/friend-request/new/${knownID[0]}`)
         .set("Authorization", `Bearer ${token}`)
         .expect(201);
       // Expect 201 and a DB update to add a Friendship Status with the right data
@@ -1107,7 +1109,7 @@ describe("Friends API", () => {
       });
       // Try sending friend request to them - expect 400 and no change to db
       const res = await request(app)
-        .post(`/friend-request/${knownID[0]}`)
+        .post(`/friend-request/new/${knownID[0]}`)
         .set("Authorization", `Bearer ${token}`)
         .expect(400);
 
@@ -1132,7 +1134,7 @@ describe("Friends API", () => {
       });
       // Try sending friend request to them - expect 400 and no change to db
       const resAccept = await request(app)
-        .post(`/friend-request/${knownID[1]}`)
+        .post(`/friend-request/new/${knownID[1]}`)
         .set("Authorization", `Bearer ${token}`)
         .expect(400);
 
@@ -1157,7 +1159,7 @@ describe("Friends API", () => {
       });
       // Try sending friend request to them - expect 400 and no change to db
       const resReverseRequest = await request(app)
-        .post(`/friend-request/${knownID[2]}`)
+        .post(`/friend-request/new/${knownID[2]}`)
         .set("Authorization", `Bearer ${token}`)
         .expect(400);
 
@@ -1182,7 +1184,7 @@ describe("Friends API", () => {
       });
       // Try sending friend request to them - expect 400 and no change to db
       const resReverseAccept = await request(app)
-        .post(`/friend-request/${knownID[3]}`)
+        .post(`/friend-request/new/${knownID[3]}`)
         .set("Authorization", `Bearer ${token}`)
         .expect(400);
 
@@ -1357,7 +1359,7 @@ describe("Friends API", () => {
       }
     });
   });
-  describe("GET /friend-requests/sent", () => {
+  describe("GET /friend-request/sent", () => {
     it("Rejects if not authenticated with 401", async () => {
       const res = await request(app).get("/friend-request/sent").expect(401);
     });
@@ -1514,10 +1516,10 @@ describe("Friends API", () => {
       }
     });
   });
-  describe("POST /friend-requests/:requestId/accept", () => {
+  describe("POST /friend-request/:requestId/accept", () => {
     it.only("Rejects if not authenticated with 401", async () => {
       const res = await request(app)
-        .get("/friend-requests/123/accept")
+        .get("/friend-request/123/accept")
         .expect(401);
     });
     // it(

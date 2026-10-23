@@ -49,7 +49,7 @@ router.get(
 );
 
 router.post(
-  "/friend-request/:userId",
+  "/friend-request/new/:userId",
   authController.jwtAuth,
   indexController.postFriendRequest,
 );
@@ -65,5 +65,7 @@ router.get(
   authController.jwtAuth,
   indexController.getFriendRequestSent,
 );
+
+router.get("/friend-request");
 
 export default router;

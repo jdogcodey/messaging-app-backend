@@ -86,27 +86,27 @@ On this project I want to start by writing some decent tests and then making fun
   - [x] Search first and last combined ('John Smith' doesn't show all 'John' and 'Smith' but rather 'John Smith')
   - [x] Search with spaces separates after first space and searches first and last OR username ('jo h n' searches first:'jo' last: 'hn' and username:'john')
   - [x] Search orders in a sensible order
-- POST /friend-request/:userId
+- POST /friend-request/new/:userId
   - [x] Creates a friend request is userId exists and is not already a friend with 201
   - [x] Rejects if not authenticated with 401
   - [x] Rejects if userId does not exist with 404
   - [x] Rejects if sender is receiver with 400
   - [x] Rejects if friend request already exists (pending or they accepted) with 400
-- GET /friend-requests/received
+- GET /friend-request/received
   - [x] Rejects if not authenticated with 401
   - [x] Returns an empty array when there are no friend requests with 200
   - [x] Returns list of users who have sent you requests with 200
   - [x] Includes timestamp of when request was sent
   - [x] Only returns pending requests and ignores accepted or rejected
   - [x] Includes the senders user details (id, username, names) along with the request info
-- GET /friend-requests/sent
+- GET /friend-request/sent
   - [x] Rejects if not authenticated with 401
   - [x] Returns an empty array when there are no friend requests with 200
   - [x] Returns list of users who you have sent requests to with 200
   - [x] Includes timestamp of when request was sent
   - [x] Only returns pending requests and ignores accepted or rejected
   - [x] Includes the user details (id, username, names) along with the request info
-- POST /friend-requests/:requestId/accept
+- POST /friend-request/:requestId/accept
   - [ ] Rejects if not authenticated with 401
   - [ ] Accepts request and adds both users to each other's friend list with 200
   - [ ] Rejects if request doesn't exist or not addressed to you with 403
