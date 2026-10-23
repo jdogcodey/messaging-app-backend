@@ -1230,9 +1230,10 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(200);
 
-      expect(res.body.data.friendship.requests.sort()).toEqual(
-        listOfIDs.sort(),
+      const requestSenderIDs = res.body.data.friendship.requests.map(
+        (request) => request.senderId,
       );
+      expect(requestSenderIDs.sort()).toEqual(listOfIDs.sort());
     });
     // it("Includes timestamp of when request was sent");
     // it("Only returns pending requests and ignores accepted or rejected");
