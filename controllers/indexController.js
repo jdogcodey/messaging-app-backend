@@ -1088,7 +1088,17 @@ const indexController = {
       }
     }
   },
-  getFriendRequest: async (req, res, next) => {},
+  getFriendRequest: async (req, res, next) => {
+    res.status(200).json({
+      success: true,
+      message: "Received friendship requests",
+      data: {
+        friendship: {
+          requests: [],
+        },
+      },
+    });
+  },
 };
 
 export default indexController;
