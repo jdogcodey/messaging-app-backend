@@ -1140,6 +1140,7 @@ const indexController = {
       },
     });
   },
+  getFriendRequestAccept: async (req, res, next) => {},
 };
 
 export default indexController;

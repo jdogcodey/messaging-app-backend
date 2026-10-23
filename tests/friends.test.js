@@ -1517,7 +1517,7 @@ describe("Friends API", () => {
     });
   });
   describe("POST /friend-request/:requestId/accept", () => {
-    it.only("Rejects if not authenticated with 401", async () => {
+    it("Rejects if not authenticated with 401", async () => {
       const res = await request(app)
         .get("/friend-request/123/accept")
         .expect(401);

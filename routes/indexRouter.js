@@ -66,6 +66,10 @@ router.get(
   indexController.getFriendRequestSent,
 );
 
-router.get("/friend-request");
+router.get(
+  "/friend-request/:requestId/accept",
+  authController.jwtAuth,
+  indexController.getFriendRequestAccept,
+);
 
 export default router;
