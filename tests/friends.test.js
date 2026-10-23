@@ -1397,7 +1397,97 @@ describe("Friends API", () => {
         ),
       );
     });
-    // it("Only returns pending requests and ignores accepted or rejected");
+    it.only("Only returns pending requests and ignores accepted or rejected", async () => {
+      const { token, user } = await succSignIn(newUser);
+      // Users who will send us a pending request
+      const pendingUsers = ["1", "2", "3", "4", "5"];
+      // Users who we have accepted
+      const addedUsers = ["6", "7", "8", "9", "10"];
+      // Users who we sent a request to
+      const sentPendingUsers = ["11", "12", "13", "14", "15"];
+      // Users we added and they accepted
+      const sentAddedUsers = ["16", "17", "18", "19", "20"];
+      // Users who we rejected
+      const rejectedUsers = ["21", "22", "23", "24", "25"];
+      // Users who rejected us
+      const sentRejectedUsers = ["26", "27", "28", "29", "30"];
+
+      // Add them to the DB
+      const pendingInDB = await dbKnownIDs([
+        ...pendingUsers,
+        ...addedUsers,
+        ...sentPendingUsers,
+        ...sentAddedUsers,
+        ...rejectedUsers,
+        ...sentRejectedUsers,
+      ]);
+      // Add friendships as outlined above
+      for (let i = 0; i < pendingUsers.length; i++) {
+        const requestSent = await prisma.friendship.create({
+          data: {
+            senderId: pendingUsers[i],
+            receiverId: user.id,
+          },
+        });
+      }
+      for (let i = 0; i < sentPendingUsers.length; i++) {
+        const requestSent = await prisma.friendship.create({
+          data: {
+            senderId: user.id,
+            receiverId: sentPendingUsers[i],
+          },
+        });
+      }
+      for (let i = 0; i < addedUsers.length; i++) {
+        const addedSent = await prisma.friendship.create({
+          data: {
+            senderId: addedUsers[i],
+            receiverId: user.id,
+            status: "ACCEPTED",
+          },
+        });
+      }
+      for (let i = 0; i < sentAddedUsers.length; i++) {
+        const addedSent = await prisma.friendship.create({
+          data: {
+            senderId: user.id,
+            receiverId: sentAddedUsers[i],
+            status: "ACCEPTED",
+          },
+        });
+      }
+      for (let i = 0; i < rejectedUsers.length; i++) {
+        const rejected = await prisma.friendship.create({
+          data: {
+            senderId: rejectedUsers[i],
+            receiverId: user.id,
+            status: "REJECTED",
+          },
+        });
+      }
+      for (let i = 0; i < sentRejectedUsers.length; i++) {
+        const rejected = await prisma.friendship.create({
+          data: {
+            senderId: user.id,
+            receiverId: rejectedUsers[i],
+            status: "REJECTED",
+          },
+        });
+      }
+
+      const res = await request(app)
+        .get("/friend-request/sent")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+
+      // Get the IDs of the requests we have
+      const requestIDs = res.body.data.friendship.requests.map(
+        (request) => request.receiverId,
+      );
+
+      // Our list of requests should match the first array
+      expect(requestIDs.sort()).toEqual(sentPendingUsers.sort());
+    });
     // it(
     //   "Includes the user details (id, username, names) along with the request info",
     // );
