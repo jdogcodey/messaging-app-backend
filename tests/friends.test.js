@@ -1242,13 +1242,20 @@ describe("Friends API", () => {
     });
     it.only("Only returns pending requests and ignores accepted or rejected", async () => {
       const { token, user } = await succSignIn(newUser);
+      // Users who will send us a pending request
       const pendingUsers = ["1", "2", "3", "4", "5"];
+      // Users who we have accepted
       const addedUsers = ["6", "7", "8", "9", "10"];
+      // Users who we sent a request to
       const sentPendingUsers = ["11", "12", "13", "14", "15"];
+      // Users we added and they accepted
       const sentAddedUsers = ["16", "17", "18", "19", "20"];
+      // Users who we rejected
       const rejectedUsers = ["21", "22", "23", "24", "25"];
+      // Users who rejected us
       const sentRejectedUsers = ["26", "27", "28", "29", "30"];
 
+      // Add them to the DB
       const pendingInDB = await dbKnownIDs([
         ...pendingUsers,
         ...addedUsers,
@@ -1257,6 +1264,7 @@ describe("Friends API", () => {
         ...rejectedUsers,
         ...sentRejectedUsers,
       ]);
+      // Add friendships as outlined above
       for (let i = 0; i < pendingUsers.length; i++) {
         const requestSent = await prisma.friendship.create({
           data: {
@@ -1313,10 +1321,12 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(200);
 
+      // Get the IDs of the requests we have
       const requestIDs = res.body.data.friendship.requests.map(
         (request) => request.senderId,
       );
 
+      // Our list of requests should match the first array
       expect(requestIDs.sort()).toEqual(pendingUsers.sort());
     });
     // it(
