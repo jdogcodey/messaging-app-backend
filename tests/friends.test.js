@@ -1397,7 +1397,7 @@ describe("Friends API", () => {
         ),
       );
     });
-    it.only("Only returns pending requests and ignores accepted or rejected", async () => {
+    it("Only returns pending requests and ignores accepted or rejected", async () => {
       const { token, user } = await succSignIn(newUser);
       // Users who will send us a pending request
       const pendingUsers = ["1", "2", "3", "4", "5"];
