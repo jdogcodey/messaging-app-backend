@@ -1198,4 +1198,14 @@ describe("Friends API", () => {
       expect(latestReverseRequestAccept[0].receiverId).toBe(user.id);
     });
   });
+  describe("GET /friend-requests/received", () => {
+    it("Rejects if not authenticated with 401");
+    it("Returns an empty array when there are no friend requests with 200");
+    it("Returns list of users who have sent you requests with 200");
+    it("Includes timestamp of when request was sent");
+    it("Only returns pending requests and ignores accepted or rejected");
+    it(
+      "Includes the senders user details (id, username, names) along with the request info",
+    );
+  });
 });
