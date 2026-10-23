@@ -1522,9 +1522,39 @@ describe("Friends API", () => {
         .get("/friend-request/123/accept")
         .expect(401);
     });
-    // it(
-    //   "Accepts request and adds both users to each others friend list with 200",
-    // );
+    it.only("Accepts request and adds both users to each others friend list with 200", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
+      // Add them to DB
+      const listOfIDs = ["1", "2", "3", "4", "5"];
+      const idInDB = await dbKnownIDs(listOfIDs);
+      // Add friend request from them to us
+      for (let i = 0; i < listOfIDs.length; i++) {
+        const requestSent = await prisma.friendship.create({
+          data: {
+            senderId: listOfIDs[i],
+            receiverId: user.id,
+          },
+        });
+      }
+      // Find the ID of one friendship request - the lucky one we will accept
+      const requestID = await prisma.friendship.findMany({
+        where: {
+          senderId: listOfIDs[2],
+        },
+      });
+      // Send accept
+      const res = await request(app)
+        .get(`/friend-request/${requestID[0].id}/accept`)
+        .expect(401);
+      // Check friend-list
+      const friendshipStatus = await prisma.friendship.findMany({
+        where: {
+          id: requestID[0].id,
+        },
+      });
+      expect(friendshipStatus[0].status).toBe("ACCEPTED");
+    });
     // it("Rejects if request doesnt exist or not addressed to you with 403");
     // it("Rejects if request already accepted/rejected with 400");
   });
