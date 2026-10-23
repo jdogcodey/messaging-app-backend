@@ -1204,7 +1204,15 @@ describe("Friends API", () => {
         .get("/friend-request/received")
         .expect(401);
     });
-    // it("Returns an empty array when there are no friend requests with 200");
+    it("Returns an empty array when there are no friend requests with 200", async () => {
+      const { token } = await succSignIn(newUser);
+      const res = await request(app)
+        .get("/friend-request/received")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+
+      expect(res.body.data.friendship.requests.length).toBe(0);
+    });
     // it("Returns list of users who have sent you requests with 200");
     // it("Includes timestamp of when request was sent");
     // it("Only returns pending requests and ignores accepted or rejected");
