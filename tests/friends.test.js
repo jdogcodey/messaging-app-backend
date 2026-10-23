@@ -1312,7 +1312,7 @@ describe("Friends API", () => {
         const rejected = await prisma.friendship.create({
           data: {
             senderId: user.id,
-            receiverId: rejectedUsers[i],
+            receiverId: sentRejectedUsers[i],
             status: "REJECTED",
           },
         });
@@ -1469,7 +1469,7 @@ describe("Friends API", () => {
         const rejected = await prisma.friendship.create({
           data: {
             senderId: user.id,
-            receiverId: rejectedUsers[i],
+            receiverId: sentRejectedUsers[i],
             status: "REJECTED",
           },
         });
@@ -1513,5 +1513,13 @@ describe("Friends API", () => {
         expect(receiver).toHaveProperty("last_name");
       }
     });
+  });
+  describe("POST /friend-request/:requestId/accept", () => {
+    it("Rejects if not authenticated with 401");
+    it(
+      "Accepts request and adds both users to each others friend list with 200",
+    );
+    it("Rejects if request doesnt exist or not addressed to you with 403");
+    it("Rejects if request already accepted/rejected with 400");
   });
 });
