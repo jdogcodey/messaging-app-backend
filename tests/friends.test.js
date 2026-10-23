@@ -1353,9 +1353,9 @@ describe("Friends API", () => {
       for (let i = 0; i < listOfIDs.length; i++) {
         const sender = res.body.data.friendship.requests[i].sender;
         expect(sender).toBeDefined();
-        expect(sender).toContain("username");
-        expect(sender).toContain("first_name");
-        expect(sender).toContain("last_name");
+        expect(sender).toHaveProperty("username");
+        expect(sender).toHaveProperty("first_name");
+        expect(sender).toHaveProperty("last_name");
       }
     });
   });
