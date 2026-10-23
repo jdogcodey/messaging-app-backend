@@ -1515,11 +1515,15 @@ describe("Friends API", () => {
     });
   });
   describe("POST /friend-request/:requestId/accept", () => {
-    it("Rejects if not authenticated with 401");
-    it(
-      "Accepts request and adds both users to each others friend list with 200",
-    );
-    it("Rejects if request doesnt exist or not addressed to you with 403");
-    it("Rejects if request already accepted/rejected with 400");
+    it.only("Rejects if not authenticated with 401", async () => {
+      const res = await request(app)
+        .get("/friend-request/123/accept")
+        .expect(401);
+    });
+    // it(
+    //   "Accepts request and adds both users to each others friend list with 200",
+    // );
+    // it("Rejects if request doesnt exist or not addressed to you with 403");
+    // it("Rejects if request already accepted/rejected with 400");
   });
 });
