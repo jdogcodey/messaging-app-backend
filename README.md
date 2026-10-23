@@ -87,11 +87,11 @@ On this project I want to start by writing some decent tests and then making fun
   - [x] Search with spaces separates after first space and searches first and last OR username ('jo h n' searches first:'jo' last: 'hn' and username:'john')
   - [x] Search orders in a sensible order
 - POST /friend-request/:userId
-  - [ ] Creates a friend request is userId exists and is not already a friend with 201
-  - [ ] Rejects if not authenticated with 401
-  - [ ] Rejects if userId does not exist with 404
-  - [ ] Rejects if sender is receiver with 400
-  - [ ] Rejects if friend request already exists (pending or they accepted) with 400
+  - [x] Creates a friend request is userId exists and is not already a friend with 201
+  - [x] Rejects if not authenticated with 401
+  - [x] Rejects if userId does not exist with 404
+  - [x] Rejects if sender is receiver with 400
+  - [x] Rejects if friend request already exists (pending or they accepted) with 400
 - GET /friend-requests/received
   - [ ] Returns list of users who have sent you requests with 200
   - [ ] Includes timestamp of when request was sent
