@@ -93,15 +93,19 @@ On this project I want to start by writing some decent tests and then making fun
   - [x] Rejects if sender is receiver with 400
   - [x] Rejects if friend request already exists (pending or they accepted) with 400
 - GET /friend-requests/received
+  - [x] Rejects if not authenticated with 401
+  - [x] Returns an empty array when there are no friend requests with 200
+  - [x] Returns list of users who have sent you requests with 200
+  - [x] Includes timestamp of when request was sent
+  - [x] Only returns pending requests and ignores accepted or rejected
+  - [x] Includes the senders user details (id, username, names) along with the request info
+- GET /friend-requests/sent
   - [ ] Rejects if not authenticated with 401
   - [ ] Returns an empty array when there are no friend requests with 200
-  - [ ] Returns list of users who have sent you requests with 200
+  - [ ] Returns list of users who you have sent requests to with 200
   - [ ] Includes timestamp of when request was sent
   - [ ] Only returns pending requests and ignores accepted or rejected
-  - [ ] Includes the senders user details (id, username, names) along with the request info
-- GET /friend-requests/sent
-  - [ ] Returns list of users you have sent requests to with 200
-  - [ ] Rejects if not authenticated with 401
+  - [ ] Includes the user details (id, username, names) along with the request info
 - POST /friend-request/:requestId/accept
   - [ ] Accepts request and adds both users to each other's friend list with 200
   - [ ] Rejects if not authenticated with 401

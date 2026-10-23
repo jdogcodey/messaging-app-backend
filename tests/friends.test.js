@@ -1359,4 +1359,16 @@ describe("Friends API", () => {
       }
     });
   });
+  describe("GET /friend-requests/sent", () => {
+    it("Rejects if not authenticated with 401", async () => {
+      const res = await request(app).get("/friend-request/sent").expect(401);
+    });
+    // it("Returns an empty array when there are no friend requests with 200");
+    // it("Returns list of users who you have sent requests to with 200");
+    // it("Includes timestamp of when request was sent");
+    // it("Only returns pending requests and ignores accepted or rejected");
+    // it(
+    //   "Includes the user details (id, username, names) along with the request info",
+    // );
+  });
 });
