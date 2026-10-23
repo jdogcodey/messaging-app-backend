@@ -1198,10 +1198,10 @@ describe("Friends API", () => {
       expect(latestReverseRequestAccept[0].receiverId).toBe(user.id);
     });
   });
-  describe("GET /friend-requests/received", () => {
+  describe("GET /friend-request/received", () => {
     it("Rejects if not authenticated with 401", async () => {
       const res = await request(app)
-        .get("/friend-requests/received")
+        .get("/friend-request/received")
         .expect(401);
     });
     // it("Returns an empty array when there are no friend requests with 200");
