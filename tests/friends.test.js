@@ -1077,7 +1077,7 @@ describe("Friends API", () => {
     // TODO
     it("Creates a friend request if userId exists and is not already a friend with 201", async () => {
       // Add our user to the DB
-      const { token } = await succSignIn(newUser);
+      const { token, user } = await succSignIn(newUser);
       // Add another user to the DB who's ID we know
       const knownID = ["1234"];
       const idInDB = await dbKnownIDs(knownID);
@@ -1089,6 +1089,10 @@ describe("Friends API", () => {
         .expect(201);
       // Expect 201 and a DB update to add a Friendship Status with the right data
       const friendshipStatus = await prisma.friendship.findMany();
+      expect(friendshipStatus.length).toBe(1);
+      expect(friendshipStatus[1].senderId).toBe(user.id);
+      expect(friendshipStatus[1].receiverId).toBe(knownID[0]);
+      expect(friendshipStatus[1].status).toBe("PENDING");
     });
     // it("Rejects if friend request already exists (pending or they accepted) with 400", async () => {
     //   const { token } = await succSignIn(newUser);

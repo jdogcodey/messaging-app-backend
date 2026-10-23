@@ -1007,7 +1007,7 @@ const indexController = {
     //   },
     // });
   },
-  postFriendRequest: (req, res, next) => {
+  postFriendRequest: async (req, res, next) => {
     const userId = req.user.id;
     const searchId = req.params.userId;
     if (userId === searchId) {
@@ -1016,14 +1016,54 @@ const indexController = {
         message: "You want to be your own friend?",
       });
     } else {
-      res.status(404).json({
-        success: false,
-        message: "Cant find user",
+      // Check if user exists in db
+      const searchInDB = await prisma.user.findMany({
+        where: {
+          id: searchId,
+        },
       });
-      // res.status(200).json({
-      //   success: true,
-      //   message: "Authorised",
-      // });
+      if (searchInDB.length < 1) {
+        res.status(404).json({
+          success: false,
+          message: "Cant find user",
+        });
+      } else {
+        // Check if friendship connection exists
+        const friendshipCheck = await prisma.friendship.findMany({
+          where: {
+            OR: [
+              {
+                AND: [
+                  {
+                    senderId: userId,
+                  },
+                  {
+                    receiverId: searchId,
+                  },
+                ],
+              },
+              {
+                AND: [
+                  {
+                    senderId: searchId,
+                  },
+                  {
+                    receiverId: userId,
+                  },
+                ],
+              },
+            ],
+          },
+        });
+        console.log(friendshipCheck);
+        if (friendshipCheck.length < 1) {
+          res.status(201).json({
+            success: true,
+            message: "Friendship request sent",
+          });
+        }
+        // Update friendship connection
+      }
     }
   },
 };
