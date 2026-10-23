@@ -1361,7 +1361,7 @@ describe("Friends API", () => {
     it("Rejects if not authenticated with 401", async () => {
       const res = await request(app).get("/friend-request/sent").expect(401);
     });
-    it.only("Returns an empty array when there are no friend requests with 200", async () => {
+    it("Returns an empty array when there are no friend requests with 200", async () => {
       const { token } = await succSignIn(newUser);
       const res = await request(app)
         .get("/friend-request/sent")
