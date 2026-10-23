@@ -1230,6 +1230,8 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(200);
 
+      console.log(res.body.data.friendship.requests);
+
       const requestSenderIDs = res.body.data.friendship.requests.map(
         (request) => request.senderId,
       );
@@ -1331,8 +1333,30 @@ describe("Friends API", () => {
       // Our list of requests should match the first array
       expect(requestIDs.sort()).toEqual(pendingUsers.sort());
     });
-    // it(
-    //   "Includes the senders user details (id, username, names) along with the request info",
-    // );
+    it("Includes the senders user details (id, username, names) along with the request info", async () => {
+      const { token, user } = await succSignIn(newUser);
+      const listOfIDs = ["1", "2", "3", "4", "5"];
+      const idInDB = await dbKnownIDs(listOfIDs);
+      for (let i = 0; i < listOfIDs.length; i++) {
+        const requestSent = await prisma.friendship.create({
+          data: {
+            senderId: listOfIDs[i],
+            receiverId: user.id,
+          },
+        });
+      }
+      const res = await request(app)
+        .get("/friend-request/received")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+
+      for (let i = 0; i < listOfIDs.length; i++) {
+        const sender = res.body.data.friendship.requests[i].sender;
+        expect(sender).toBeDefined();
+        expect(sender).toContain("username");
+        expect(sender).toContain("first_name");
+        expect(sender).toContain("last_name");
+      }
+    });
   });
 });
