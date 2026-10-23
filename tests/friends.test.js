@@ -1370,8 +1370,33 @@ describe("Friends API", () => {
 
       expect(res.body.data.friendship.requests.length).toBe(0);
     });
-    // it("Returns list of users who you have sent requests to with 200");
-    // it("Includes timestamp of when request was sent");
+    it("Returns list of users who you have sent requests to with 200", async () => {
+      const { token, user } = await succSignIn(newUser);
+      const listOfIDs = ["123", "765", "636363", "909090", "1234987"];
+      const idInDB = await dbKnownIDs(listOfIDs);
+      for (let i = 0; i < listOfIDs.length; i++) {
+        const requestSent = await prisma.friendship.create({
+          data: {
+            senderId: user.id,
+            receiverId: listOfIDs[i],
+          },
+        });
+      }
+      const res = await request(app)
+        .get("/friend-request/sent")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+
+      const requestReceiverIDs = res.body.data.friendship.requests.map(
+        (request) => request.receiverId,
+      );
+      expect(requestReceiverIDs.sort()).toEqual(listOfIDs.sort());
+      res.body.data.friendship.requests.forEach((e) =>
+        expect(e.createdAt).toMatch(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+        ),
+      );
+    });
     // it("Only returns pending requests and ignores accepted or rejected");
     // it(
     //   "Includes the user details (id, username, names) along with the request info",
