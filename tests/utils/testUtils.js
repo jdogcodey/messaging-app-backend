@@ -209,7 +209,7 @@ export async function dbKnowSendReceive(fakeUname, fakePword) {
         userId: userIDsStore[i * 4], // Done this to ensure it isn't just the 3 most recent chats anyway. Ideally this would be configurable on input to the util - maybe i'll add later]
       },
     });
-  };
+  }
   // Add a few messages back and forth so we can test whether multiple messages in one chat messes it up
   for (let i = 0; i < 2; i++) {
     const newMessage = await prisma.message.create({
@@ -218,18 +218,18 @@ export async function dbKnowSendReceive(fakeUname, fakePword) {
         senderId: ourUser.id,
       },
     });
-    // Add the same recipient for these messages 
+    // Add the same recipient for these messages
     const recipient = await prisma.messageRecipient.create({
       data: {
         messageId: newMessage.id,
         userId: userIDsStore[5],
-      }
-    })
+      },
+    });
     // Add a reply message
     const newReply = await prisma.message.create({
       data: {
         content: `singleChatReply${i}`,
-        senderId: userIDsStore[5]
+        senderId: userIDsStore[5],
       },
     });
     // Add the reply recipient
@@ -237,8 +237,8 @@ export async function dbKnowSendReceive(fakeUname, fakePword) {
       data: {
         messageId: newReply.id,
         userId: ourUser.id,
-      }
-    })
+      },
+    });
   }
 }
 
@@ -282,7 +282,7 @@ export async function dbMessageHistory(fakeUname, fakePword) {
       },
     });
   }
-  return otherUser.id
+  return otherUser.id;
 }
 
 // Adding message convo back and forth between two users to test
@@ -315,68 +315,68 @@ export async function dbMessageHistoryConvo(fakeUname, fakePword) {
       data: {
         content: `testMessage${i}`,
         senderId: otherUser.id,
-      }
-    })
+      },
+    });
     const recipient = await prisma.messageRecipient.create({
       data: {
         messageId: newMessage.id,
         userId: ourUser.id,
-      }
-    })
+      },
+    });
   }
   for (let i = 3; i < 6; i++) {
     const newMessage = await prisma.message.create({
       data: {
         content: `testMessage${i}`,
         senderId: ourUser.id,
-      }
-    })
+      },
+    });
     const recipient = await prisma.messageRecipient.create({
       data: {
         messageId: newMessage.id,
         userId: otherUser.id,
-      }
-    })
+      },
+    });
   }
   for (let i = 6; i < 9; i++) {
     const newMessage = await prisma.message.create({
       data: {
         content: `testMessage${i}`,
         senderId: otherUser.id,
-      }
-    })
+      },
+    });
     const recipient = await prisma.messageRecipient.create({
       data: {
         messageId: newMessage.id,
         userId: ourUser.id,
-      }
-    })
+      },
+    });
   }
   const newMessage = await prisma.message.create({
     data: {
       content: `testMessage9`,
       senderId: ourUser.id,
-    }
-  })
+    },
+  });
   const recipient = await prisma.messageRecipient.create({
     data: {
       messageId: newMessage.id,
       userId: otherUser.id,
-    }
-  })
+    },
+  });
   const anotherMessage = await prisma.message.create({
     data: {
       content: `testMessage10`,
       senderId: otherUser.id,
-    }
-  })
+    },
+  });
   const anotherRecipient = await prisma.messageRecipient.create({
     data: {
       messageId: anotherMessage.id,
       userId: ourUser.id,
-    }
-  })
-  return otherUser.id
+    },
+  });
+  return otherUser.id;
 }
 
 // Function adding some users with different first names so we can test
@@ -385,12 +385,12 @@ export async function dbFirstNameSearch(namesList) {
     const newUser = await prisma.user.create({
       data: {
         first_name: namesList[i],
-        last_name: 'Last',
+        last_name: "Last",
         username: `UFirst${i}`,
         email: `fakeEmailFirst${i}@gmail.com`,
-        password: `Testpassword${i}` // Password isn't hashed but should just saving on test run-time
-      }
-    })
+        password: `Testpassword${i}`, // Password isn't hashed but should just saving on test run-time
+      },
+    });
   }
 }
 
@@ -399,13 +399,13 @@ export async function dbLastNameSearch(namesList) {
   for (let i = 0; i < namesList.length; i++) {
     const newUser = await prisma.user.create({
       data: {
-        first_name: 'First',
+        first_name: "First",
         last_name: namesList[i],
         username: `ULast${i}`,
         email: `fakeEmailLast${i}@gmail.com`,
-        password: `Testpassword${i}` // Password isn't hashed but should just saving on test run-time
-      }
-    })
+        password: `Testpassword${i}`, // Password isn't hashed but should just saving on test run-time
+      },
+    });
   }
 }
 
@@ -418,9 +418,9 @@ export async function dbFirstLastNameSearch(namesList) {
         last_name: namesList[i].last_name,
         username: `ULast${i}`,
         email: `fakeEmailFirstLast${i}@gmail.com`,
-        password: `Testpassword${i}` // Again, not hashed but not necessary on this test
-      }
-    })
+        password: `Testpassword${i}`, // Again, not hashed but not necessary on this test
+      },
+    });
   }
 }
 
@@ -429,24 +429,39 @@ export async function dbUsernameSearch(namesList) {
   for (let i = 0; i < namesList.length; i++) {
     const newUser = await prisma.user.create({
       data: {
-        first_name: 'First',
-        last_name: 'Last',
+        first_name: "First",
+        last_name: "Last",
         username: namesList[i],
         email: `fakeEmailUname${i}@gmail.com`,
-        password: `Testpassword${i}` // Password isn't hashed but should just saving on test run-time
-      }
-    })
+        password: `Testpassword${i}`, // Password isn't hashed but should just saving on test run-time
+      },
+    });
   }
 }
 
 export async function dbWholeUserSearch(user) {
-    const newUser = await prisma.user.create({
+  const newUser = await prisma.user.create({
     data: {
       first_name: user.first_name,
       last_name: user.last_name,
       username: user.username,
-      email: 'fakeEmailPls@gmail.com',
-      password: 'TestPass1!',
+      email: "fakeEmailPls@gmail.com",
+      password: "TestPass1!",
+    },
+  });
+}
+
+export async function dbKnownIDs(IDlist) {
+  for (i = 0; i < IDlist; i++) {
+    const newUser = await prisma.user.create({
+      data: {
+        id: IDlist[i],
+        first_name: "John",
+        last_name: `John`,
+        username: `username${i}`,
+        email: `email${i}@gmail.com`,
+        password: `realSecure1@`,
+      },
+    });
   }
-})
 }
