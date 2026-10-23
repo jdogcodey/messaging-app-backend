@@ -1089,12 +1089,17 @@ const indexController = {
     }
   },
   getFriendRequest: async (req, res, next) => {
+    const friendshipRequests = await prisma.friendship.findMany({
+      where: {
+        AND: [{ receiverId: req.user.id }, { status: "PENDING" }],
+      },
+    });
     res.status(200).json({
       success: true,
       message: "Received friendship requests",
       data: {
         friendship: {
-          requests: [],
+          requests: friendshipRequests || [],
         },
       },
     });
