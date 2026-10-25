@@ -1211,7 +1211,41 @@ const indexController = {
       });
     }
   },
-  getFriends: async (req, res, next) => {},
+  getFriends: async (req, res, next) => {
+    const ourFriends = await prisma.friendship.findMany({
+      where: {
+        AND: [
+          { OR: [{ receiverId: req.user.id }, { senderId: req.user.id }] },
+          { status: "ACCEPTED" },
+        ],
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            first_name: true,
+            last_name: true,
+          },
+        },
+        receiver: {
+          select: {
+            id: true,
+            username: true,
+            first_name: true,
+            last_name: true,
+          },
+        },
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        friends: ourFriends,
+      },
+    });
+  },
 };
 
 export default indexController;
