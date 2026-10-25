@@ -1720,7 +1720,6 @@ describe("Friends API", () => {
         .send({ status: "REJECTED" })
         .expect(404);
     });
-    //TODO
     it("Rejects if request already accepted/rejected with 400", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
@@ -1760,6 +1759,27 @@ describe("Friends API", () => {
         .send({ status: "REJECTED" })
         .expect(400);
     });
-    // it("Rejects if user tries to reject their own request with 403", async () => {});
+    it("Rejects if user tries to reject their own request with 403", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
+      // Add them to DB
+      const listOfIDs = ["1", "2", "3", "4", "5"];
+      const idInDB = await dbKnownIDs(listOfIDs);
+
+      // Send a friend request
+      const friendRequest = await prisma.friendship.create({
+        data: {
+          senderId: user.id,
+          receiverId: listOfIDs[3],
+        },
+      });
+
+      // Try to accept the request
+      const res = await request(app)
+        .patch(`/friend-request/${friendRequest.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ status: "REJECTED" })
+        .expect(403);
+    });
   });
 });
