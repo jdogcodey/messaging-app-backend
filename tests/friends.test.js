@@ -1623,7 +1623,6 @@ describe("Friends API", () => {
         .send({ status: "ACCEPTED" })
         .expect(400);
     });
-    // TODO Rewrite as patch
     it("Rejects if user tries to accept their own request with 403", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
@@ -1641,9 +1640,17 @@ describe("Friends API", () => {
 
       // Try to accept the request
       const res = await request(app)
-        .get(`/friend-request/${friendRequest.id}/accept`)
+        .patch(`/friend-request/${friendRequest.id}`)
         .set("Authorization", `Bearer ${token}`)
+        .send({ status: "ACCEPTED" })
         .expect(403);
     });
+  });
+  describe("PATCH /friend-request/:requestId reject", () => {
+    //TODO
+    // it("Rejects if not authenticated with 401", async () => {});
+    // it("Rejects request with 200", async () => {});
+    // it("Rejects if request doesnt exist or not addressed to you with 404", async () => {});
+    // it("Rejects if request already accepted/rejected with 403", async () => {});
   });
 });
