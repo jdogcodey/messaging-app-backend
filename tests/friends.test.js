@@ -1557,7 +1557,7 @@ describe("Friends API", () => {
       });
       expect(friendshipStatus[0].status).toBe("ACCEPTED");
     });
-    it.only("Rejects if request doesnt exist or not addressed to you with 404", async () => {
+    it("Rejects if request doesnt exist or not addressed to you with 404", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
       // Add them to DB
@@ -1574,6 +1574,12 @@ describe("Friends API", () => {
       // 'Accept' that
       const res = await request(app)
         .get(`/friend-request/${requestSent.id}/accept`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(404);
+
+      // Request a non-existent friend request
+      const res2 = await request(app)
+        .get(`/friend-request/1234/accept`)
         .set("Authorization", `Bearer ${token}`)
         .expect(404);
     });
