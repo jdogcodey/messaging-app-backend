@@ -1170,6 +1170,17 @@ const indexController = {
               },
             });
           } else {
+            if (request.status === "ACCEPTED") {
+              res.status(400).json({
+                success: false,
+                message: "You are already friends",
+              });
+            } else if (request.status === "REJECTED") {
+              res.status(400).json({
+                success: false,
+                message: "You already rejected this",
+              });
+            }
           }
         } else {
           // Could be 403 but going with 404 as doesnt leak that the resource exists if it doesnt belong to them

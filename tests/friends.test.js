@@ -1583,7 +1583,7 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(404);
     });
-    it.only("Rejects if request already accepted/rejected with 400", async () => {
+    it("Rejects if request already accepted/rejected with 400", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
       // Add them to DB
@@ -1618,7 +1618,7 @@ describe("Friends API", () => {
       const res2 = await request(app)
         .get(`/friend-request/${rejected.id}/accept`)
         .set("Authorization", `Bearer ${token}`)
-        .expect(404);
+        .expect(400);
     });
   });
 });
