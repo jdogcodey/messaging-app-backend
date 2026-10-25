@@ -1183,11 +1183,18 @@ const indexController = {
             }
           }
         } else {
-          // Could be 403 but going with 404 as doesnt leak that the resource exists if it doesnt belong to them
-          res.status(404).json({
-            success: false,
-            message: "Couldnt find Friend Request",
-          });
+          if (request.senderId === req.user.id) {
+            res.status(403).json({
+              success: false,
+              message: "You sent this friend request",
+            });
+          } else {
+            // Could be 403 but going with 404 as doesnt leak that the resource exists if it doesnt belong to them
+            res.status(404).json({
+              success: false,
+              message: "Couldnt find Friend Request",
+            });
+          }
         }
       } else {
         res.status(404).json({
