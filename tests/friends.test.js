@@ -1787,14 +1787,38 @@ describe("Friends API", () => {
       const res = await request(app).get("/friends").expect(401);
     });
     //TODO
-    // it("Returns list of accepted friends with 200", async () => {
+    it("Returns list of accepted friends with 200", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
+      // Add them to DB
+      const listOfIDs = ["1", "2", "3", "4", "5"];
+      const idInDB = await dbKnownIDs(listOfIDs);
 
-    // });
+      // Add a few of them as friends to the db
+      for (let i = 2; i < 5; i++) {
+        const addFriend = await prisma.friendship.create({
+          data: {
+            senderId: user.id,
+            receiverId: listOfIDs[i],
+            status: "ACCEPTED",
+          },
+        });
+      }
 
-    // it("List includes basic user info but no sensitive fields", async () => {
+      // Request our friend list
+      const res = await request(app)
+        .get("/friends")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
 
-    // });
+      const friendList = res.body.data.friends;
+      const friendIDs = friendList.map((friend) => friend.id);
 
+      expect(friendList).toBeDefined();
+      expect(friendList.length).toBe(3);
+      friendIDs.forEach((id) => expect(["3", "4", "5"]).toContain(id));
+    });
+    // it("List includes basic user info but no sensitive fields", async () => {});
     // it("Returns an empty array when the user has no friends with 200", async () => {});
     // it("Returns friends regardless of whether user sent or received request", async () => {});
     // it("Only returns accepted friendships (ignores rejected or pending)", async () => {});
