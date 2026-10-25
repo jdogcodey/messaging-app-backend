@@ -1583,6 +1583,42 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(404);
     });
-    // it("Rejects if request already accepted/rejected with 400");
+    it.only("Rejects if request already accepted/rejected with 400", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
+      // Add them to DB
+      const listOfIDs = ["1", "2", "3", "4", "5"];
+      const idInDB = await dbKnownIDs(listOfIDs);
+
+      // Add friend request that is already accepted
+      const accepted = await prisma.friendship.create({
+        data: {
+          senderId: listOfIDs[1],
+          receiverId: user.id,
+          status: "ACCEPTED",
+        },
+      });
+
+      // Try to accept that request again
+      const res = await request(app)
+        .get(`/friend-request/${accepted.id}/accept`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(400);
+
+      // Add friend request that is already rejected
+      const rejected = await prisma.friendship.create({
+        data: {
+          senderId: listOfIDs[2],
+          receiverId: user.id,
+          status: "REJECTED",
+        },
+      });
+
+      // Try to accept that rejection
+      const res2 = await request(app)
+        .get(`/friend-request/${rejected.id}/accept`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(404);
+    });
   });
 });
