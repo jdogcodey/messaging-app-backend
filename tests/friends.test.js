@@ -1517,7 +1517,7 @@ describe("Friends API", () => {
     });
   });
   describe("PATCH /friend-request/:requestId accept", () => {
-    it.only("Rejects if not authenticated with 401", async () => {
+    it("Rejects if not authenticated with 401", async () => {
       const res = await request(app).patch("/friend-request/123").expect(401);
     });
     // TODO Rewrite as patch
@@ -1544,8 +1544,9 @@ describe("Friends API", () => {
       });
       // Send accept
       const res = await request(app)
-        .get(`/friend-request/${requestID[0].id}/accept`)
+        .patch(`/friend-request/${requestID[0].id}`)
         .set("Authorization", `Bearer ${token}`)
+        .send({ status: "ACCEPTED" })
         .expect(200);
 
       // Check friend-list
