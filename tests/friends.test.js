@@ -1784,7 +1784,9 @@ describe("Friends API", () => {
   });
   describe("GET /friends", () => {
     //TODO
-    it("Returns list of accepted friends with 200", async () => {});
+    it("Returns list of accepted friends with 200", async () => {
+      const res = await request(app).get("/friends").expect(401);
+    });
     // it("List includes basic user info but no sensitive fields", async () => {});
     // it("Rejects if not authenticated with 401", async () => {});
     // it("Returns an empty array when the user has no friends with 200", async () => {});
