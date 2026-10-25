@@ -1149,6 +1149,8 @@ const indexController = {
         },
       });
 
+      const newStatus = req.body.status;
+
       if (request) {
         // If the request is actually sent to them
         if (request.receiverId === req.user.id) {
@@ -1157,7 +1159,7 @@ const indexController = {
             // Update the status in the DB
             const updatedStatus = await prisma.friendship.update({
               where: { id: req.params.requestId },
-              data: { status: "ACCEPTED" },
+              data: { status: newStatus },
             });
             // Send this to the user
             res.status(200).json({

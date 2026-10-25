@@ -1693,6 +1693,7 @@ describe("Friends API", () => {
       expect(friendshipStatus[0].status).toBe("REJECTED");
     });
     //TODO
+
     // it("Rejects if request doesnt exist or not addressed to you with 404", async () => {});
     // it("Rejects if request already accepted/rejected with 403", async () => {});
   });
