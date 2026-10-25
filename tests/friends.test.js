@@ -1693,8 +1693,34 @@ describe("Friends API", () => {
       expect(friendshipStatus[0].status).toBe("REJECTED");
     });
     //TODO
+    it("Rejects if request doesnt exist or not addressed to you with 404", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
+      // Add them to DB
+      const listOfIDs = ["1", "2", "3", "4", "5"];
+      const idInDB = await dbKnownIDs(listOfIDs);
+      // Add friend request that isn't to us
+      const requestSent = await prisma.friendship.create({
+        data: {
+          senderId: listOfIDs[0],
+          receiverId: listOfIDs[1],
+        },
+      });
 
-    // it("Rejects if request doesnt exist or not addressed to you with 404", async () => {});
+      // 'Accept' that
+      const res = await request(app)
+        .patch(`/friend-request/${requestSent.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ status: "REJECTED" })
+        .expect(404);
+
+      // Request a non-existent friend request
+      const res2 = await request(app)
+        .patch(`/friend-request/1234`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ status: "REJECTED" })
+        .expect(404);
+    });
     // it("Rejects if request already accepted/rejected with 403", async () => {});
   });
 });
