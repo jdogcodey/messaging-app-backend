@@ -1520,7 +1520,6 @@ describe("Friends API", () => {
     it("Rejects if not authenticated with 401", async () => {
       const res = await request(app).patch("/friend-request/123").expect(401);
     });
-    // TODO Rewrite as patch
     it("Accepts request and adds both users to each others friend list with 200", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
@@ -1573,16 +1572,19 @@ describe("Friends API", () => {
 
       // 'Accept' that
       const res = await request(app)
-        .get(`/friend-request/${requestSent.id}/accept`)
+        .get(`/friend-request/${requestSent.id}`)
         .set("Authorization", `Bearer ${token}`)
+        .send({ status: "ACCEPTED" })
         .expect(404);
 
       // Request a non-existent friend request
       const res2 = await request(app)
-        .get(`/friend-request/1234/accept`)
+        .get(`/friend-request/1234`)
         .set("Authorization", `Bearer ${token}`)
+        .send({ status: "ACCEPTED" })
         .expect(404);
     });
+    // TODO Rewrite as patch
     it("Rejects if request already accepted/rejected with 400", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
