@@ -1783,12 +1783,18 @@ describe("Friends API", () => {
     });
   });
   describe("GET /friends", () => {
-    //TODO
-    it("Returns list of accepted friends with 200", async () => {
+    it("Rejects if not authenticated with 401", async () => {
       const res = await request(app).get("/friends").expect(401);
     });
-    // it("List includes basic user info but no sensitive fields", async () => {});
-    // it("Rejects if not authenticated with 401", async () => {});
+    //TODO
+    // it("Returns list of accepted friends with 200", async () => {
+
+    // });
+
+    // it("List includes basic user info but no sensitive fields", async () => {
+
+    // });
+
     // it("Returns an empty array when the user has no friends with 200", async () => {});
     // it("Returns friends regardless of whether user sent or received request", async () => {});
     // it("Only returns accepted friendships (ignores rejected or pending)", async () => {});
