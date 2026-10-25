@@ -106,12 +106,12 @@ On this project I want to start by writing some decent tests and then making fun
   - [x] Includes timestamp of when request was sent
   - [x] Only returns pending requests and ignores accepted or rejected
   - [x] Includes the user details (id, username, names) along with the request info
-- POST /friend-request/:requestId/accept
+- PATCH /friend-request/:requestId accept
   - [x] Rejects if not authenticated with 401
   - [ ] Accepts request and adds both users to each other's friend list with 200
   - [ ] Rejects if request doesn't exist or not addressed to you with 404
-  - [ ] Rejects if request already accepted/rejected with 400
-- POST /friend-request/:requestId/reject
+  - [ ] Rejects if request already accepted/rejected with 403
+- PATCH /friend-request/:requestId reject
   - [ ] Rejects request with 200
   - [ ] Rejects if not authenticated with 401
   - [ ] Rejects if request doesn't exist with 403

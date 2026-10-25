@@ -66,8 +66,8 @@ router.get(
   indexController.getFriendRequestSent,
 );
 
-router.get(
-  "/friend-request/:requestId/accept",
+router.patch(
+  "/friend-request/:requestId",
   authController.jwtAuth,
   indexController.getFriendRequestAccept,
 );
