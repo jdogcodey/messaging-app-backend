@@ -1148,6 +1148,7 @@ const indexController = {
           id: req.params.requestId,
         },
       });
+
       if (request) {
         // If the request is actually sent to them
         if (request.receiverId === req.user.id) {
@@ -1171,6 +1172,11 @@ const indexController = {
           } else {
           }
         } else {
+          // Could be 403 but going with 404 as doesnt leak that the resource exists if it doesnt belong to them
+          res.status(404).json({
+            success: false,
+            message: "Couldnt find Friend Request",
+          });
         }
       } else {
         res.status(404).json({
