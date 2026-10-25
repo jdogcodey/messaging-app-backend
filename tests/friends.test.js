@@ -1518,7 +1518,8 @@ describe("Friends API", () => {
   });
   describe("PATCH /friend-request/:requestId accept", () => {
     it("Rejects if not authenticated with 401", async () => {
-      const res = await (await request(app).patch("/friend-request/123"))
+      const res = await request(app)
+        .patch("/friend-request/123")
         .send({ status: "ACCEPTED" })
         .expect(401);
     });
@@ -1649,9 +1650,14 @@ describe("Friends API", () => {
     });
   });
   describe("PATCH /friend-request/:requestId reject", () => {
+    it("Rejects if not authenticated with 401", async () => {
+      const res = await request(app)
+        .patch("/friend-request/123")
+        .send({ status: "REJECTED" })
+        .expect(401);
+    });
     //TODO
-    it("Rejects if not authenticated with 401", async () => {});
-    // it("Rejects request with 200", async () => {});
+    it("Rejects request with 200", async () => {});
     // it("Rejects if request doesnt exist or not addressed to you with 404", async () => {});
     // it("Rejects if request already accepted/rejected with 403", async () => {});
   });
