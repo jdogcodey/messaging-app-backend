@@ -1557,7 +1557,7 @@ describe("Friends API", () => {
       });
       expect(friendshipStatus[0].status).toBe("ACCEPTED");
     });
-    it.only("Rejects if request doesnt exist or not addressed to you with 403", async () => {
+    it.only("Rejects if request doesnt exist or not addressed to you with 404", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
       // Add them to DB
@@ -1570,12 +1570,12 @@ describe("Friends API", () => {
           receiverId: listOfIDs[1],
         },
       });
-      //TODO:
+
       // 'Accept' that
-      // const res = await request(app)
-      //   .get(`/friend-request/${requestSent.id}/accept`)
-      //   .set("Authorization", `Bearer ${token}`)
-      //   .expect(404);
+      const res = await request(app)
+        .get(`/friend-request/${requestSent.id}/accept`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(404);
     });
     // it("Rejects if request already accepted/rejected with 400");
   });
