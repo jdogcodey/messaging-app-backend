@@ -1140,7 +1140,7 @@ const indexController = {
       },
     });
   },
-  getFriendRequestAccept: async (req, res, next) => {
+  patchFriendRequestAccept: async (req, res, next) => {
     try {
       // Find the request they are trying to accept
       const request = await prisma.friendship.findUnique({
@@ -1211,6 +1211,7 @@ const indexController = {
       });
     }
   },
+  getFriends: async (req, res, next) => {},
 };
 
 export default indexController;

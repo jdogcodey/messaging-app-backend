@@ -69,7 +69,9 @@ router.get(
 router.patch(
   "/friend-request/:requestId",
   authController.jwtAuth,
-  indexController.getFriendRequestAccept,
+  indexController.patchFriendRequestAccept,
 );
+
+router.get("/friends", authController.jwtAuth, indexController.getFriends);
 
 export default router;
