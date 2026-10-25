@@ -1620,5 +1620,26 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(400);
     });
+    it("Rejects if user tries to accept their own request with 403", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
+      // Add them to DB
+      const listOfIDs = ["1", "2", "3", "4", "5"];
+      const idInDB = await dbKnownIDs(listOfIDs);
+
+      // Send a friend request
+      const friendRequest = await prisma.friendship.create({
+        data: {
+          senderId: user.id,
+          receiverId: listOfIDs[3],
+        },
+      });
+
+      // Try to accept the request
+      const res = await request(app)
+        .get(`/friend-request/${friendRequest.id}/accept`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(403);
+    });
   });
 });
