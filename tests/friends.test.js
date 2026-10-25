@@ -1572,19 +1572,18 @@ describe("Friends API", () => {
 
       // 'Accept' that
       const res = await request(app)
-        .get(`/friend-request/${requestSent.id}`)
+        .patch(`/friend-request/${requestSent.id}`)
         .set("Authorization", `Bearer ${token}`)
         .send({ status: "ACCEPTED" })
         .expect(404);
 
       // Request a non-existent friend request
       const res2 = await request(app)
-        .get(`/friend-request/1234`)
+        .patch(`/friend-request/1234`)
         .set("Authorization", `Bearer ${token}`)
         .send({ status: "ACCEPTED" })
         .expect(404);
     });
-    // TODO Rewrite as patch
     it("Rejects if request already accepted/rejected with 400", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
@@ -1603,8 +1602,9 @@ describe("Friends API", () => {
 
       // Try to accept that request again
       const res = await request(app)
-        .get(`/friend-request/${accepted.id}/accept`)
+        .patch(`/friend-request/${accepted.id}`)
         .set("Authorization", `Bearer ${token}`)
+        .send({ status: "ACCEPTED" })
         .expect(400);
 
       // Add friend request that is already rejected
@@ -1618,10 +1618,12 @@ describe("Friends API", () => {
 
       // Try to accept that rejection
       const res2 = await request(app)
-        .get(`/friend-request/${rejected.id}/accept`)
+        .patch(`/friend-request/${rejected.id}`)
         .set("Authorization", `Bearer ${token}`)
+        .send({ status: "ACCEPTED" })
         .expect(400);
     });
+    // TODO Rewrite as patch
     it("Rejects if user tries to accept their own request with 403", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
