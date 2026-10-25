@@ -1692,7 +1692,6 @@ describe("Friends API", () => {
       });
       expect(friendshipStatus[0].status).toBe("REJECTED");
     });
-    //TODO
     it("Rejects if request doesnt exist or not addressed to you with 404", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
@@ -1721,6 +1720,46 @@ describe("Friends API", () => {
         .send({ status: "REJECTED" })
         .expect(404);
     });
-    // it("Rejects if request already accepted/rejected with 403", async () => {});
+    //TODO
+    it("Rejects if request already accepted/rejected with 400", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
+      // Add them to DB
+      const listOfIDs = ["1", "2", "3", "4", "5"];
+      const idInDB = await dbKnownIDs(listOfIDs);
+
+      // Add friend request that is already accepted
+      const accepted = await prisma.friendship.create({
+        data: {
+          senderId: listOfIDs[1],
+          receiverId: user.id,
+          status: "ACCEPTED",
+        },
+      });
+
+      // Try to accept that request again
+      const res = await request(app)
+        .patch(`/friend-request/${accepted.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ status: "REJECTED" })
+        .expect(400);
+
+      // Add friend request that is already rejected
+      const rejected = await prisma.friendship.create({
+        data: {
+          senderId: listOfIDs[2],
+          receiverId: user.id,
+          status: "REJECTED",
+        },
+      });
+
+      // Try to accept that rejection
+      const res2 = await request(app)
+        .patch(`/friend-request/${rejected.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ status: "REJECTED" })
+        .expect(400);
+    });
+    // it("Rejects if user tries to reject their own request with 403", async () => {});
   });
 });
