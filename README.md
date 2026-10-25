@@ -113,12 +113,15 @@ On this project I want to start by writing some decent tests and then making fun
   - [x] Rejects if request already accepted/rejected with 400
   - [x] Rejects if user tries to accept their own request with 403
 - PATCH /friend-request/:requestId reject
-  - [ ] Rejects if not authenticated with 401
-  - [ ] Rejects request with 200
-  - [ ] Rejects if request doesn't exist or not addressed to you with 404
-  - [ ] Rejects if request already accepted/rejected with 400
-  - [ ] Rejects if user tries to reject their own request with 403
+  - [x] Rejects if not authenticated with 401
+  - [x] Rejects request with 200
+  - [x] Rejects if request doesn't exist or not addressed to you with 404
+  - [x] Rejects if request already accepted/rejected with 400
+  - [x] Rejects if user tries to reject their own request with 403
 - GET /friends
   - [ ] Returns list of accepted friends with 200
   - [ ] List includes basic user info but no sensitive fields
   - [ ] Rejects if not authenticated with 401
+  - [ ] Returns an empty array when the user has no friends with 200
+  - [ ] Returns friends regardless of whether user sent or received request
+  - [ ] Only returns accepted friendships (ignores rejected or pending)
