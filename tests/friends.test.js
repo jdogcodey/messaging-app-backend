@@ -2029,7 +2029,7 @@ describe("Friends API", () => {
       const res = await request(app).patch("/users/profile").expect(401);
     });
     // TODO
-    it("Updates allowed customisation fields successfully with 200", async () => {
+    it.only("Updates allowed customisation fields successfully with 200", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
 
@@ -2050,13 +2050,12 @@ describe("Friends API", () => {
           .send({ [key]: value })
           .expect(200);
 
-        const updatedUserInDB = prisma.user.findUnique({
+        const updatedUserInDB = await prisma.user.findUnique({
           where: {
-            data: {
-              id: user.id,
-            },
+            id: user.id,
           },
         });
+        console.log(updatedUserInDB);
 
         expect(updatedUserInDB[key]).toBe(value);
       }
