@@ -1140,7 +1140,7 @@ const indexController = {
       },
     });
   },
-  patchFriendRequestAccept: async (req, res, next) => {
+  patchFriendRequest: async (req, res, next) => {
     try {
       // Find the request they are trying to accept
       const request = await prisma.friendship.findUnique({

@@ -68,7 +68,7 @@ router.get(
 
 router.patch(
   "/friend-request/:requestId",
-  validationController.patchFriendRequest,
+  validationController.patchFriendRequest(),
   validationErrorController,
   authController.jwtAuth,
   indexController.patchFriendRequest,

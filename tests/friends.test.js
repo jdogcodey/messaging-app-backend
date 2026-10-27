@@ -1626,6 +1626,36 @@ describe("Friends API", () => {
         .send({ status: "ACCEPTED" })
         .expect(400);
     });
+    it("Rejects if status is invalid or not allowed with 400", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
+      // Add them to DB
+      const listOfIDs = ["1", "2", "3", "4", "5"];
+      const idInDB = await dbKnownIDs(listOfIDs);
+
+      // Add friend request
+      const accepted = await prisma.friendship.create({
+        data: {
+          senderId: listOfIDs[1],
+          receiverId: user.id,
+          status: "PENDING",
+        },
+      });
+
+      // Try to return pending as status
+      const res = await request(app)
+        .patch(`/friend-request/${accepted.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ status: "PENDING" })
+        .expect(400);
+
+      // Try to return something else
+      const res2 = await request(app)
+        .patch(`/friend-request/${accepted.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ status: "ACCEPT" })
+        .expect(400);
+    });
     it("Rejects if user tries to accept their own request with 403", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);

@@ -75,6 +75,9 @@ const validationController = {
       .withMessage("Cursor must be a string")
       .trim(),
   ],
+  patchFriendRequest: () => [
+    body("status").notEmpty().isIn(["ACCEPTED", "REJECTED"]),
+  ],
 };
 
 export default validationController;

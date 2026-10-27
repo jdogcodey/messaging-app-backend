@@ -112,7 +112,7 @@ On this project I want to start by writing some decent tests and then making fun
 - [x] Accepts request and adds both users to each other's friend list with 200
 - [x] Rejects if request doesn't exist or not addressed to you with 404
 - [x] Rejects if request already accepted/rejected with 400
-- [ ] Rejects if status is invalid or not allowed with 400
+- [x] Rejects if status is invalid or not allowed with 400
 - [x] Rejects if user tries to accept their own request with 403
 - PATCH /friend-request/:requestId reject
 - [x] Rejects if not authenticated with 401
@@ -128,7 +128,7 @@ On this project I want to start by writing some decent tests and then making fun
 - [x] Returns friends regardless of whether user sent or received request
 - [x] Only returns accepted friendships (ignores rejected or pending)
 
-## User Customization
+## User Customisation
 
 - PATCH /users/profile
 - [ ] Rejects if not authenticated with 401
