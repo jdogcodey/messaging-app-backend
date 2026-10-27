@@ -1846,8 +1846,56 @@ describe("Friends API", () => {
       expect(res.body.data.friends).toBeDefined();
       expect(res.body.data.friends.length).toBe(0);
     });
-    //TODO
-    // it("Returns friends regardless of whether user sent or received request", async () => {});
+    it("Returns friends regardless of whether user sent or received request", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
+      // Add them to DB
+      const listOfIDs = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+      const idInDB = await dbKnownIDs(listOfIDs);
+
+      // Specify the IDs of those we want to request
+      const weRequest = ["1", "3", "5", "6"];
+      // Add these to the db as accepted but where we sent
+      for (const id of weRequest) {
+        await prisma.friendship.create({
+          data: {
+            senderId: user.id,
+            receiverId: id,
+            status: "ACCEPTED",
+          },
+        });
+      }
+
+      //Specify the IDs of those we want to have requested us
+      const requestedUs = ["2", "9", "10"];
+      // Add these to the db as accepted where we received
+      for (const id of requestedUs) {
+        await prisma.friendship.create({
+          data: {
+            senderId: user.id,
+            receiverId: id,
+            status: "ACCEPTED",
+          },
+        });
+      }
+
+      // Request our friend list
+      const res = await request(app)
+        .get("/friends")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+
+      // Getting the whole list of our friends
+      const allOurFriends = weRequest.concat(...requestedUs);
+
+      const friendList = res.body.data.friends;
+      const senderIDs = friendList.map((friend) => friend.sender.id);
+      const receiverIDs = friendList.map((friend) => friend.receiver.id);
+      const resRelationshipIDs = senderIDs.concat(receiverIDs);
+      const resFriendIDs = resRelationshipIDs.filter((id) => id !== user.id);
+
+      expect(allOurFriends.sort()).toEqual(resFriendIDs.sort());
+    });
     // it("Only returns accepted friendships (ignores rejected or pending)", async () => {});
   });
 });
