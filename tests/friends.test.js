@@ -1833,8 +1833,20 @@ describe("Friends API", () => {
         });
       });
     });
+    it("Returns an empty array when the user has no friends with 200", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
+
+      // Request our friend list
+      const res = await request(app)
+        .get("/friends")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+
+      expect(res.body.data.friends).toBeDefined();
+      expect(res.body.data.friends.length).toBe(0);
+    });
     //TODO
-    // it("Returns an empty array when the user has no friends with 200", async () => {});
     // it("Returns friends regardless of whether user sent or received request", async () => {});
     // it("Only returns accepted friendships (ignores rejected or pending)", async () => {});
   });
