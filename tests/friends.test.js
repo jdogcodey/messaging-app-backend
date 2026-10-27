@@ -1816,9 +1816,24 @@ describe("Friends API", () => {
       expect(friendList).toBeDefined();
       expect(friendList.length).toBe(3);
       friendIDs.forEach((id) => expect(["3", "4", "5"]).toContain(id));
+
+      // List includes basic user info and excludes sensitive info
+      friendList.forEach((friendRequest) => {
+        const allowedValues = ["id", "username", "first_name", "last_name"];
+        const bannedValues = ["password", "email"];
+
+        allowedValues.forEach((value) => {
+          expect(friendRequest.sender).toHaveProperty(value);
+          expect(friendRequest.receiver).toHaveProperty(value);
+        });
+
+        bannedValues.forEach((value) => {
+          expect(friendRequest.sender).not.toHaveProperty(value);
+          expect(friendRequest.receiver).not.toHaveProperty(value);
+        });
+      });
     });
     //TODO
-    // it("List includes basic user info but no sensitive fields", async () => {});
     // it("Returns an empty array when the user has no friends with 200", async () => {});
     // it("Returns friends regardless of whether user sent or received request", async () => {});
     // it("Only returns accepted friendships (ignores rejected or pending)", async () => {});
