@@ -2055,7 +2055,7 @@ describe("Friends API", () => {
             id: user.id,
           },
         });
-        console.log(updatedUserInDB);
+        console.log(res.body.data.user);
 
         expect(updatedUserInDB[key]).toBe(value);
       }

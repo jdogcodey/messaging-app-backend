@@ -7,6 +7,7 @@ import passport from "passport";
 import "../config/passport.js";
 import validationErrorController from "./validationErrorsController.js";
 import { decodeCursor, encodeCursor } from "./cursorController.js";
+import { db } from "./prisma/db";
 
 const indexController = {
   signup: async (req, res, next) => {
@@ -1243,6 +1244,43 @@ const indexController = {
       success: true,
       data: {
         friends: ourFriends,
+      },
+    });
+  },
+  // TODO
+  // Work through the transition to Prisma ORM 8 documentation
+  // Get this route working
+  // Transition to Prisma ORM 8 everywhere (good to experience doing this somewhere with something)
+  // Then finally this project back end will be done!
+  patchUserProfile: async (req, res, next) => {
+    // Updating all the properties they want to update
+    for (const property in req.body) {
+      const updatedUser = await db.orm.public.User.where({
+        id: req.user.id,
+      }).update({
+        [property]: req.body[property],
+      }); // I think this is new in Prisma 8? Need to read up on it a bit more but just building following the docs and is different from before
+    }
+
+    // Get the updated user from the DB
+    // Again using Prisma 8 hopefully
+    const updatedUser = await db.orm.public.User.first({
+      id: req.user.id,
+    }).select(
+      "id",
+      "first_name",
+      "last_name",
+      "username",
+      "avatar",
+      "theme",
+      "statusMessage",
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Successfully updated user profile",
+      data: {
+        user: updatedUser,
       },
     });
   },
