@@ -2025,10 +2025,10 @@ describe("Friends API", () => {
     });
   });
   describe("PATCH /users/profile", () => {
-    // TODO
-    it.only("Rejects if not authenticated with 401", async () => {
+    it("Rejects if not authenticated with 401", async () => {
       const res = await request(app).patch("/users/profile").expect(401);
     });
+    // TODO
     it("Updates allowed customisation fields successfully with 200", async () => {});
     // it("Rejects invalid field values or types with 400", async () => {});
     // it("Ignores or blocks attempts to update restricted fields like password or email", async () => {});
