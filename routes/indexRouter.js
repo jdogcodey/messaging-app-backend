@@ -68,8 +68,10 @@ router.get(
 
 router.patch(
   "/friend-request/:requestId",
+  validationController.patchFriendRequest,
+  validationErrorController,
   authController.jwtAuth,
-  indexController.patchFriendRequestAccept,
+  indexController.patchFriendRequest,
 );
 
 router.get("/friends", authController.jwtAuth, indexController.getFriends);
