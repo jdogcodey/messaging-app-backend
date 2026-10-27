@@ -1786,7 +1786,6 @@ describe("Friends API", () => {
     it("Rejects if not authenticated with 401", async () => {
       const res = await request(app).get("/friends").expect(401);
     });
-    //TODO
     it("Returns list of accepted friends with 200", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
@@ -1812,12 +1811,13 @@ describe("Friends API", () => {
         .expect(200);
 
       const friendList = res.body.data.friends;
-      const friendIDs = friendList.map((friend) => friend.id);
+      const friendIDs = friendList.map((friend) => friend.receiver.id);
 
       expect(friendList).toBeDefined();
       expect(friendList.length).toBe(3);
       friendIDs.forEach((id) => expect(["3", "4", "5"]).toContain(id));
     });
+    //TODO
     // it("List includes basic user info but no sensitive fields", async () => {});
     // it("Returns an empty array when the user has no friends with 200", async () => {});
     // it("Returns friends regardless of whether user sent or received request", async () => {});
