@@ -2029,7 +2029,38 @@ describe("Friends API", () => {
       const res = await request(app).patch("/users/profile").expect(401);
     });
     // TODO
-    it("Updates allowed customisation fields successfully with 200", async () => {});
+    it("Updates allowed customisation fields successfully with 200", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
+
+      // Create a loop over an array of fields to change to request to patch that item
+      // Items to add to array - first&last name, avatar, theme, status
+      const allowedPatches = [
+        ["first_name", "John"],
+        ["last_name", "Smith"],
+        ["avatar", "testAvatar.png"],
+        ["theme", "dark"],
+        ["statusMessage", "Test Status Message"],
+      ];
+
+      for (const [key, value] of allowedPatches) {
+        const res = await request(app)
+          .patch("/users/profile")
+          .set("Authorization", `Bearer ${token}`)
+          .send({ [key]: value })
+          .expect(200);
+
+        const updatedUserInDB = prisma.user.findUnique({
+          where: {
+            data: {
+              id: user.id,
+            },
+          },
+        });
+
+        expect(updatedUserInDB[key]).toBe(value);
+      }
+    });
     // it("Rejects invalid field values or types with 400", async () => {});
     // it("Ignores or blocks attempts to update restricted fields like password or email", async () => {});
   });
