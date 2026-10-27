@@ -119,9 +119,9 @@ On this project I want to start by writing some decent tests and then making fun
   - [x] Rejects if request already accepted/rejected with 400
   - [x] Rejects if user tries to reject their own request with 403
 - GET /friends
-  - [ ] Returns list of accepted friends with 200
-  - [ ] List includes basic user info but no sensitive fields
-  - [ ] Rejects if not authenticated with 401
-  - [ ] Returns an empty array when the user has no friends with 200
-  - [ ] Returns friends regardless of whether user sent or received request
-  - [ ] Only returns accepted friendships (ignores rejected or pending)
+  - [x] Returns list of accepted friends with 200
+  - [x] List includes basic user info but no sensitive fields
+  - [x] Rejects if not authenticated with 401
+  - [x] Returns an empty array when the user has no friends with 200
+  - [x] Returns friends regardless of whether user sent or received request
+  - [x] Only returns accepted friendships (ignores rejected or pending)
