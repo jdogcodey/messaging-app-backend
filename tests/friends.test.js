@@ -1605,11 +1605,15 @@ describe("Friends API", () => {
       const listOfIDs = ["1", "2", "3", "4", "5"];
       const idInDB = await dbKnownIDs(listOfIDs);
       for (let i = 0; i < listOfIDs.length; i++) {
-        const requestSent = await prisma.friendship.create({
-          data: {
-            senderId: user.id,
-            receiverId: listOfIDs[i],
-          },
+        // const requestSent = await prisma.friendship.create({
+        //   data: {
+        //     senderId: user.id,
+        //     receiverId: listOfIDs[i],
+        //   },
+        // });
+        const requestSent = await db.orm.public.Friendship.create({
+          senderId: user.id,
+          receiverId: listOfIDs[i],
         });
       }
       const res = await request(app)
