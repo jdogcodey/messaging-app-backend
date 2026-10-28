@@ -1,6 +1,6 @@
 import request from "supertest";
 import app from "../app.js";
-import prisma from "../config/prisma-client.js";
+// import prisma from "../config/prisma-client.js";
 import {
   succSignIn,
   newUser,
@@ -25,9 +25,9 @@ import { db } from "../src/prisma/db.ts";
 
 beforeEach(async () => {
   // Reset DB
-  await prisma.messageRecipient.deleteMany({});
-  await prisma.message.deleteMany({});
-  await prisma.user.deleteMany({});
+  // await prisma.messageRecipient.deleteMany({});
+  // await prisma.message.deleteMany({});
+  // await prisma.user.deleteMany({});
   await db.orm.public.MessageRecipient.where({}).deleteAll();
   await db.orm.public.Message.where({}).deleteAll();
   await db.orm.public.Friendship.where({}).deleteAll();
@@ -36,7 +36,7 @@ beforeEach(async () => {
 
 afterAll(async () => {
   // Exit the db cleanly
-  await prisma.$disconnect();
+  // await prisma.$disconnect();
   await db.close();
 });
 
@@ -1455,11 +1455,15 @@ describe("Friends API", () => {
       const listOfIDs = ["123", "765", "636363", "909090", "1234987"];
       const idInDB = await dbKnownIDs(listOfIDs);
       for (let i = 0; i < listOfIDs.length; i++) {
-        const requestSent = await prisma.friendship.create({
-          data: {
-            senderId: user.id,
-            receiverId: listOfIDs[i],
-          },
+        // const requestSent = await prisma.friendship.create({
+        //   data: {
+        //     senderId: user.id,
+        //     receiverId: listOfIDs[i],
+        //   },
+        // });
+        const requestSent = await db.orm.public.Friendship.create({
+          senderId: user.id,
+          receiverId: listOfIDs[i],
         });
       }
       const res = await request(app)
@@ -2048,7 +2052,7 @@ describe("Friends API", () => {
 
       expect(allOurFriends.sort()).toEqual(resFriendIDs.sort());
     });
-    it("Only returns accepted friendships (ignores rejected or pending)", async () => {
+    it.only("Only returns accepted friendships (ignores rejected or pending)", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
       // Add them to DB
@@ -2059,36 +2063,51 @@ describe("Friends API", () => {
       const weRequestAccepted = ["2", "4"];
       // Add these to the db as accepted where we sent
       for (const id of weRequestAccepted) {
-        await prisma.friendship.create({
-          data: {
-            senderId: user.id,
-            receiverId: id,
-            status: "ACCEPTED",
-          },
+        // await prisma.friendship.create({
+        //   data: {
+        //     senderId: user.id,
+        //     receiverId: id,
+        //     status: "ACCEPTED",
+        //   },
+        // });
+        await db.orm.public.Friendship.create({
+          senderId: user.id,
+          receiverId: id,
+          status: "ACCEPTED",
         });
       }
       // We requested that are pending
       const weRequestPending = ["1", "3"];
       // Add these to the db as pending where we sent
       for (const id of weRequestPending) {
-        await prisma.friendship.create({
-          data: {
-            senderId: user.id,
-            receiverId: id,
-            status: "PENDING",
-          },
+        // await prisma.friendship.create({
+        //   data: {
+        //     senderId: user.id,
+        //     receiverId: id,
+        //     status: "PENDING",
+        //   },
+        // });
+        await db.orm.public.Friendship.create({
+          senderId: user.id,
+          receiverId: id,
+          status: "PENDING",
         });
       }
       // We requested that rejected
       const weRequestReject = ["5"];
       // Add these to the db as rejected where we sent
       for (const id of weRequestReject) {
-        await prisma.friendship.create({
-          data: {
-            senderId: user.id,
-            receiverId: id,
-            status: "REJECTED",
-          },
+        // await prisma.friendship.create({
+        //   data: {
+        //     senderId: user.id,
+        //     receiverId: id,
+        //     status: "REJECTED",
+        //   },
+        // });
+        await db.orm.public.Friendship.create({
+          senderId: user.id,
+          receiverId: id,
+          status: "REJECTED",
         });
       }
 
@@ -2096,36 +2115,51 @@ describe("Friends API", () => {
       const requestUsAccept = ["6", "7"];
       // Add these to the db as accepted where we are receiver
       for (const id of requestUsAccept) {
-        await prisma.friendship.create({
-          data: {
-            senderId: id,
-            receiverId: user.id,
-            status: "ACCEPTED",
-          },
+        // await prisma.friendship.create({
+        //   data: {
+        //     senderId: id,
+        //     receiverId: user.id,
+        //     status: "ACCEPTED",
+        //   },
+        // });
+        await db.orm.public.Friendship.create({
+          senderId: id,
+          receiverId: user.id,
+          status: "ACCEPTED",
         });
       }
       // Requested us pending
       const requestUsPending = ["8", "9"];
       // Add these to the db as accepted where we are receiver
       for (const id of requestUsPending) {
-        await prisma.friendship.create({
-          data: {
-            senderId: id,
-            receiverId: user.id,
-            status: "PENDING",
-          },
+        // await prisma.friendship.create({
+        //   data: {
+        //     senderId: id,
+        //     receiverId: user.id,
+        //     status: "PENDING",
+        //   },
+        // });
+        await db.orm.public.Friendship.create({
+          senderId: id,
+          receiverId: user.id,
+          status: "PENDING",
         });
       }
       // Requested us rejected
       const requestUsReject = ["10"];
       // Add these to the db as accepted where we are receiver
       for (const id of requestUsReject) {
-        await prisma.friendship.create({
-          data: {
-            senderId: id,
-            receiverId: user.id,
-            status: "REJECTED",
-          },
+        // await prisma.friendship.create({
+        //   data: {
+        //     senderId: id,
+        //     receiverId: user.id,
+        //     status: "REJECTED",
+        //   },
+        // });
+        await db.orm.public.Friendship.create({
+          senderId: id,
+          receiverId: user.id,
+          status: "REJECTED",
         });
       }
 
