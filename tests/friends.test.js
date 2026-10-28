@@ -1772,12 +1772,17 @@ describe("Friends API", () => {
       const idInDB = await dbKnownIDs(listOfIDs);
 
       // Add friend request
-      const accepted = await prisma.friendship.create({
-        data: {
-          senderId: listOfIDs[1],
-          receiverId: user.id,
-          status: "PENDING",
-        },
+      // const accepted = await prisma.friendship.create({
+      //   data: {
+      //     senderId: listOfIDs[1],
+      //     receiverId: user.id,
+      //     status: "PENDING",
+      //   },
+      // });
+      const accepted = await db.orm.public.Friendship.create({
+        senderId: listOfIDs[1],
+        receiverId: user.id,
+        status: "PENDING",
       });
 
       // Try to return pending as status
