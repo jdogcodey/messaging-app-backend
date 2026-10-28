@@ -30,7 +30,7 @@ const verifyCallback = async (username, password, done) => {
 
 const localStrategy = new LocalStrategy(
   { usernameField: "username", passwordField: "password" },
-  verifyCallback
+  verifyCallback,
 );
 passport.use("local", localStrategy);
 

@@ -1,6 +1,6 @@
 import request from "supertest";
 import app from "../app.js";
-import prisma from "../config/prisma-client.js";
+// import prisma from "../config/prisma-client.js";
 import {
   succSignIn,
   newUser,
@@ -14,17 +14,23 @@ import "dotenv";
 import jwt from "jsonwebtoken";
 import { response } from "express";
 import { faker } from "@faker-js/faker";
+import { db } from "../src/prisma/db.ts";
 
 beforeEach(async () => {
   // Reset DB
-  await prisma.messageRecipient.deleteMany({});
-  await prisma.message.deleteMany({});
-  await prisma.user.deleteMany({});
+  // await prisma.messageRecipient.deleteMany({});
+  // await prisma.message.deleteMany({});
+  // await prisma.user.deleteMany({});
+  await db.orm.public.MessageRecipient.where({}).deleteAll();
+  await db.orm.public.Message.where({}).deleteAll();
+  await db.orm.public.Friendship.where({}).deleteAll();
+  await db.orm.public.User.where({}).deleteAll();
 });
 
 afterAll(async () => {
   // Exit the db cleanly
-  await prisma.$disconnect();
+  // await prisma.$disconnect();
+  await db.close();
 });
 
 describe("Messages API", () => {
@@ -100,7 +106,8 @@ describe("Messages API", () => {
           .expect(201);
 
         // We are only testing if there is a message in the DB. As we cleared the DB before each test we know that any message must be the one we submitted
-        const messageInDB = await prisma.message.findMany({});
+        // const messageInDB = await prisma.message.findMany({});
+        const messageInDB = await db.orm.public.Message.all();
         expect(messageInDB[0]).toBeDefined();
       });
       it("Message in DB has content and senderId", async () => {
