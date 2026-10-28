@@ -28,11 +28,16 @@ beforeEach(async () => {
   await prisma.messageRecipient.deleteMany({});
   await prisma.message.deleteMany({});
   await prisma.user.deleteMany({});
+  await db.orm.public.MessageRecipient.where({}).deleteAll();
+  await db.orm.public.Message.where({}).deleteAll();
+  await db.orm.public.Friendship.where({}).deleteAll();
+  await db.orm.public.User.where({}).deleteAll();
 });
 
 afterAll(async () => {
   // Exit the db cleanly
   await prisma.$disconnect();
+  await db.close();
 });
 
 describe("Friends API", () => {
@@ -1098,7 +1103,7 @@ describe("Friends API", () => {
       expect(friendshipStatus[0].receiverId).toBe(knownID[0]);
       expect(friendshipStatus[0].status).toBe("PENDING");
     });
-    it("Rejects if friend request already exists (pending or they accepted) with 400", async () => {
+    it.only("Rejects if friend request already exists (pending or they accepted) with 400", async () => {
       const { token, user } = await succSignIn(newUser);
       // Add another user to the DB who's ID we know
       const knownID = ["1234", "98765", "666", "918273"];
@@ -1121,12 +1126,16 @@ describe("Friends API", () => {
         .expect(400);
 
       // Requesting friendship status from the db to check it hasnt changed
-      const latestRequest = await prisma.friendship.findMany({
-        where: {
-          senderId: user.id,
-          receiverId: knownID[0],
-        },
-      });
+      const latestRequest = await db.orm.public.Friendship.where({
+        senderId: user.id,
+        receiverId: knownID[0],
+      }).all();
+      // const latestRequest = await prisma.friendship.findMany({
+      //   where: {
+      //     senderId: user.id,
+      //     receiverId: knownID[0],
+      //   },
+      // });
       expect(latestRequest[0].status).toBe("PENDING");
       expect(latestRequest[0].senderId).toBe(user.id);
       expect(latestRequest[0].receiverId).toBe(knownID[0]);
