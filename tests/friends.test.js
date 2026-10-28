@@ -1103,7 +1103,7 @@ describe("Friends API", () => {
       expect(friendshipStatus[0].receiverId).toBe(knownID[0]);
       expect(friendshipStatus[0].status).toBe("PENDING");
     });
-    it.only("Rejects if friend request already exists (pending or they accepted) with 400", async () => {
+    it("Rejects if friend request already exists (pending or they accepted) with 400", async () => {
       const { token, user } = await succSignIn(newUser);
       // Add another user to the DB who's ID we know
       const knownID = ["1234", "98765", "666", "918273"];
@@ -1262,11 +1262,15 @@ describe("Friends API", () => {
       const listOfIDs = ["123", "765", "636363", "909090", "1234987"];
       const idInDB = await dbKnownIDs(listOfIDs);
       for (let i = 0; i < listOfIDs.length; i++) {
-        const requestSent = await prisma.friendship.create({
-          data: {
-            senderId: listOfIDs[i],
-            receiverId: user.id,
-          },
+        // const requestSent = await prisma.friendship.create({
+        //   data: {
+        //     senderId: listOfIDs[i],
+        //     receiverId: user.id,
+        //   },
+        // });
+        const requestSent = await db.orm.public.Friendship.create({
+          senderId: listOfIDs[i],
+          receiverId: user.id,
         });
       }
       const res = await request(app)
