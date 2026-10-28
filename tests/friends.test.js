@@ -1817,11 +1817,15 @@ describe("Friends API", () => {
       const listOfIDs = ["1", "2", "3", "4", "5"];
       const idInDB = await dbKnownIDs(listOfIDs);
       // Add friend request that isn't to us
-      const requestSent = await prisma.friendship.create({
-        data: {
-          senderId: listOfIDs[0],
-          receiverId: listOfIDs[1],
-        },
+      // const requestSent = await prisma.friendship.create({
+      //   data: {
+      //     senderId: listOfIDs[0],
+      //     receiverId: listOfIDs[1],
+      //   },
+      // });
+      const requestSent = await db.orm.public.Friendship.create({
+        senderId: listOfIDs[0],
+        receiverId: listOfIDs[1],
       });
 
       // 'Accept' that
