@@ -1931,12 +1931,17 @@ describe("Friends API", () => {
 
       // Add a few of them as friends to the db
       for (let i = 2; i < 5; i++) {
-        const addFriend = await prisma.friendship.create({
-          data: {
-            senderId: user.id,
-            receiverId: listOfIDs[i],
-            status: "ACCEPTED",
-          },
+        // const addFriend = await prisma.friendship.create({
+        //   data: {
+        //     senderId: user.id,
+        //     receiverId: listOfIDs[i],
+        //     status: "ACCEPTED",
+        //   },
+        // });
+        const addFriend = await db.orm.public.Friendship.create({
+          senderId: user.id,
+          receiverId: listOfIDs[i],
+          status: "ACCEPTED",
         });
       }
 
