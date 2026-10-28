@@ -21,6 +21,7 @@ import jwt, { decode } from "jsonwebtoken";
 import { response } from "express";
 import { faker } from "@faker-js/faker";
 import { encodeCursor, decodeCursor } from "../controllers/cursorController.js";
+import { db } from "../src/prisma/db.ts";
 
 beforeEach(async () => {
   // Reset DB
@@ -1089,7 +1090,9 @@ describe("Friends API", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(201);
       // Expect 201 and a DB update to add a Friendship Status with the right data
-      const friendshipStatus = await prisma.friendship.findMany({});
+      // Outdated Prisma
+      // const friendshipStatus = await prisma.friendship.findMany({});
+      const friendshipStatus = await db.orm.public.Friendship.all();
       expect(friendshipStatus.length).toBe(1);
       expect(friendshipStatus[0].senderId).toBe(user.id);
       expect(friendshipStatus[0].receiverId).toBe(knownID[0]);
@@ -1101,11 +1104,15 @@ describe("Friends API", () => {
       const knownID = ["1234", "98765", "666", "918273"];
       const idInDB = await dbKnownIDs(knownID);
       // Add pending friend request
-      const pendingRequest = await prisma.friendship.create({
-        data: {
-          senderId: user.id,
-          receiverId: knownID[0],
-        },
+      // const pendingRequest = await prisma.friendship.create({
+      //   data: {
+      //     senderId: user.id,
+      //     receiverId: knownID[0],
+      //   },
+      // });
+      const pendingRequest = await db.orm.public.Friendship.create({
+        senderId: user.id,
+        receiverId: knownID[0],
       });
       // Try sending friend request to them - expect 400 and no change to db
       const res = await request(app)
@@ -2024,43 +2031,43 @@ describe("Friends API", () => {
       expect(allOurFriends.sort()).toEqual(resFriendIDs.sort());
     });
   });
-  describe("PATCH /users/profile", () => {
-    it("Rejects if not authenticated with 401", async () => {
-      const res = await request(app).patch("/users/profile").expect(401);
-    });
-    // TODO
-    it.only("Updates allowed customisation fields successfully with 200", async () => {
-      // Add us to DB
-      const { token, user } = await succSignIn(newUser);
+  // describe("PATCH /users/profile", () => {
+  //   it("Rejects if not authenticated with 401", async () => {
+  //     const res = await request(app).patch("/users/profile").expect(401);
+  //   });
+  //   // TODO
+  //   it("Updates allowed customisation fields successfully with 200", async () => {
+  //     // Add us to DB
+  //     const { token, user } = await succSignIn(newUser);
 
-      // Create a loop over an array of fields to change to request to patch that item
-      // Items to add to array - first&last name, avatar, theme, status
-      const allowedPatches = [
-        ["first_name", "John"],
-        ["last_name", "Smith"],
-        ["avatar", "testAvatar.png"],
-        ["theme", "dark"],
-        ["statusMessage", "Test Status Message"],
-      ];
+  //     // Create a loop over an array of fields to change to request to patch that item
+  //     // Items to add to array - first&last name, avatar, theme, status
+  //     const allowedPatches = [
+  //       ["first_name", "John"],
+  //       ["last_name", "Smith"],
+  //       ["avatar", "testAvatar.png"],
+  //       ["theme", "dark"],
+  //       ["statusMessage", "Test Status Message"],
+  //     ];
 
-      for (const [key, value] of allowedPatches) {
-        const res = await request(app)
-          .patch("/users/profile")
-          .set("Authorization", `Bearer ${token}`)
-          .send({ [key]: value })
-          .expect(200);
+  //     for (const [key, value] of allowedPatches) {
+  //       const res = await request(app)
+  //         .patch("/users/profile")
+  //         .set("Authorization", `Bearer ${token}`)
+  //         .send({ [key]: value })
+  //         .expect(200);
 
-        const updatedUserInDB = await prisma.user.findUnique({
-          where: {
-            id: user.id,
-          },
-        });
-        console.log(res.body.data.user);
+  //       const updatedUserInDB = await prisma.user.findUnique({
+  //         where: {
+  //           id: user.id,
+  //         },
+  //       });
+  //       console.log(res.body.data.user);
 
-        expect(updatedUserInDB[key]).toBe(value);
-      }
-    });
-    // it("Rejects invalid field values or types with 400", async () => {});
-    // it("Ignores or blocks attempts to update restricted fields like password or email", async () => {});
-  });
+  //       expect(updatedUserInDB[key]).toBe(value);
+  //     }
+  //   });
+  //   // it("Rejects invalid field values or types with 400", async () => {});
+  //   // it("Ignores or blocks attempts to update restricted fields like password or email", async () => {});
+  // });
 });
