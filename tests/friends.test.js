@@ -1645,19 +1645,26 @@ describe("Friends API", () => {
       const idInDB = await dbKnownIDs(listOfIDs);
       // Add friend request from them to us
       for (let i = 0; i < listOfIDs.length; i++) {
-        const requestSent = await prisma.friendship.create({
-          data: {
-            senderId: listOfIDs[i],
-            receiverId: user.id,
-          },
+        // const requestSent = await prisma.friendship.create({
+        //   data: {
+        //     senderId: listOfIDs[i],
+        //     receiverId: user.id,
+        //   },
+        // });
+        const requestSent = await db.orm.public.Friendship.create({
+          senderId: listOfIDs[i],
+          receiverId: user.id,
         });
       }
       // Find the ID of one friendship request - the lucky one we will accept
-      const requestID = await prisma.friendship.findMany({
-        where: {
-          senderId: listOfIDs[2],
-        },
-      });
+      // const requestID = await prisma.friendship.findMany({
+      //   where: {
+      //     senderId: listOfIDs[2],
+      //   },
+      // });
+      const requestID = await db.orm.public.Friendship.where({
+        senderId: listOfIDs[2],
+      }).all();
       // Send accept
       const res = await request(app)
         .patch(`/friend-request/${requestID[0].id}`)
@@ -1666,11 +1673,14 @@ describe("Friends API", () => {
         .expect(200);
 
       // Check friend-list
-      const friendshipStatus = await prisma.friendship.findMany({
-        where: {
-          id: requestID[0].id,
-        },
-      });
+      // const friendshipStatus = await prisma.friendship.findMany({
+      //   where: {
+      //     id: requestID[0].id,
+      //   },
+      // });
+      const friendshipStatus = await db.orm.public.Friendship.where({
+        id: requestID[0].id,
+      }).all();
       expect(friendshipStatus[0].status).toBe("ACCEPTED");
     });
     it("Rejects if request doesnt exist or not addressed to you with 404", async () => {
