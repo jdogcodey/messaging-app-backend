@@ -1899,11 +1899,15 @@ describe("Friends API", () => {
       const idInDB = await dbKnownIDs(listOfIDs);
 
       // Send a friend request
-      const friendRequest = await prisma.friendship.create({
-        data: {
-          senderId: user.id,
-          receiverId: listOfIDs[3],
-        },
+      // const friendRequest = await prisma.friendship.create({
+      //   data: {
+      //     senderId: user.id,
+      //     receiverId: listOfIDs[3],
+      //   },
+      // });
+      const friendRequest = await db.orm.public.Friendship.create({
+        senderId: user.id,
+        receiverId: listOfIDs[3],
       });
 
       // Try to accept the request
