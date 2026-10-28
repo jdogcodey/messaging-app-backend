@@ -1141,12 +1141,17 @@ describe("Friends API", () => {
       expect(latestRequest[0].receiverId).toBe(knownID[0]);
 
       // Add accepted friend to db
-      const acceptedFriend = await prisma.friendship.create({
-        data: {
-          senderId: user.id,
-          receiverId: knownID[1],
-          status: "ACCEPTED",
-        },
+      // const acceptedFriend = await prisma.friendship.create({
+      //   data: {
+      //     senderId: user.id,
+      //     receiverId: knownID[1],
+      //     status: "ACCEPTED",
+      //   },
+      // });
+      const acceptedFriend = await db.orm.public.Friendship.create({
+        senderId: user.id,
+        receiverId: knownID[1],
+        status: "ACCEPTED",
       });
       // Try sending friend request to them - expect 400 and no change to db
       const resAccept = await request(app)
@@ -1155,23 +1160,31 @@ describe("Friends API", () => {
         .expect(400);
 
       // Requesting friendship status from the db to check it hasnt changed
-      const latestRequestAccept = await prisma.friendship.findMany({
-        where: {
-          senderId: user.id,
-          receiverId: knownID[1],
-        },
-      });
+      // const latestRequestAccept = await prisma.friendship.findMany({
+      //   where: {
+      //     senderId: user.id,
+      //     receiverId: knownID[1],
+      //   },
+      // });
+      const latestRequestAccept = await db.orm.public.Friendship.where({
+        senderId: user.id,
+        receiverId: knownID[1],
+      }).all();
       expect(latestRequestAccept[0].status).toBe("ACCEPTED");
       expect(latestRequestAccept[0].senderId).toBe(user.id);
       expect(latestRequestAccept[0].receiverId).toBe(knownID[1]);
 
       // Do the same but for the reverse-requests
       // Add pending friend request
-      const pendingReverseRequest = await prisma.friendship.create({
-        data: {
-          senderId: knownID[2],
-          receiverId: user.id,
-        },
+      // const pendingReverseRequest = await prisma.friendship.create({
+      //   data: {
+      //     senderId: knownID[2],
+      //     receiverId: user.id,
+      //   },
+      // });
+      const pendingReverseRequest = await db.orm.public.Friendship.create({
+        senderId: knownID[2],
+        receiverId: user.id,
       });
       // Try sending friend request to them - expect 400 and no change to db
       const resReverseRequest = await request(app)
@@ -1180,23 +1193,32 @@ describe("Friends API", () => {
         .expect(400);
 
       // Requesting friendship status from the db to check it hasnt changed
-      const latestReverseRequest = await prisma.friendship.findMany({
-        where: {
-          senderId: knownID[2],
-          receiverId: user.id,
-        },
-      });
+      // const latestReverseRequest = await prisma.friendship.findMany({
+      //   where: {
+      //     senderId: knownID[2],
+      //     receiverId: user.id,
+      //   },
+      // });
+      const latestReverseRequest = await db.orm.public.Friendship.where({
+        senderId: knownID[2],
+        receiverId: user.id,
+      }).all();
       expect(latestReverseRequest[0].status).toBe("PENDING");
       expect(latestReverseRequest[0].senderId).toBe(knownID[2]);
       expect(latestReverseRequest[0].receiverId).toBe(user.id);
 
       // Add accepted friend to db
-      const acceptedReverseFriend = await prisma.friendship.create({
-        data: {
-          senderId: knownID[3],
-          receiverId: user.id,
-          status: "ACCEPTED",
-        },
+      // const acceptedReverseFriend = await prisma.friendship.create({
+      //   data: {
+      //     senderId: knownID[3],
+      //     receiverId: user.id,
+      //     status: "ACCEPTED",
+      //   },
+      // });
+      const acceptedReverseFriend = await db.orm.public.Friendship.create({
+        senderId: knownID[3],
+        receiverId: user.id,
+        status: "ACCEPTED",
       });
       // Try sending friend request to them - expect 400 and no change to db
       const resReverseAccept = await request(app)
@@ -1205,12 +1227,16 @@ describe("Friends API", () => {
         .expect(400);
 
       // Requesting friendship status from the db to check it hasnt changed
-      const latestReverseRequestAccept = await prisma.friendship.findMany({
-        where: {
-          senderId: knownID[3],
-          receiverId: user.id,
-        },
-      });
+      // const latestReverseRequestAccept = await prisma.friendship.findMany({
+      //   where: {
+      //     senderId: knownID[3],
+      //     receiverId: user.id,
+      //   },
+      // });
+      const latestReverseRequestAccept = await db.orm.public.Friendship.where({
+        senderId: knownID[3],
+        receiverId: user.id,
+      }).all();
       expect(latestReverseRequestAccept[0].status).toBe("ACCEPTED");
       expect(latestReverseRequestAccept[0].senderId).toBe(knownID[3]);
       expect(latestReverseRequestAccept[0].receiverId).toBe(user.id);
