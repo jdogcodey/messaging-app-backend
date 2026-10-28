@@ -1998,12 +1998,17 @@ describe("Friends API", () => {
       const weRequest = ["1", "3", "5", "6"];
       // Add these to the db as accepted but where we sent
       for (const id of weRequest) {
-        await prisma.friendship.create({
-          data: {
-            senderId: user.id,
-            receiverId: id,
-            status: "ACCEPTED",
-          },
+        // await prisma.friendship.create({
+        //   data: {
+        //     senderId: user.id,
+        //     receiverId: id,
+        //     status: "ACCEPTED",
+        //   },
+        // });
+        await db.orm.public.Friendship.create({
+          senderId: user.id,
+          receiverId: id,
+          status: "ACCEPTED",
         });
       }
 
@@ -2011,12 +2016,18 @@ describe("Friends API", () => {
       const requestedUs = ["2", "9", "10"];
       // Add these to the db as accepted where we received
       for (const id of requestedUs) {
-        await prisma.friendship.create({
-          data: {
-            senderId: user.id,
-            receiverId: id,
-            status: "ACCEPTED",
-          },
+        // How did this work when it was always wrong?
+        // await prisma.friendship.create({
+        //   data: {
+        //     senderId: user.id,
+        //     receiverId: id,
+        //     status: "ACCEPTED",
+        //   },
+        // });
+        await db.orm.public.Friendship.create({
+          senderId: id,
+          receiverId: user.id,
+          status: "ACCEPTED",
         });
       }
 
