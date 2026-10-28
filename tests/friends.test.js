@@ -1850,12 +1850,17 @@ describe("Friends API", () => {
       const idInDB = await dbKnownIDs(listOfIDs);
 
       // Add friend request that is already accepted
-      const accepted = await prisma.friendship.create({
-        data: {
-          senderId: listOfIDs[1],
-          receiverId: user.id,
-          status: "ACCEPTED",
-        },
+      // const accepted = await prisma.friendship.create({
+      //   data: {
+      //     senderId: listOfIDs[1],
+      //     receiverId: user.id,
+      //     status: "ACCEPTED",
+      //   },
+      // });
+      const accepted = await db.orm.public.Friendship.create({
+        senderId: listOfIDs[1],
+        receiverId: user.id,
+        status: "ACCEPTED",
       });
 
       // Try to accept that request again
@@ -1866,12 +1871,17 @@ describe("Friends API", () => {
         .expect(400);
 
       // Add friend request that is already rejected
-      const rejected = await prisma.friendship.create({
-        data: {
-          senderId: listOfIDs[2],
-          receiverId: user.id,
-          status: "REJECTED",
-        },
+      // const rejected = await prisma.friendship.create({
+      //   data: {
+      //     senderId: listOfIDs[2],
+      //     receiverId: user.id,
+      //     status: "REJECTED",
+      //   },
+      // });
+      const rejected = await db.orm.public.Friendship.create({
+        senderId: listOfIDs[2],
+        receiverId: user.id,
+        status: "REJECTED",
       });
 
       // Try to accept that rejection
