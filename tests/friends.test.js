@@ -1314,55 +1314,83 @@ describe("Friends API", () => {
       ]);
       // Add friendships as outlined above
       for (let i = 0; i < pendingUsers.length; i++) {
-        const requestSent = await prisma.friendship.create({
-          data: {
-            senderId: pendingUsers[i],
-            receiverId: user.id,
-          },
+        // const requestSent = await prisma.friendship.create({
+        //   data: {
+        //     senderId: pendingUsers[i],
+        //     receiverId: user.id,
+        //   },
+        // });
+        const requestSent = await db.orm.public.Friendship.create({
+          senderId: pendingUsers[i],
+          receiverId: user.id,
         });
       }
       for (let i = 0; i < sentPendingUsers.length; i++) {
-        const requestSent = await prisma.friendship.create({
-          data: {
-            senderId: user.id,
-            receiverId: sentPendingUsers[i],
-          },
+        // const requestSent = await prisma.friendship.create({
+        //   data: {
+        //     senderId: user.id,
+        //     receiverId: sentPendingUsers[i],
+        //   },
+        // });
+        const requestSent = await db.orm.public.Friendship.create({
+          senderId: user.id,
+          receiverId: sentPendingUsers[i],
         });
       }
       for (let i = 0; i < addedUsers.length; i++) {
-        const addedSent = await prisma.friendship.create({
-          data: {
-            senderId: addedUsers[i],
-            receiverId: user.id,
-            status: "ACCEPTED",
-          },
+        // const addedSent = await prisma.friendship.create({
+        //   data: {
+        //     senderId: addedUsers[i],
+        //     receiverId: user.id,
+        //     status: "ACCEPTED",
+        //   },
+        // });
+        const addedSent = await db.orm.public.Friendship.create({
+          senderId: addedUsers[i],
+          receiverId: user.id,
+          status: "ACCEPTED",
         });
       }
       for (let i = 0; i < sentAddedUsers.length; i++) {
-        const addedSent = await prisma.friendship.create({
-          data: {
-            senderId: user.id,
-            receiverId: sentAddedUsers[i],
-            status: "ACCEPTED",
-          },
+        // const addedSent = await prisma.friendship.create({
+        //   data: {
+        //     senderId: user.id,
+        //     receiverId: sentAddedUsers[i],
+        //     status: "ACCEPTED",
+        //   },
+        // });
+        const addedSent = await db.orm.public.Friendship.create({
+          senderId: user.id,
+          receiverId: sentAddedUsers[i],
+          status: "ACCEPTED",
         });
       }
       for (let i = 0; i < rejectedUsers.length; i++) {
-        const rejected = await prisma.friendship.create({
-          data: {
-            senderId: rejectedUsers[i],
-            receiverId: user.id,
-            status: "REJECTED",
-          },
+        // const rejected = await prisma.friendship.create({
+        //   data: {
+        //     senderId: rejectedUsers[i],
+        //     receiverId: user.id,
+        //     status: "REJECTED",
+        //   },
+        // });
+        const rejected = await db.orm.public.Friendship.create({
+          senderId: rejectedUsers[i],
+          receiverId: user.id,
+          status: "REJECTED",
         });
       }
       for (let i = 0; i < sentRejectedUsers.length; i++) {
-        const rejected = await prisma.friendship.create({
-          data: {
-            senderId: user.id,
-            receiverId: sentRejectedUsers[i],
-            status: "REJECTED",
-          },
+        // const rejected = await prisma.friendship.create({
+        //   data: {
+        //     senderId: user.id,
+        //     receiverId: sentRejectedUsers[i],
+        //     status: "REJECTED",
+        //   },
+        // });
+        const rejected = await db.orm.public.Friendship.create({
+          senderId: user.id,
+          receiverId: sentRejectedUsers[i],
+          status: "REJECTED",
         });
       }
 
