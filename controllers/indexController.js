@@ -1236,11 +1236,12 @@ const indexController = {
       });
     } else {
       // Check if user exists in db
-      const searchInDB = await prisma.user.findMany({
-        where: {
-          id: searchId,
-        },
-      });
+      // const searchInDB = await prisma.user.findMany({
+      //   where: {
+      //     id: searchId,
+      //   },
+      // });
+      const searchInDB = await db.orm.public.User.where({ id: searchId }).all();
       if (searchInDB.length < 1) {
         res.status(404).json({
           success: false,
@@ -1248,38 +1249,48 @@ const indexController = {
         });
       } else {
         // Check if friendship connection exists
-        const friendshipCheck = await prisma.friendship.findMany({
-          where: {
-            OR: [
-              {
-                AND: [
-                  {
-                    senderId: userId,
-                  },
-                  {
-                    receiverId: searchId,
-                  },
-                ],
-              },
-              {
-                AND: [
-                  {
-                    senderId: searchId,
-                  },
-                  {
-                    receiverId: userId,
-                  },
-                ],
-              },
-            ],
-          },
-        });
+        // const friendshipCheck = await prisma.friendship.findMany({
+        //   where: {
+        //     OR: [
+        //       {
+        //         AND: [
+        //           {
+        //             senderId: userId,
+        //           },
+        //           {
+        //             receiverId: searchId,
+        //           },
+        //         ],
+        //       },
+        //       {
+        //         AND: [
+        //           {
+        //             senderId: searchId,
+        //           },
+        //           {
+        //             receiverId: userId,
+        //           },
+        //         ],
+        //       },
+        //     ],
+        //   },
+        // });
+        const friendshipCheck = await db.orm.public.Friendship.where((f) =>
+          or(
+            and(f.senderId.eq(userId), f.receiverId.eq(searchId)),
+            and(f.senderId.eq(searchId), f.receiverId.eq(userId)),
+          ),
+        ).all();
         if (friendshipCheck.length < 1) {
-          const friendshipUpdate = await prisma.friendship.create({
-            data: {
-              senderId: userId,
-              receiverId: searchId,
-            },
+          // const friendshipUpdate = await prisma.friendship.create({
+          //   data: {
+          //     senderId: userId,
+          //     receiverId: searchId,
+          //   },
+          // });
+          const friendshipUpdate = await db.orm.public.Friendship.create({
+            senderId: userId,
+            receiverId: searchId,
           });
 
           res.status(201).json({
