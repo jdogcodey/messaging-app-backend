@@ -615,14 +615,21 @@ export async function dbFirstLastNameSearch(namesList) {
 // Function adding some users with different last names so we can test
 export async function dbUsernameSearch(namesList) {
   for (let i = 0; i < namesList.length; i++) {
-    const newUser = await prisma.user.create({
-      data: {
-        first_name: "First",
-        last_name: "Last",
-        username: namesList[i],
-        email: `fakeEmailUname${i}@gmail.com`,
-        password: `Testpassword${i}`, // Password isn't hashed but should just saving on test run-time
-      },
+    // const newUser = await prisma.user.create({
+    //   data: {
+    //     first_name: "First",
+    //     last_name: "Last",
+    //     username: namesList[i],
+    //     email: `fakeEmailUname${i}@gmail.com`,
+    //     password: `Testpassword${i}`, // Password isn't hashed but should just saving on test run-time
+    //   },
+    // });
+    const newUser = await db.orm.public.User.create({
+      first_name: "First",
+      last_name: "Last",
+      username: namesList[i],
+      email: `fakeEmailUname${i}@gmail.com`,
+      password: `Testpassword${i}`, // Password isn't hashed but should just saving on test run-time
     });
   }
 }
