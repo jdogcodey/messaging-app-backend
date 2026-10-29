@@ -332,46 +332,67 @@ export async function dbKnowSendReceive(fakeUname, fakePword) {
     });
   }
 }
-//TODO
-//Continue updating to Prisma 8
+
 // To add some messages between two users in the DB that we can test later
 export async function dbMessageHistory(fakeUname, fakePword) {
   const myHashed = await bcrypt.hash(fakePword, 10);
   // This is the user who will have messages but we know the password of so we can log in during tests
-  const ourUser = await prisma.user.create({
-    data: {
-      first_name: "First",
-      last_name: "Last",
-      username: fakeUname,
-      email: "realemail@test.com",
-      password: myHashed,
-    },
+  // const ourUser = await prisma.user.create({
+  //   data: {
+  //     first_name: "First",
+  //     last_name: "Last",
+  //     username: fakeUname,
+  //     email: "realemail@test.com",
+  //     password: myHashed,
+  //   },
+  // });
+  const ourUser = await db.orm.public.User.create({
+    first_name: "First",
+    last_name: "Last",
+    username: fakeUname,
+    email: "realemail@test.com",
+    password: myHashed,
   });
   // This time we only need one other user so no need to loop
   const hashedPassword = await bcrypt.hash(faker.internet.password(), 10);
-  const otherUser = await prisma.user.create({
-    data: {
-      first_name: faker.person.firstName(),
-      last_name: faker.person.lastName(),
-      username: "testUser1",
-      email: faker.internet.email(),
-      password: hashedPassword,
-    },
+  // const otherUser = await prisma.user.create({
+  //   data: {
+  //     first_name: faker.person.firstName(),
+  //     last_name: faker.person.lastName(),
+  //     username: "testUser1",
+  //     email: faker.internet.email(),
+  //     password: hashedPassword,
+  //   },
+  // });
+  const otherUser = await db.orm.public.User.create({
+    first_name: faker.person.firstName(),
+    last_name: faker.person.lastName(),
+    username: "testUser1",
+    email: faker.internet.email(),
+    password: hashedPassword,
   });
   // Send 15 messages - we want to test the 10 most recent
   for (let i = 0; i < 15; i++) {
-    const newMessage = await prisma.message.create({
-      data: {
-        content: `testMessage${i}`,
-        senderId: otherUser.id,
-      },
+    // const newMessage = await prisma.message.create({
+    //   data: {
+    //     content: `testMessage${i}`,
+    //     senderId: otherUser.id,
+    //   },
+    // });
+    const newMessage = await db.orm.public.Message.create({
+      content: `testMessage${i}`,
+      senderId: otherUser.id,
     });
     // Add our test user as the recipient for all messages - I'll test sent and received messages mixed together later
-    const recipient = await prisma.messageRecipient.create({
-      data: {
-        messageId: newMessage.id,
-        userId: ourUser.id,
-      },
+    // const recipient = await prisma.messageRecipient.create({
+    //   data: {
+    //     messageId: newMessage.id,
+    //     userId: ourUser.id,
+    //   },
+    // });
+    const recipient = await db.orm.public.MessageRecipient.create({
+      messageId: newMessage.id,
+      userId: ourUser.id,
     });
   }
   return otherUser.id;
