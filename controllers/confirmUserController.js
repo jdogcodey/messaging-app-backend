@@ -1,13 +1,7 @@
-import prisma from "../config/prisma-client";
 import { db } from "../src/prisma/db.ts";
 
 async function confirmUserController(req, res, next) {
   // Request the receiver from the database
-  // const receiver = await prisma.user.findUnique({
-  //   where: {
-  //     id: req.params.receiverId,
-  //   },
-  // });
   const receiver = await db.orm.public.User.where({
     id: req.params.receiverId,
   }).first();
