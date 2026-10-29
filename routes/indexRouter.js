@@ -76,10 +76,10 @@ router.patch(
 
 router.get("/friends", authController.jwtAuth, indexController.getFriends);
 
-// router.patch(
-//   "/users/profile",
-//   authController.jwtAuth,
-//   indexController.patchUserProfile,
-// );
+router.patch(
+  "/users/profile",
+  authController.jwtAuth,
+  indexController.patchUserProfile,
+);
 
 export default router;

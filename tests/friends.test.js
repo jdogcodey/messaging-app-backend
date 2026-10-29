@@ -1930,43 +1930,40 @@ describe("Friends API", () => {
       expect(allOurFriends.sort()).toEqual(resFriendIDs.sort());
     });
   });
-  // describe("PATCH /users/profile", () => {
-  //   it("Rejects if not authenticated with 401", async () => {
-  //     const res = await request(app).patch("/users/profile").expect(401);
-  //   });
-  //   // TODO
-  //   it("Updates allowed customisation fields successfully with 200", async () => {
-  //     // Add us to DB
-  //     const { token, user } = await succSignIn(newUser);
+  describe("PATCH /users/profile", () => {
+    it("Rejects if not authenticated with 401", async () => {
+      const res = await request(app).patch("/users/profile").expect(401);
+    });
+    // TODO
+    it("Updates allowed customisation fields successfully with 200", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
 
-  //     // Create a loop over an array of fields to change to request to patch that item
-  //     // Items to add to array - first&last name, avatar, theme, status
-  //     const allowedPatches = [
-  //       ["first_name", "John"],
-  //       ["last_name", "Smith"],
-  //       ["avatar", "testAvatar.png"],
-  //       ["theme", "dark"],
-  //       ["statusMessage", "Test Status Message"],
-  //     ];
+      // Create a loop over an array of fields to change to request to patch that item
+      // Items to add to array - first&last name, avatar, theme, status
+      const allowedPatches = [
+        ["first_name", "John"],
+        ["last_name", "Smith"],
+        ["avatar", "testAvatar.png"],
+        ["theme", "dark"],
+        ["statusMessage", "Test Status Message"],
+      ];
 
-  //     for (const [key, value] of allowedPatches) {
-  //       const res = await request(app)
-  //         .patch("/users/profile")
-  //         .set("Authorization", `Bearer ${token}`)
-  //         .send({ [key]: value })
-  //         .expect(200);
+      for (const [key, value] of allowedPatches) {
+        const res = await request(app)
+          .patch("/users/profile")
+          .set("Authorization", `Bearer ${token}`)
+          .send({ [key]: value })
+          .expect(200);
 
-  //       const updatedUserInDB = await prisma.user.findUnique({
-  //         where: {
-  //           id: user.id,
-  //         },
-  //       });
-  //       console.log(res.body.data.user);
+        const updatedUserInDB = await db.orm.public.User.where({
+          id: user.id,
+        }).first();
 
-  //       expect(updatedUserInDB[key]).toBe(value);
-  //     }
-  //   });
-  //   // it("Rejects invalid field values or types with 400", async () => {});
-  //   // it("Ignores or blocks attempts to update restricted fields like password or email", async () => {});
-  // });
+        expect(updatedUserInDB[key]).toBe(value);
+      }
+    });
+    // it("Rejects invalid field values or types with 400", async () => {});
+    // it("Ignores or blocks attempts to update restricted fields like password or email", async () => {});
+  });
 });
