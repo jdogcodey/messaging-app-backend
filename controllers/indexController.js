@@ -141,17 +141,25 @@ const indexController = {
       });
     } else {
       try {
-        const messageInDB = await prisma.message.create({
-          data: {
-            content: req.body.message,
-            senderId: req.user.id,
-          },
+        // const messageInDB = await prisma.message.create({
+        //   data: {
+        //     content: req.body.message,
+        //     senderId: req.user.id,
+        //   },
+        // });
+        const messageInDB = await db.orm.public.Message.create({
+          content: req.body.message,
+          senderId: req.user.id,
         });
-        await prisma.messageRecipient.create({
-          data: {
-            userId: req.params.receiverId,
-            messageId: messageInDB.id,
-          },
+        // await prisma.messageRecipient.create({
+        //   data: {
+        //     userId: req.params.receiverId,
+        //     messageId: messageInDB.id,
+        //   },
+        // });
+        await db.orm.public.MessageRecipient.create({
+          userId: req.params.receiverId,
+          messageId: messageInDB.id,
         });
         res.status(201).json({
           success: true,
