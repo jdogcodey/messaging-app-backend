@@ -6,7 +6,11 @@ export default {
     "^.+\\.(t|j)sx?$": [
       "@swc/jest",
       {
-        jsc: { parser: { syntax: "typescript" }, target: "es2022" },
+        jsc: {
+          parser: { syntax: "typescript" },
+          target: "es2022",
+          experimental: { keepImportAttributes: true },
+        },
         module: { type: "es6" },
       },
     ],
