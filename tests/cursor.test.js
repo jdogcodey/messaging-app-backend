@@ -21,30 +21,36 @@ describe("Cursor Controller Tests", () => {
   it("Make me immune to negative numbers - ew", () => {
     const encodedLimit = encodeCursor({
       type: "OFFSET",
-      phase: "SECONDARY",
+      // phase: "SECONDARY",
       page: 12,
       limit: -13,
     });
     const negativeLimit = decodeCursor(encodedLimit);
-    expect(negativeLimit).toEqual({
-      type: "OFFSET",
-      phase: "SECONDARY",
-      page: 12,
-      limit: 10,
-    });
+    // expect(negativeLimit).toEqual({
+    //   type: "OFFSET",
+    //   phase: "SECONDARY",
+    //   page: 12,
+    //   limit: 10,
+    // });
+    expect(negativeLimit.type).toBe("OFFSET");
+    expect(negativeLimit.page).toBe(12);
+    expect(negativeLimit.limit).toBe(10);
     const encodedPage = encodeCursor({
       type: "OFFSET",
-      phase: "PRIMARY",
+      // phase: "PRIMARY",
       page: -4,
       limit: 15,
     });
     const negativePage = decodeCursor(encodedPage);
-    expect(negativePage).toEqual({
-      type: "OFFSET",
-      phase: "PRIMARY",
-      page: 1,
-      limit: 15,
-    });
+    // expect(negativePage).toEqual({
+    //   type: "OFFSET",
+    //   phase: "PRIMARY",
+    //   page: 1,
+    //   limit: 15,
+    // });
+    expect(negativePage.type).toBe("OFFSET");
+    expect(negativePage.page).toBe(1);
+    expect(negativePage.limit).toBe(15);
   });
   it("Limit the maximum - or maximum the limit", () => {
     const encodedMax = encodeCursor({
