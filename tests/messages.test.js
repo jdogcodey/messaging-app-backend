@@ -1,6 +1,5 @@
 import request from "supertest";
 import app from "../app.js";
-// import prisma from "../config/prisma-client.js";
 import {
   succSignIn,
   newUser,
@@ -18,9 +17,6 @@ import { db } from "../src/prisma/db.ts";
 
 beforeEach(async () => {
   // Reset DB
-  // await prisma.messageRecipient.deleteMany({});
-  // await prisma.message.deleteMany({});
-  // await prisma.user.deleteMany({});
   await db.orm.public.MessageRecipient.where({}).deleteAll();
   await db.orm.public.Message.where({}).deleteAll();
   await db.orm.public.Friendship.where({}).deleteAll();
@@ -29,7 +25,6 @@ beforeEach(async () => {
 
 afterAll(async () => {
   // Exit the db cleanly
-  // await prisma.$disconnect();
   await db.close();
 });
 
@@ -106,7 +101,6 @@ describe("Messages API", () => {
           .expect(201);
 
         // We are only testing if there is a message in the DB. As we cleared the DB before each test we know that any message must be the one we submitted
-        // const messageInDB = await prisma.message.findMany({});
         const messageInDB = await db.orm.public.Message.all();
         expect(messageInDB[0]).toBeDefined();
       });
@@ -120,7 +114,6 @@ describe("Messages API", () => {
           .send({ message: message })
           .expect(201);
 
-        // const messageInDB = await prisma.message.findMany({});
         const messageInDB = await db.orm.public.Message.all();
         expect(messageInDB[0].content).toBe(message);
         expect(messageInDB[0].senderId).toBe(user1.id);
@@ -135,7 +128,6 @@ describe("Messages API", () => {
           .set("Authorization", `Bearer ${token}`)
           .send({ message: "test" });
 
-        // const messageInDB = await prisma.message.findMany({});
         const messageInDB = await db.orm.public.Message.all();
         const newDate = new Date();
         const newerThan = messageInDB[0].createdAt > oldDate;
@@ -151,13 +143,6 @@ describe("Messages API", () => {
           .post(`/message/${user2.id}`)
           .set("Authorization", `Bearer ${token}`)
           .send({ message: "test" });
-
-        // const messageInDB = await prisma.message.findMany({
-        //   include: {
-        //     sender: true,
-        //     recipients: true,
-        //   },
-        // });
         const messageInDB = await db.orm.public.Message.include("sender")
           .include("recipients")
           .all();
