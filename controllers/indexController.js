@@ -175,43 +175,91 @@ const indexController = {
   },
   getMyMessages: async (req, res, next) => {
     const userId = req.user.id;
-    const messageList = await prisma.$queryRaw`
-    WITH all_pairs AS (
-      SELECT
-        m.id AS "messageId",
-        m.content,
-        m."createdAt",
-        m."senderId",
-        mr."userId" AS "recipientId",
-        CASE 
-          WHEN m."senderId" = ${userId} THEN mr."userId"
-          ELSE m."senderId"
-        END AS "otherUserId"
-      FROM "Message" m
-      JOIN "MessageRecipient" mr ON mr."messageId" = m.id
-      WHERE m."senderId" = ${userId} OR mr."userId" = ${userId}
-    ),
-    ranked AS (
-      SELECT
-        *,
-        ROW_NUMBER() OVER (
-          PARTITION BY "otherUserId"
-          ORDER BY "createdAt" DESC 
-        ) AS rn
-      FROM all_pairs
-    )
-    SELECT 
-      "messageId",
-      content,
-      "createdAt",
-      "senderId",
-      "recipientId",
-      "otherUserId"
-    FROM ranked 
-    WHERE rn = 1
-    ORDER BY "createdAt" DESC
-    LIMIT 10;
-`;
+    //     const messageList = await prisma.$queryRaw`
+    //     WITH all_pairs AS (
+    //       SELECT
+    //         m.id AS "messageId",
+    //         m.content,
+    //         m."createdAt",
+    //         m."senderId",
+    //         mr."userId" AS "recipientId",
+    //         CASE
+    //           WHEN m."senderId" = ${userId} THEN mr."userId"
+    //           ELSE m."senderId"
+    //         END AS "otherUserId"
+    //       FROM "Message" m
+    //       JOIN "MessageRecipient" mr ON mr."messageId" = m.id
+    //       WHERE m."senderId" = ${userId} OR mr."userId" = ${userId}
+    //     ),
+    //     ranked AS (
+    //       SELECT
+    //         *,
+    //         ROW_NUMBER() OVER (
+    //           PARTITION BY "otherUserId"
+    //           ORDER BY "createdAt" DESC
+    //         ) AS rn
+    //       FROM all_pairs
+    //     )
+    //     SELECT
+    //       "messageId",
+    //       content,
+    //       "createdAt",
+    //       "senderId",
+    //       "recipientId",
+    //       "otherUserId"
+    //     FROM ranked
+    //     WHERE rn = 1
+    //     ORDER BY "createdAt" DESC
+    //     LIMIT 10;
+    // `;
+    const plan = db.raw.sql`
+  WITH all_pairs AS (
+    SELECT
+      m.id AS "messageId",
+      m.content,
+      m."createdAt",
+      m."senderId",
+      mr."userId" AS "recipientId",
+      CASE 
+        WHEN m."senderId" = ${userId} THEN mr."userId"
+        ELSE m."senderId"
+      END AS "otherUserId"
+    FROM "Message" m
+    JOIN "MessageRecipient" mr ON mr."messageId" = m.id
+    WHERE m."senderId" = ${userId} OR mr."userId" = ${userId}
+  ),
+  ranked AS (
+    SELECT
+      *,
+      ROW_NUMBER() OVER (
+        PARTITION BY "otherUserId"
+        ORDER BY "createdAt" DESC 
+      ) AS rn
+    FROM all_pairs
+  )
+  SELECT 
+    "messageId",
+    content,
+    "createdAt",
+    "senderId",
+    "recipientId",
+    "otherUserId"
+  FROM ranked 
+  WHERE rn = 1
+  ORDER BY "createdAt" DESC
+  LIMIT 10;
+`
+      .returnsRow({
+        messageId: db.sql.public.Message.columns.id,
+        content: db.sql.public.Message.columns.content,
+        createdAt: db.sql.public.Message.columns.createdAt,
+        senderId: db.sql.public.Message.columns.senderId,
+        recipientId: db.sql.public.User.columns.id,
+        otherUserId: db.sql.public.User.columns.id,
+      })
+      .build();
+
+    const messageList = await db.query(plan);
     res.status(200).json({
       success: true,
       message: "Message request successful",
