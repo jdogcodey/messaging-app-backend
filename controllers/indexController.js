@@ -278,34 +278,49 @@ const indexController = {
   getConvo: async (req, res, next) => {
     const ourUser = req.user.id;
     const otherUser = req.params.userId;
-    const messages = await prisma.message.findMany({
-      take: 10,
-      orderBy: [
-        {
-          createdAt: "desc",
-        },
-      ],
-      where: {
-        OR: [
-          {
-            senderId: ourUser,
-            recipients: {
-              some: {
-                userId: otherUser,
-              },
-            },
-          },
-          {
-            senderId: otherUser,
-            recipients: {
-              some: {
-                userId: ourUser,
-              },
-            },
-          },
-        ],
-      },
-    });
+    // const messages = await prisma.message.findMany({
+    //   take: 10,
+    //   orderBy: [
+    //     {
+    //       createdAt: "desc",
+    //     },
+    //   ],
+    //   where: {
+    //     OR: [
+    //       {
+    //         senderId: ourUser,
+    //         recipients: {
+    //           some: {
+    //             userId: otherUser,
+    //           },
+    //         },
+    //       },
+    //       {
+    //         senderId: otherUser,
+    //         recipients: {
+    //           some: {
+    //             userId: ourUser,
+    //           },
+    //         },
+    //       },
+    //     ],
+    //   },
+    // });
+    const messages = await db.orm.public.Message.where((m) =>
+      or(
+        and(
+          m.senderId.eq(ourUser),
+          m.recipients.some((r) => r.userId.eq(otherUser)),
+        ),
+        and(
+          m.senderId.eq(otherUser),
+          m.recipients.some((r) => r.userId.eq(ourUser)),
+        ),
+      ),
+    )
+      .orderBy((m) => m.createdAt.desc())
+      .limit(10)
+      .all();
     if (messages.length < 1) {
       res.status(404).json({
         success: false,
