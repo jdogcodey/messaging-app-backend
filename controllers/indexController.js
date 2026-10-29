@@ -1458,32 +1458,45 @@ const indexController = {
     }
   },
   getFriends: async (req, res, next) => {
-    const ourFriends = await prisma.friendship.findMany({
-      where: {
-        AND: [
-          { OR: [{ receiverId: req.user.id }, { senderId: req.user.id }] },
-          { status: "ACCEPTED" },
-        ],
-      },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            username: true,
-            first_name: true,
-            last_name: true,
-          },
-        },
-        receiver: {
-          select: {
-            id: true,
-            username: true,
-            first_name: true,
-            last_name: true,
-          },
-        },
-      },
-    });
+    // const ourFriends = await prisma.friendship.findMany({
+    //   where: {
+    //     AND: [
+    //       { OR: [{ receiverId: req.user.id }, { senderId: req.user.id }] },
+    //       { status: "ACCEPTED" },
+    //     ],
+    //   },
+    //   include: {
+    //     sender: {
+    //       select: {
+    //         id: true,
+    //         username: true,
+    //         first_name: true,
+    //         last_name: true,
+    //       },
+    //     },
+    //     receiver: {
+    //       select: {
+    //         id: true,
+    //         username: true,
+    //         first_name: true,
+    //         last_name: true,
+    //       },
+    //     },
+    //   },
+    // });
+    const ourFriends = await db.orm.public.Friendship.where((f) =>
+      and(
+        or(f.receiverId.eq(req.user.id), f.senderId.eq(req.user.id)),
+        f.status.eq("ACCEPTED"),
+      ),
+    )
+      .include("sender", (s) =>
+        s.select("id", "username", "first_name", "last_name"),
+      )
+      .include("receiver", (r) =>
+        r.select("id", "username", "first_name", "last_name"),
+      )
+      .all();
 
     res.status(200).json({
       success: true,
