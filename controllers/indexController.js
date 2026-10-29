@@ -364,55 +364,96 @@ const indexController = {
           currentCursor.mode === "username" ||
           (!currentCursor.mode && searchTerms.length < 2)
         ) {
-          cursorUsernameSearch = await prisma.user.findMany({
-            where: {
-              id: {
-                notIn: [...results.map((user) => user.id), req.user.id],
-              },
-              username: { contains: singleTerm, mode: "insensitive" },
-            },
-            select: {
-              id: true,
-              first_name: true,
-              last_name: true,
-              username: true,
-            },
-            take: currentCursor.limit,
-            ...(currentCursor.id && {
-              cursor: { id: currentCursor.id },
-              skip: 1,
-            }),
-            orderBy: { id: "asc" },
-          });
+          // cursorUsernameSearch = await prisma.user.findMany({
+          //   where: {
+          //     id: {
+          //       notIn: [...results.map((user) => user.id), req.user.id],
+          //     },
+          //     username: { contains: singleTerm, mode: "insensitive" },
+          //   },
+          //   select: {
+          //     id: true,
+          //     first_name: true,
+          //     last_name: true,
+          //     username: true,
+          //   },
+          //   take: currentCursor.limit,
+          //   ...(currentCursor.id && {
+          //     cursor: { id: currentCursor.id },
+          //     skip: 1,
+          //   }),
+          //   orderBy: { id: "asc" },
+          // });
+          const excludedIds = [...results.map((user) => user.id), req.user.id];
+          // 1. Build the base query
+          let query = db.orm.public.User.where((u) =>
+            and(u.id.notIn(excludedIds), u.username.ilike(`%${singleTerm}%`)),
+          )
+            .select("id", "first_name", "last_name", "username")
+            .orderBy((u) => u.id.asc())
+            .limit(currentCursor.limit);
+
+          // 2. Conditionally apply cursor and skip if a cursor exists
+          if (currentCursor.id) {
+            query = query.cursor({ id: currentCursor.id });
+          }
+
+          // 3. Execute the query
+          const cursorUsernameSearch = await query.all();
           results = [...cursorUsernameSearch];
           if (results.length < 10) {
-            cursorSingleNameSearch = await prisma.user.findMany({
-              where: {
-                id: {
-                  notIn: [...results.map((user) => user.id), req.user.id],
-                },
-                OR: [
-                  {
-                    last_name: { startsWith: singleTerm, mode: "insensitive" },
-                  },
-                  {
-                    first_name: { startsWith: singleTerm, mode: "insensitive" },
-                  },
-                ],
-              },
-              select: {
-                id: true,
-                first_name: true,
-                last_name: true,
-                username: true,
-              },
-              take: currentCursor.limit - results.length,
-              ...(currentCursor.id && {
-                cursor: { id: currentCursor.id },
-                skip: 1,
-              }),
-              orderBy: { id: "asc" },
-            });
+            // cursorSingleNameSearch = await prisma.user.findMany({
+            //   where: {
+            //     id: {
+            //       notIn: [...results.map((user) => user.id), req.user.id],
+            //     },
+            //     OR: [
+            //       {
+            //         last_name: { startsWith: singleTerm, mode: "insensitive" },
+            //       },
+            //       {
+            //         first_name: { startsWith: singleTerm, mode: "insensitive" },
+            //       },
+            //     ],
+            //   },
+            //   select: {
+            //     id: true,
+            //     first_name: true,
+            //     last_name: true,
+            //     username: true,
+            //   },
+            //   take: currentCursor.limit - results.length,
+            //   ...(currentCursor.id && {
+            //     cursor: { id: currentCursor.id },
+            //     skip: 1,
+            //   }),
+            //   orderBy: { id: "asc" },
+            // });
+            const excludedIds = [
+              ...results.map((user) => user.id),
+              req.user.id,
+            ];
+
+            // 1. Build the base query
+            let query = db.orm.public.User.where((u) =>
+              and(
+                u.id.notIn(excludedIds),
+                or(
+                  u.last_name.ilike(`${singleTerm}%`),
+                  u.first_name.ilike(`${singleTerm}%`),
+                ),
+              ),
+            )
+              .orderBy((u) => u.id.asc())
+              .limit(currentCursor.limit - results.length);
+
+            // 2. Conditionally apply the cursor if it exists
+            if (currentCursor.id) {
+              query = query.cursor({ id: currentCursor.id });
+            }
+
+            // 3. Execute the query
+            const cursorSingleNameSearch = await query.all();
             results = results.concat(cursorSingleNameSearch);
             cursorMode = "full-name";
           }
@@ -429,82 +470,129 @@ const indexController = {
           (!currentCursor.mode && searchTerms.length > 1)
         ) {
           cursorMode = "full-name";
-          cursorFullNameSearch = await prisma.user.findMany({
-            where: {
-              id: {
-                notIn: [...results.map((user) => user.id), req.user.id],
-              },
-              OR: [
-                {
-                  AND: [
-                    {
-                      first_name: {
-                        startsWith: firstTermSearch,
-                        mode: "insensitive",
-                      },
-                    },
-                    {
-                      last_name: {
-                        startsWith: lastTermSearch,
-                        mode: "insensitive",
-                      },
-                    },
-                  ],
-                },
-                {
-                  AND: [
-                    {
-                      first_name: {
-                        startsWith: lastTermSearch,
-                        mode: "insensitive",
-                      },
-                    },
-                    {
-                      last_name: {
-                        startsWith: firstTermSearch,
-                        mode: "insensitive",
-                      },
-                    },
-                  ],
-                },
-              ],
-            },
-            select: {
-              id: true,
-              first_name: true,
-              last_name: true,
-              username: true,
-            },
-            take: currentCursor.limit,
-            ...(currentCursor.id && {
-              cursor: { id: currentCursor.id },
-              skip: 1,
-            }),
-            orderBy: { id: "asc" },
-          });
+          // cursorFullNameSearch = await prisma.user.findMany({
+          //   where: {
+          //     id: {
+          //       notIn: [...results.map((user) => user.id), req.user.id],
+          //     },
+          //     OR: [
+          //       {
+          //         AND: [
+          //           {
+          //             first_name: {
+          //               startsWith: firstTermSearch,
+          //               mode: "insensitive",
+          //             },
+          //           },
+          //           {
+          //             last_name: {
+          //               startsWith: lastTermSearch,
+          //               mode: "insensitive",
+          //             },
+          //           },
+          //         ],
+          //       },
+          //       {
+          //         AND: [
+          //           {
+          //             first_name: {
+          //               startsWith: lastTermSearch,
+          //               mode: "insensitive",
+          //             },
+          //           },
+          //           {
+          //             last_name: {
+          //               startsWith: firstTermSearch,
+          //               mode: "insensitive",
+          //             },
+          //           },
+          //         ],
+          //       },
+          //     ],
+          //   },
+          //   select: {
+          //     id: true,
+          //     first_name: true,
+          //     last_name: true,
+          //     username: true,
+          //   },
+          //   take: currentCursor.limit,
+          //   ...(currentCursor.id && {
+          //     cursor: { id: currentCursor.id },
+          //     skip: 1,
+          //   }),
+          //   orderBy: { id: "asc" },
+          // });
+          const excludedIds = [...results.map((user) => user.id), req.user.id];
+
+          // 1. Build the base query
+          let query = db.orm.public.User.where((u) =>
+            and(
+              u.id.notIn(excludedIds),
+              or(
+                and(
+                  u.first_name.ilike(`${firstTermSearch}%`),
+                  u.last_name.ilike(`${lastTermSearch}%`),
+                ),
+                and(
+                  u.first_name.ilike(`${lastTermSearch}%`),
+                  u.last_name.ilike(`${firstTermSearch}%`),
+                ),
+              ),
+            ),
+          )
+            .orderBy((u) => u.id.asc())
+            .limit(currentCursor.limit);
+
+          // 2. Conditionally apply the cursor if it exists
+          if (currentCursor.id) {
+            query = query.cursor({ id: currentCursor.id });
+          }
+
+          // 3. Execute the query
+          const cursorFullNameSearch = await query.all();
           results = [...cursorFullNameSearch];
           if (results.length < 10) {
             cursorMode = "username";
-            cursorUsernameSearch = await prisma.user.findMany({
-              where: {
-                id: {
-                  notIn: [...results.map((user) => user.id), req.user.id],
-                },
-                username: { contains: singleTerm, mode: "insensitive" },
-              },
-              select: {
-                id: true,
-                first_name: true,
-                last_name: true,
-                username: true,
-              },
-              take: currentCursor.limit - results.length,
-              ...(currentCursor.id && {
-                cursor: { id: currentCursor.id },
-                skip: 1,
-              }),
-              orderBy: { id: "asc" },
-            });
+            // cursorUsernameSearch = await prisma.user.findMany({
+            //   where: {
+            //     id: {
+            //       notIn: [...results.map((user) => user.id), req.user.id],
+            //     },
+            //     username: { contains: singleTerm, mode: "insensitive" },
+            //   },
+            //   select: {
+            //     id: true,
+            //     first_name: true,
+            //     last_name: true,
+            //     username: true,
+            //   },
+            //   take: currentCursor.limit - results.length,
+            //   ...(currentCursor.id && {
+            //     cursor: { id: currentCursor.id },
+            //     skip: 1,
+            //   }),
+            //   orderBy: { id: "asc" },
+            // });
+            const excludedIds = [
+              ...results.map((user) => user.id),
+              req.user.id,
+            ];
+
+            // 1. Build the base query
+            let query = db.orm.public.User.where((u) =>
+              and(u.id.notIn(excludedIds), u.username.ilike(`%${singleTerm}%`)),
+            )
+              .orderBy((u) => u.id.asc())
+              .limit(currentCursor.limit - results.length);
+
+            // 2. Conditionally apply the cursor if it exists
+            if (currentCursor.id) {
+              query = query.cursor({ id: currentCursor.id });
+            }
+
+            // 3. Execute the query
+            const cursorUsernameSearch = await query.all();
             results = results.concat(cursorUsernameSearch);
           }
           nextCursor = {
@@ -521,25 +609,43 @@ const indexController = {
           currentCursor.mode === "username" ||
           (!currentCursor.mode && searchTerms.length < 2)
         ) {
-          pageUsernameSearch = await prisma.user.findMany({
-            where: {
-              id: {
-                notIn: [...results.map((user) => user.id), req.user.id],
-              },
-              username: { contains: singleTerm, mode: "insensitive" },
-            },
-            select: {
-              id: true,
-              first_name: true,
-              last_name: true,
-              username: true,
-            },
-            take: currentCursor.limit,
-            ...(currentCursor.page > 1 && {
-              skip: currentCursor.limit * (currentCursor.page - 1),
-            }),
-            orderBy: { id: "asc" },
-          });
+          // pageUsernameSearch = await prisma.user.findMany({
+          //   where: {
+          //     id: {
+          //       notIn: [...results.map((user) => user.id), req.user.id],
+          //     },
+          //     username: { contains: singleTerm, mode: "insensitive" },
+          //   },
+          //   select: {
+          //     id: true,
+          //     first_name: true,
+          //     last_name: true,
+          //     username: true,
+          //   },
+          //   take: currentCursor.limit,
+          //   ...(currentCursor.page > 1 && {
+          //     skip: currentCursor.limit * (currentCursor.page - 1),
+          //   }),
+          //   orderBy: { id: "asc" },
+          // });
+          const excludedIds = [...results.map((user) => user.id), req.user.id];
+
+          // 1. Build the base query using fluent methods
+          let query = db.orm.public.User.where((u) =>
+            and(u.id.notIn(excludedIds), u.username.ilike(`%${singleTerm}%`)),
+          )
+            .orderBy((u) => u.id.asc())
+            .limit(currentCursor.limit);
+
+          // 2. Apply offset pagination if page > 1
+          if (currentCursor.page > 1) {
+            query = query.offset(
+              currentCursor.limit * (currentCursor.page - 1),
+            );
+          }
+
+          // 3. Execute the query
+          const pageUsernameSearch = await query.all();
           results = [...pageUsernameSearch];
           // if (results.length < 10) {
           //   pageSingleNameSearch = await prisma.user.findMany({
@@ -587,59 +693,89 @@ const indexController = {
           (!currentCursor.mode && searchTerms.length > 1)
         ) {
           cursorMode = "full-name";
-          pageFullNameSearch = await prisma.user.findMany({
-            where: {
-              id: {
-                notIn: [...results.map((user) => user.id), req.user.id],
-              },
-              OR: [
-                {
-                  AND: [
-                    {
-                      first_name: {
-                        startsWith: firstTermSearch,
-                        mode: "insensitive",
-                      },
-                    },
-                    {
-                      last_name: {
-                        startsWith: lastTermSearch,
-                        mode: "insensitive",
-                      },
-                    },
-                  ],
-                },
-                {
-                  AND: [
-                    {
-                      first_name: {
-                        startsWith: lastTermSearch,
-                        mode: "insensitive",
-                      },
-                    },
-                    {
-                      last_name: {
-                        startsWith: firstTermSearch,
-                        mode: "insensitive",
-                      },
-                    },
-                  ],
-                },
-              ],
-            },
-            select: {
-              id: true,
-              first_name: true,
-              last_name: true,
-              username: true,
-            },
-            take: currentCursor.limit,
-            ...(currentCursor.id && {
-              cursor: { id: currentCursor.id },
-              skip: 1,
-            }),
-            orderBy: { id: "asc" },
-          });
+          // pageFullNameSearch = await prisma.user.findMany({
+          //   where: {
+          //     id: {
+          //       notIn: [...results.map((user) => user.id), req.user.id],
+          //     },
+          //     OR: [
+          //       {
+          //         AND: [
+          //           {
+          //             first_name: {
+          //               startsWith: firstTermSearch,
+          //               mode: "insensitive",
+          //             },
+          //           },
+          //           {
+          //             last_name: {
+          //               startsWith: lastTermSearch,
+          //               mode: "insensitive",
+          //             },
+          //           },
+          //         ],
+          //       },
+          //       {
+          //         AND: [
+          //           {
+          //             first_name: {
+          //               startsWith: lastTermSearch,
+          //               mode: "insensitive",
+          //             },
+          //           },
+          //           {
+          //             last_name: {
+          //               startsWith: firstTermSearch,
+          //               mode: "insensitive",
+          //             },
+          //           },
+          //         ],
+          //       },
+          //     ],
+          //   },
+          //   select: {
+          //     id: true,
+          //     first_name: true,
+          //     last_name: true,
+          //     username: true,
+          //   },
+          //   take: currentCursor.limit,
+          //   ...(currentCursor.id && {
+          //     cursor: { id: currentCursor.id },
+          //     skip: 1,
+          //   }),
+          //   orderBy: { id: "asc" },
+          // });
+          const excludedIds = [...results.map((user) => user.id), req.user.id];
+
+          // 1. Build the base query
+          let query = db.orm.public.User.where((u) =>
+            and(
+              u.id.notIn(excludedIds),
+              or(
+                and(
+                  u.first_name.ilike(`${firstTermSearch}%`),
+                  u.last_name.ilike(`${lastTermSearch}%`),
+                ),
+                and(
+                  u.first_name.ilike(`${lastTermSearch}%`),
+                  u.last_name.ilike(`${firstTermSearch}%`),
+                ),
+              ),
+            ),
+          )
+            .orderBy((u) => u.id.asc())
+            .limit(currentCursor.limit);
+
+          // 2. Apply offset pagination if page > 1
+          if (currentCursor.page > 1) {
+            query = query.offset(
+              currentCursor.limit * (currentCursor.page - 1),
+            );
+          }
+
+          // 3. Execute the query
+          const pageFullNameSearch = await query.all();
           results = [...pageFullNameSearch];
           // if (results.length < 10) {
           //   cursorMode = "username";
