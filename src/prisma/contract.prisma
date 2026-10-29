@@ -1,5 +1,4 @@
 // use prisma-8
-
 model User {
   id                     String             @id @onCreate(uuid())
   first_name             String
@@ -20,10 +19,10 @@ model User {
 }
 
 model Message {
-  id         String           @id @onCreate(uuid())
+  id         String             @id @onCreate(uuid())
   content    String
-  createdAt  TimestampJsDate  @default(now())
-  sender     User             @relation("SentMessages", fields: [senderId], references: [id])
+  createdAt  TimestampJsDate    @default(now())
+  sender     User               @relation("SentMessages", fields: [senderId], references: [id])
   senderId   String
   recipients MessageRecipient[]
 }
@@ -44,8 +43,8 @@ model Friendship {
   createdAt  TimestampJsDate  @default(now())
   updatedAt  TimestampJsDate  @onCreate(now()) @onUpdate(now())
 
-  sender   User @relation("SentFriendRequests", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver User @relation("ReceivedFriendRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User             @relation("SentFriendRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User             @relation("ReceivedFriendRequests", fields: [receiverId], references: [id], onDelete: Cascade)
 
   @@unique([senderId, receiverId])
   @@index([senderId])
