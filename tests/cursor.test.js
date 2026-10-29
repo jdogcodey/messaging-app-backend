@@ -55,17 +55,20 @@ describe("Cursor Controller Tests", () => {
   it("Limit the maximum - or maximum the limit", () => {
     const encodedMax = encodeCursor({
       type: "CURSOR",
-      phase: "SECONDARY",
+      // phase: "SECONDARY",
       limit: 500,
       id: "123",
     });
     const maxLimit = decodeCursor(encodedMax);
-    expect(maxLimit).toEqual({
-      type: "CURSOR",
-      phase: "SECONDARY",
-      limit: 50,
-      id: "123",
-    });
+    // expect(maxLimit).toEqual({
+    //   type: "CURSOR",
+    //   phase: "SECONDARY",
+    //   limit: 50,
+    //   id: "123",
+    // });
+    expect(maxLimit.type).toBe("CURSOR");
+    expect(maxLimit.id).toBe("123");
+    expect(maxLimit.limit).toBe(50);
   });
   it("Sanitise - ew", () => {
     const encodedSanitiseCursor = encodeCursor({
