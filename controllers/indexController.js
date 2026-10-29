@@ -8,6 +8,7 @@ import "../config/passport.js";
 import validationErrorController from "./validationErrorsController.js";
 import { decodeCursor, encodeCursor } from "./cursorController.js";
 import { db } from "../src/prisma/db.ts";
+import { and, not, or } from "@prisma/orm-postgres/orm-client";
 
 const indexController = {
   signup: async (req, res, next) => {
@@ -25,11 +26,14 @@ const indexController = {
 
     // Checking that a user with that email or username exists
     try {
-      const checkForDuplicate = await prisma.user.findFirst({
-        where: {
-          OR: [{ email: email }, { username: username }],
-        },
-      });
+      // const checkForDuplicate = await prisma.user.findFirst({
+      //   where: {
+      //     OR: [{ email: email }, { username: username }],
+      //   },
+      // });
+      const checkForDuplicate = await db.orm.public.User.where((u) =>
+        or(u.email.eq(email), u.username.eq(username)),
+      ).first();
 
       // Return with 400 to user (could be 409 but this could expose that an email is signed up)
       if (checkForDuplicate) {
@@ -44,14 +48,21 @@ const indexController = {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Adding the user to the database
-      const newUser = await prisma.user.create({
-        data: {
-          first_name: first_name,
-          last_name: last_name,
-          username: username,
-          email: email,
-          password: hashedPassword,
-        },
+      // const newUser = await prisma.user.create({
+      //   data: {
+      //     first_name: first_name,
+      //     last_name: last_name,
+      //     username: username,
+      //     email: email,
+      //     password: hashedPassword,
+      //   },
+      // });
+      const newUser = await db.orm.public.User.create({
+        first_name: first_name,
+        last_name: last_name,
+        username: username,
+        email: email,
+        password: hashedPassword,
       });
 
       // Destructuring the password from the user
