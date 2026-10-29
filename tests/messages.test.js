@@ -125,7 +125,7 @@ describe("Messages API", () => {
         expect(messageInDB[0].content).toBe(message);
         expect(messageInDB[0].senderId).toBe(user1.id);
       });
-      it.only("Message stores correct date", async () => {
+      it("Message stores correct date", async () => {
         const { token } = await succSignIn(newUser);
         const { user: user2 } = await succSignIn(newUser);
         const oldDate = new Date();
@@ -152,12 +152,15 @@ describe("Messages API", () => {
           .set("Authorization", `Bearer ${token}`)
           .send({ message: "test" });
 
-        const messageInDB = await prisma.message.findMany({
-          include: {
-            sender: true,
-            recipients: true,
-          },
-        });
+        // const messageInDB = await prisma.message.findMany({
+        //   include: {
+        //     sender: true,
+        //     recipients: true,
+        //   },
+        // });
+        const messageInDB = await db.orm.public.Message.include("sender")
+          .include("recipients")
+          .all();
         expect(messageInDB[0].recipients[0].userId).toEqual(user2.id);
       });
     });
