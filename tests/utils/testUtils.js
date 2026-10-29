@@ -194,27 +194,41 @@ export async function dbKnowSendReceive(fakeUname, fakePword) {
   const userIDsStore = [];
   const myHashed = await bcrypt.hash(fakePword, 10);
   // This is a user who will have messages but we know the password of so we can log in during tests
-  const ourUser = await prisma.user.create({
-    data: {
-      first_name: "First",
-      last_name: "Last",
-      username: fakeUname,
-      email: "realemail@test.com",
-      password: myHashed,
-    },
+  // const ourUser = await prisma.user.create({
+  //   data: {
+  //     first_name: "First",
+  //     last_name: "Last",
+  //     username: fakeUname,
+  //     email: "realemail@test.com",
+  //     password: myHashed,
+  //   },
+  // });
+  const ourUser = await db.orm.public.User.create({
+    first_name: "First",
+    last_name: "Last",
+    username: fakeUname,
+    email: "realemail@test.com",
+    password: myHashed,
   });
   // Looping to create different users in the DB. Allows us to easily scale up the number of users to test.
   // This time we are giving them a username we know so that we can test the messages later
   for (let i = 0; i < 20; i++) {
     const hashedPassword = await bcrypt.hash(faker.internet.password(), 10);
-    const newUser = await prisma.user.create({
-      data: {
-        first_name: faker.person.firstName(),
-        last_name: faker.person.lastName(),
-        username: `testUser${i}`,
-        email: faker.internet.email(),
-        password: hashedPassword,
-      },
+    // const newUser = await prisma.user.create({
+    //   data: {
+    //     first_name: faker.person.firstName(),
+    //     last_name: faker.person.lastName(),
+    //     username: `testUser${i}`,
+    //     email: faker.internet.email(),
+    //     password: hashedPassword,
+    //   },
+    // });
+    const newUser = await db.orm.public.User.create({
+      first_name: faker.person.firstName(),
+      last_name: faker.person.lastName(),
+      username: `testUser${i}`,
+      email: faker.internet.email(),
+      password: hashedPassword,
     });
     // Push to the arry for sending messages
     userIDsStore.push(newUser.id);
@@ -224,69 +238,102 @@ export async function dbKnowSendReceive(fakeUname, fakePword) {
   for (let i = 0; i < 20; i++) {
     // We don't need to randomise the sender and receiver here - we want to know what messages have been sent
     // Add the message to the DB
-    const newMessage = await prisma.message.create({
-      data: {
-        content: `testMessage${i}`,
-        senderId: userIDsStore[i],
-      },
+    // const newMessage = await prisma.message.create({
+    //   data: {
+    //     content: `testMessage${i}`,
+    //     senderId: userIDsStore[i],
+    //   },
+    // });
+    const newMessage = await db.orm.public.Message.create({
+      content: `testMessage${i}`,
+      senderId: userIDsStore[i],
     });
     // Add our test user as the recipient for all messages - I'll test sent and received messages mixed together later
-    const recipient = await prisma.messageRecipient.create({
-      data: {
-        messageId: newMessage.id,
-        userId: ourUser.id,
-      },
+    // const recipient = await prisma.messageRecipient.create({
+    //   data: {
+    //     messageId: newMessage.id,
+    //     userId: ourUser.id,
+    //   },
+    // });
+    const recipient = await db.orm.public.MessageRecipient.create({
+      messageId: newMessage.id,
+      userId: ourUser.id,
     });
   }
   // I will add messages to 3 chats to see if they jump to the top of my search
   // Then I'll send a couple of messages back and forth in one chat to ensure that chat appears at the top but doesn't mistakenly appear more than once
   for (let i = 1; i < 4; i++) {
-    const newMessage = await prisma.message.create({
-      data: {
-        content: `testNewerMessage${i}`,
-        senderId: ourUser.id, // This time we are sending messages
-      },
+    // const newMessage = await prisma.message.create({
+    //   data: {
+    //     content: `testNewerMessage${i}`,
+    //     senderId: ourUser.id, // This time we are sending messages
+    //   },
+    // });
+    const newMessage = await db.orm.public.Message.create({
+      content: `testNewerMessage${i}`,
+      senderId: ourUser.id, // This time we are sending messages
     });
     // Add a different user as the recipient
-    const recipient = await prisma.messageRecipient.create({
-      data: {
-        messageId: newMessage.id,
-        userId: userIDsStore[i * 4], // Done this to ensure it isn't just the 3 most recent chats anyway. Ideally this would be configurable on input to the util - maybe i'll add later]
-      },
+    // const recipient = await prisma.messageRecipient.create({
+    //   data: {
+    //     messageId: newMessage.id,
+    //     userId: userIDsStore[i * 4], // Done this to ensure it isn't just the 3 most recent chats anyway. Ideally this would be configurable on input to the util - maybe i'll add later]
+    //   },
+    // });
+    const recipient = await db.orm.public.MessageRecipient.create({
+      messageId: newMessage.id,
+      userId: userIDsStore[i * 4], // Done this to ensure it isn't just the 3 most recent chats anyway. Ideally this would be configurable on input to the util - maybe i'll add later]
     });
   }
   // Add a few messages back and forth so we can test whether multiple messages in one chat messes it up
   for (let i = 0; i < 2; i++) {
-    const newMessage = await prisma.message.create({
-      data: {
-        content: `singleChatHistory${i}`,
-        senderId: ourUser.id,
-      },
+    // const newMessage = await prisma.message.create({
+    //   data: {
+    //     content: `singleChatHistory${i}`,
+    //     senderId: ourUser.id,
+    //   },
+    // });
+    const newMessage = await db.orm.public.Message.create({
+      content: `singleChatHistory${i}`,
+      senderId: ourUser.id,
     });
     // Add the same recipient for these messages
-    const recipient = await prisma.messageRecipient.create({
-      data: {
-        messageId: newMessage.id,
-        userId: userIDsStore[5],
-      },
+    // const recipient = await prisma.messageRecipient.create({
+    //   data: {
+    //     messageId: newMessage.id,
+    //     userId: userIDsStore[5],
+    //   },
+    // });
+    const recipient = await db.orm.public.MessageRecipient.create({
+      messageId: newMessage.id,
+      userId: userIDsStore[5],
     });
     // Add a reply message
-    const newReply = await prisma.message.create({
-      data: {
-        content: `singleChatReply${i}`,
-        senderId: userIDsStore[5],
-      },
+    // const newReply = await prisma.message.create({
+    //   data: {
+    //     content: `singleChatReply${i}`,
+    //     senderId: userIDsStore[5],
+    //   },
+    // });
+    const newReply = await db.orm.public.Message.create({
+      content: `singleChatReply${i}`,
+      senderId: userIDsStore[5],
     });
     // Add the reply recipient
-    const replyRecipient = await prisma.messageRecipient.create({
-      data: {
-        messageId: newReply.id,
-        userId: ourUser.id,
-      },
+    // const replyRecipient = await prisma.messageRecipient.create({
+    //   data: {
+    //     messageId: newReply.id,
+    //     userId: ourUser.id,
+    //   },
+    // });
+    const replyRecipient = await db.orm.public.MessageRecipient.create({
+      messageId: newReply.id,
+      userId: ourUser.id,
     });
   }
 }
-
+//TODO
+//Continue updating to Prisma 8
 // To add some messages between two users in the DB that we can test later
 export async function dbMessageHistory(fakeUname, fakePword) {
   const myHashed = await bcrypt.hash(fakePword, 10);
