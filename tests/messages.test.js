@@ -110,7 +110,7 @@ describe("Messages API", () => {
         const messageInDB = await db.orm.public.Message.all();
         expect(messageInDB[0]).toBeDefined();
       });
-      it.only("Message in DB has content and senderId", async () => {
+      it("Message in DB has content and senderId", async () => {
         const { token, user: user1 } = await succSignIn(newUser);
         const { user: user2 } = await succSignIn(newUser);
         const message = "message";
