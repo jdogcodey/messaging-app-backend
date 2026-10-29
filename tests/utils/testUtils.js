@@ -549,14 +549,21 @@ export async function dbMessageHistoryConvo(fakeUname, fakePword) {
 // Function adding some users with different first names so we can test
 export async function dbFirstNameSearch(namesList) {
   for (let i = 0; i < namesList.length; i++) {
-    const newUser = await prisma.user.create({
-      data: {
-        first_name: namesList[i],
-        last_name: "Last",
-        username: `UFirst${i}`,
-        email: `fakeEmailFirst${i}@gmail.com`,
-        password: `Testpassword${i}`, // Password isn't hashed but should just saving on test run-time
-      },
+    // const newUser = await prisma.user.create({
+    //   data: {
+    //     first_name: namesList[i],
+    //     last_name: "Last",
+    //     username: `UFirst${i}`,
+    //     email: `fakeEmailFirst${i}@gmail.com`,
+    //     password: `Testpassword${i}`, // Password isn't hashed but should just saving on test run-time
+    //   },
+    // });
+    const newUser = await db.orm.public.User.create({
+      first_name: namesList[i],
+      last_name: "Last",
+      username: `UFirst${i}`,
+      email: `fakeEmailFirst${i}@gmail.com`,
+      password: `Testpassword${i}`, // Password isn't hashed but should just saving on test run-time
     });
   }
 }
