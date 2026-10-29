@@ -4,6 +4,7 @@ import prisma from "../../config/prisma-client.js";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
 import "dotenv";
+import { db } from "../../src/prisma/db.ts";
 
 // Returns a test user
 export function newUser(overrides = {}) {
@@ -39,28 +40,42 @@ export async function fullDBSetup(users, messages, fakeUname, fakePword) {
   const userIDsStore = [];
   const myHashed = await bcrypt.hash(fakePword, 10);
   // This is a user who will have messages but we know the password of so we can log in during tests
-  const ourUser = await prisma.user.create({
-    data: {
-      first_name: "First",
-      last_name: "Last",
-      username: fakeUname,
-      email: "realemail@test.com",
-      password: myHashed,
-    },
+  // const ourUser = await prisma.user.create({
+  //   data: {
+  //     first_name: "First",
+  //     last_name: "Last",
+  //     username: fakeUname,
+  //     email: "realemail@test.com",
+  //     password: myHashed,
+  //   },
+  // });
+  const ourUser = await db.orm.public.User.create({
+    first_name: "First",
+    last_name: "Last",
+    username: fakeUname,
+    email: "realemail@test.com",
+    password: myHashed,
   });
   // Push the ID to the array for sending messages
   userIDsStore.push(ourUser.id);
   // Looping to create different users in the DB. Allows us to easily scale up the number of users to test
   for (let i = 0; i < users; i++) {
     const hashedPassword = await bcrypt.hash(faker.internet.password(), 10);
-    const newUser = await prisma.user.create({
-      data: {
-        first_name: faker.person.firstName(),
-        last_name: faker.person.lastName(),
-        username: faker.internet.username(),
-        email: faker.internet.email(),
-        password: hashedPassword,
-      },
+    // const newUser = await prisma.user.create({
+    //   data: {
+    //     first_name: faker.person.firstName(),
+    //     last_name: faker.person.lastName(),
+    //     username: faker.internet.username(),
+    //     email: faker.internet.email(),
+    //     password: hashedPassword,
+    //   },
+    // });
+    const newUser = await db.orm.public.User.create({
+      first_name: faker.person.firstName(),
+      last_name: faker.person.lastName(),
+      username: faker.internet.username(),
+      email: faker.internet.email(),
+      password: hashedPassword,
     });
     // Push to the arry for sending messages
     userIDsStore.push(newUser.id);
@@ -75,18 +90,26 @@ export async function fullDBSetup(users, messages, fakeUname, fakePword) {
       randomReceiverIndex = Math.floor(Math.random() * userIDsStore.length);
     }
     // Create the message from the sender
-    const newMessage = await prisma.message.create({
-      data: {
-        content: faker.lorem.lines(),
-        senderId: userIDsStore[randomSenderIndex],
-      },
+    // const newMessage = await prisma.message.create({
+    //   data: {
+    //     content: faker.lorem.lines(),
+    //     senderId: userIDsStore[randomSenderIndex],
+    //   },
+    // });
+    const newMessage = await db.orm.public.Message.create({
+      content: faker.lorem.lines(),
+      senderId: userIDsStore[randomSenderIndex],
     });
     // Adds the recipient to the same message
-    const recipient = await prisma.messageRecipient.create({
-      data: {
-        messageId: newMessage.id,
-        userId: userIDsStore[randomReceiverIndex],
-      },
+    // const recipient = await prisma.messageRecipient.create({
+    //   data: {
+    //     messageId: newMessage.id,
+    //     userId: userIDsStore[randomReceiverIndex],
+    //   },
+    // });
+    const recipient = await db.orm.public.MessageRecipient.create({
+      messageId: newMessage.id,
+      userId: userIDsStore[randomReceiverIndex],
     });
   }
 }
