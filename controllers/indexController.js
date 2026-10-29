@@ -1350,21 +1350,26 @@ const indexController = {
     });
   },
   getFriendRequestSent: async (req, res, next) => {
-    const friendshipRequests = await prisma.friendship.findMany({
-      where: {
-        AND: [{ senderId: req.user.id }, { status: "PENDING" }],
-      },
-      include: {
-        receiver: {
-          select: {
-            id: true,
-            username: true,
-            first_name: true,
-            last_name: true,
-          },
-        },
-      },
-    });
+    // const friendshipRequests = await prisma.friendship.findMany({
+    //   where: {
+    //     AND: [{ senderId: req.user.id }, { status: "PENDING" }],
+    //   },
+    //   include: {
+    //     receiver: {
+    //       select: {
+    //         id: true,
+    //         username: true,
+    //         first_name: true,
+    //         last_name: true,
+    //       },
+    //     },
+    //   },
+    // });
+    const friendshipRequests = await db.orm.public.Friendship.where((f) =>
+      and(f.senderId.eq(req.user.id), f.status.eq("PENDING")),
+    )
+      .include("receiver")
+      .all();
     res.status(200).json({
       success: true,
       message: "Received friendship requests",
