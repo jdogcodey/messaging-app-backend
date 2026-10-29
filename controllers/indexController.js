@@ -1383,11 +1383,14 @@ const indexController = {
   patchFriendRequest: async (req, res, next) => {
     try {
       // Find the request they are trying to accept
-      const request = await prisma.friendship.findUnique({
-        where: {
-          id: req.params.requestId,
-        },
-      });
+      // const request = await prisma.friendship.findUnique({
+      //   where: {
+      //     id: req.params.requestId,
+      //   },
+      // });
+      const request = await db.orm.public.Friendship.where({
+        id: req.params.requestId,
+      }).first();
 
       const newStatus = req.body.status;
 
@@ -1397,10 +1400,13 @@ const indexController = {
           // If the status is pending
           if (request.status === "PENDING") {
             // Update the status in the DB
-            const updatedStatus = await prisma.friendship.update({
-              where: { id: req.params.requestId },
-              data: { status: newStatus },
-            });
+            // const updatedStatus = await prisma.friendship.update({
+            //   where: { id: req.params.requestId },
+            //   data: { status: newStatus },
+            // });
+            const updatedStatus = await db.orm.public.Friendship.where({
+              id: req.params.requestId,
+            }).update({ status: newStatus });
             // Send this to the user
             res.status(200).json({
               success: true,
