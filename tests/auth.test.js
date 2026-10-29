@@ -1,21 +1,27 @@
 import request from "supertest";
 import app from "../app.js";
-import prisma from "../config/prisma-client.js";
+// import prisma from "../config/prisma-client.js";
 import { succSignIn, newUser } from "./utils/testUtils.js";
 import "dotenv";
 import jwt from "jsonwebtoken";
 import { response } from "express";
+import { db } from "../src/prisma/db.ts";
 
 beforeEach(async () => {
   // Reset DB
-  await prisma.messageRecipient.deleteMany({});
-  await prisma.message.deleteMany({});
-  await prisma.user.deleteMany({});
+  // await prisma.messageRecipient.deleteMany({});
+  // await prisma.message.deleteMany({});
+  // await prisma.user.deleteMany({});
+  await db.orm.public.MessageRecipient.where({}).deleteAll();
+  await db.orm.public.Message.where({}).deleteAll();
+  await db.orm.public.Friendship.where({}).deleteAll();
+  await db.orm.public.User.where({}).deleteAll();
 });
 
 afterAll(async () => {
   // Exit the db cleanly
-  await prisma.$disconnect();
+  // await prisma.$disconnect();
+  await db.close();
 });
 
 describe("App Tests", () => {
@@ -35,11 +41,14 @@ describe("App Tests", () => {
         const normalisedEmail = userSignUp.email.toLowerCase();
 
         // Check that user is created in DB
-        const userInDB = await prisma.user.findUnique({
-          where: {
-            email: normalisedEmail,
-          },
-        });
+        // const userInDB = await prisma.user.findUnique({
+        //   where: {
+        //     email: normalisedEmail,
+        //   },
+        // });
+        const userInDB = await db.orm.public.User.where({
+          email: normalisedEmail,
+        }).first();
         expect(userInDB).not.toBeNull();
 
         // Check that password isn't stored in plaintext
