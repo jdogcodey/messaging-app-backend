@@ -6,7 +6,7 @@ Needs to have the following core functionality:
 
 - [x] 1. Authorisation
 - [x] 2. Sending messages to other users
-- [ ] 3. Customising a user profile
+- [x] 3. Customising a user profile
 
 Plan:
 
