@@ -95,10 +95,18 @@ const validationController = {
       .withMessage("Last name must only contain letters"),
     body("avatar")
       .optional()
-      .trim()
       .isString()
+      .trim()
+      .notEmpty()
       .isLength({ max: 255 })
-      .withMessage("Avatar path is too long"),
+      .withMessage("Avatar path is too long")
+      .custom((value) => {
+        // Block dangerous URI schemes that can execute XSS
+        if (/^(javascript|data|vbscript):/i.test(value)) {
+          throw new Error("Invalid avatar format");
+        }
+        return true;
+      }),
     body("theme")
       .optional()
       .trim()
@@ -106,9 +114,18 @@ const validationController = {
       .withMessage("Theme must be dark or light"),
     body("statusMessage")
       .optional()
+      .isString()
       .trim()
+      .notEmpty()
       .isLength({ max: Number(process.env.MAX_MSG_LENGTH) })
-      .withMessage("Too much waffle"),
+      .withMessage("Too much waffle")
+      .custom((value) => {
+        // Check for HTML tags or potential script injection markers
+        if (/[<>]/g.test(value)) {
+          throw new Error("Status message cannot contain HTML tags");
+        }
+        return true;
+      }),
   ],
 };
 

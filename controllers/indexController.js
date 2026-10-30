@@ -676,6 +676,13 @@ const indexController = {
   // TODO
   // Get this route working
   patchUserProfile: async (req, res, next) => {
+    // Reject if they haven't tried to patch anything
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No patch detected",
+      });
+    }
     // Checking they want to patch something they are allowed to
     const allowedPatches = [
       "first_name",
