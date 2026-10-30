@@ -1934,7 +1934,6 @@ describe("Friends API", () => {
     it("Rejects if not authenticated with 401", async () => {
       const res = await request(app).patch("/users/profile").expect(401);
     });
-    // TODO
     it("Updates allowed customisation fields successfully with 200", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
@@ -1963,7 +1962,42 @@ describe("Friends API", () => {
         expect(updatedUserInDB[key]).toBe(value);
       }
     });
-    // it("Rejects invalid field values or types with 400", async () => {});
+    // TODO
+    it.only("Rejects invalid field values or types with 400", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
+
+      // Create a loop over an array of fields to change to request to patch that item
+      // Items to add to array - first&last name, avatar, theme, status
+      const bannedPatches = [
+        ["id", "123"],
+        ["username", "testUsername12349"],
+        ["email", "testEmail@gmail.com"],
+        ["password", "TestPass123!"],
+        ["sentMessages", "123"],
+        ["receivedMessages", "123"],
+        ["sentFriendRequests", "123"],
+        ["receivedFriendRequests", "123"],
+      ];
+
+      const originalUser = await db.orm.public.User.where({
+        id: user.id,
+      }).first();
+
+      for (const [key, value] of bannedPatches) {
+        const res = await request(app)
+          .patch("/users/profile")
+          .set("Authorization", `Bearer ${token}`)
+          .send({ [key]: value })
+          .expect(400);
+
+        const updatedUserInDB = await db.orm.public.User.where({
+          id: user.id,
+        }).first();
+
+        expect(updatedUserInDB[key]).toBe(originalUser[key]);
+      }
+    });
     // it("Ignores or blocks attempts to update restricted fields like password or email", async () => {});
   });
 });
