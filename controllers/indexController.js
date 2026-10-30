@@ -698,11 +698,12 @@ const indexController = {
     }
 
     // Updating the user with all the patches that they want
-    for (const property in patchPermissionGiven) {
+    for (let i = 0; i < patchPermissionGiven.length; i++) {
+      console.log(patchPermissionGiven[i]);
       const updatedUser = await db.orm.public.User.where({
         id: req.user.id,
       }).update({
-        [property]: req.body[property],
+        [patchPermissionGiven[i]]: req.body[patchPermissionGiven[i]],
       });
     }
 
