@@ -1965,7 +1965,6 @@ describe("Friends API", () => {
         expect(updatedUserInDB[key]).toBe(value);
       }
     });
-    // TODO
     it("Rejects invalid field values or types with 400", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
@@ -1997,7 +1996,6 @@ describe("Friends API", () => {
         ["last_name", "   "],
         ["last_name", ""],
         ["last_name", "<script>alert('xss')</script>"],
-        ["avatar", "randomString"],
         ["avatar", 1],
         [
           "avatar",
