@@ -1963,7 +1963,7 @@ describe("Friends API", () => {
       }
     });
     // TODO
-    it.only("Rejects invalid field values or types with 400", async () => {
+    it("Rejects invalid field values or types with 400", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
 

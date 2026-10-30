@@ -676,8 +676,29 @@ const indexController = {
   // TODO
   // Get this route working
   patchUserProfile: async (req, res, next) => {
-    // Updating all the properties they want to update
+    // Checking they want to patch something they are allowed to
+    const allowedPatches = [
+      "first_name",
+      "last_name",
+      "avatar",
+      "theme",
+      "statusMessage",
+    ];
+    let patchPermissionGiven = [];
+    // Checking they only want to patch things they are allowed to
     for (const property in req.body) {
+      if (allowedPatches.includes(property)) {
+        patchPermissionGiven = [...patchPermissionGiven, property];
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: `Patch ${property} not allowed`,
+        });
+      }
+    }
+
+    // Updating the user with all the patches that they want
+    for (const property in patchPermissionGiven) {
       const updatedUser = await db.orm.public.User.where({
         id: req.user.id,
       }).update({
@@ -686,7 +707,6 @@ const indexController = {
     }
 
     // Get the updated user from the DB
-    // Again using Prisma 8 hopefully
     const updatedUser = await db.orm.public.User.where({
       id: req.user.id,
     }).first();
