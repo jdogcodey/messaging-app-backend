@@ -131,7 +131,7 @@ On this project I want to start by writing some decent tests and then making fun
 ## User Customisation
 
 - PATCH /users/profile
-- [ ] Rejects if not authenticated with 401
-- [ ] Updates allowed customisation fields successfully with 200
-- [ ] Rejects invalid field values or types with 400
-- [ ] Ignores or blocks attempts to update restricted fields like password or email
+- [x] Rejects if not authenticated with 401
+- [x] Updates allowed customisation fields successfully with 200
+- [x] Rejects invalid field values or types with 400
+- [x] Ignores or blocks attempts to update restricted fields like password or email
