@@ -1963,7 +1963,8 @@ describe("Friends API", () => {
       }
     });
     // TODO
-    it("Rejects invalid field values or types with 400", async () => {
+    it("Rejects invalid field values or types with 400", async () => {});
+    it("Ignores or blocks attempts to update restricted fields like password or email", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
 
@@ -1998,6 +1999,5 @@ describe("Friends API", () => {
         expect(updatedUserInDB[key]).toBe(originalUser[key]);
       }
     });
-    // it("Ignores or blocks attempts to update restricted fields like password or email", async () => {});
   });
 });
