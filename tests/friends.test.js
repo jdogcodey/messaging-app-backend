@@ -1932,7 +1932,10 @@ describe("Friends API", () => {
   });
   describe("PATCH /users/profile", () => {
     it("Rejects if not authenticated with 401", async () => {
-      const res = await request(app).patch("/users/profile").expect(401);
+      const res = await request(app)
+        .patch("/users/profile")
+        .send({ first_name: "John" })
+        .expect(401);
     });
     it("Updates allowed customisation fields successfully with 200", async () => {
       // Add us to DB
