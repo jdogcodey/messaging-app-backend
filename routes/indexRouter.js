@@ -78,6 +78,8 @@ router.get("/friends", authController.jwtAuth, indexController.getFriends);
 
 router.patch(
   "/users/profile",
+  validationController.patchUserProfile(),
+  validationErrorController,
   authController.jwtAuth,
   indexController.patchUserProfile,
 );

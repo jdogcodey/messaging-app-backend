@@ -78,6 +78,38 @@ const validationController = {
   patchFriendRequest: () => [
     body("status").notEmpty().isIn(["ACCEPTED", "REJECTED"]),
   ],
+  patchUserProfile: () => [
+    body("first_name")
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage("First name cannot be empty")
+      .isAlpha()
+      .withMessage("First name must only contain letters"),
+    body("last_name")
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage("Last name cannot be empty")
+      .isAlpha()
+      .withMessage("Last name must only contain letters"),
+    body("avatar")
+      .optional()
+      .trim()
+      .isString()
+      .isLength({ max: 255 })
+      .withMessage("Avatar path is too long"),
+    body("theme")
+      .optional()
+      .trim()
+      .isIn(["dark", "light"])
+      .withMessage("Theme must be dark or light"),
+    body("statusMessage")
+      .optional()
+      .trim()
+      .isLength({ max: Number(process.env.MAX_MSG_LENGTH) })
+      .withMessage("Too much waffle"),
+  ],
 };
 
 export default validationController;
