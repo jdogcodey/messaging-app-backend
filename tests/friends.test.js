@@ -1963,7 +1963,93 @@ describe("Friends API", () => {
       }
     });
     // TODO
-    it("Rejects invalid field values or types with 400", async () => {});
+    it("Rejects invalid field values or types with 400", async () => {
+      // Add us to DB
+      const { token, user } = await succSignIn(newUser);
+
+      // Create a loop over an array of fields to change to request to patch that item
+      // Items to add to array - first&last name, avatar, theme, status
+      const invalidValues = [
+        ["first_name", "1"],
+        ["first_name", 1],
+        ["first_name", "John1"],
+        [
+          "first_name",
+          () => {
+            console.log("malicious script");
+          },
+        ],
+        ["first_name", "   "],
+        ["first_name", ""],
+        ["first_name", "<script>alert('xss')</script>"],
+        [("last_name", "1")],
+        ["last_name", 1],
+        ["last_name", "John1"],
+        [
+          "last_name",
+          () => {
+            console.log("malicious script");
+          },
+        ],
+        ["last_name", "   "],
+        ["last_name", ""],
+        ["last_name", "<script>alert('xss')</script>"],
+        ["avatar", "randomString"],
+        ["avatar", 1],
+        [
+          "avatar",
+          () => {
+            console.log("malicious script");
+          },
+        ],
+        ["avatar", "javascript:alert(1)"],
+        ["avatar", "   "],
+        ["avatar", ""],
+        ["theme", "randomString"],
+        ["theme", 1],
+        [
+          "theme",
+          () => {
+            console.log("malicious script");
+          },
+        ],
+        ["theme", ""],
+        ["theme", "   "],
+        ["theme", "DARK"],
+        [
+          "statusMessage",
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In vel bibendum ante, et consequat eros. Fusce libero nulla, iaculis at interdum et, bibendum in est. Ut luctus ex in erat placerat varius. Aliquam sed arcu placerat, vehicula eros non, bibendum urna. Donec maximus nulla et leo malesuada, ut consequat nulla condimentum. Vestibulum accumsan turpis eget mauris iaculis, molestie pharetra tellus posuere. Sed congue rutrum purus sit amet auctor. Suspendisse mattis iaculis tempus. Aliquam et commodo dui. Nam rhoncus sollicitudin vestibulum. Suspendisse quis nisl vitae leo feugiat feugiat quis ac ligula. Curabitur venenatis nisi turpis, nec vehicula ex pretium a. Morbi leo nunc, imperdiet sed finibus nec, feugiat ut odio. Suspendisse id massa vitae lorem blandit aliquet. Mauris dapibus mollis erat id hendrerit. Duis nibh diam, porta quis eros et, aliquet pretium dui. Pellentesque blandit magna in mauris iaculis, quis tincidunt ligula pulvinar. Nunc nec aliquam velit. Vestibulum a scelerisque eros, vel suscipit risus. Pellentesque bibendum luctus turpis, a consectetur nulla vulputate mattis. Donec malesuada urna ut ante ultrices, vel iaculis neque posuere. Aenean elit elit, mattis euismod tincidunt euismod, vehicula at mi. Aenean scelerisque non nisl quis lobortis. Fusce nibh mi, blandit quis tristique vel, sollicitudin sit amet nibh. Nam efficitur libero a purus eleifend, ac sodales enim malesuada. Aenean varius pulvinar ante, ut facilisis nisi eleifend eu. Proin tincidunt luctus lorem eget auctor. Vestibulum consectetur ex id ornare porttitor. Sed in dictum erat. Sed sed tincidunt elit. Sed gravida nisl et nisl condimentum maximus. Pellentesque dignissim erat dictum, lobortis. ",
+        ],
+        ["statusMessage", 1],
+        [
+          "statusMessage",
+          () => {
+            console.log("malicious script");
+          },
+        ],
+        ["statusMessage", ""],
+        ["statusMessage", "   "],
+        ["statusMessage", "<img src=x onerror=alert(1)>"],
+      ];
+
+      const originalUser = await db.orm.public.User.where({
+        id: user.id,
+      }).first();
+
+      for (const [key, value] of invalidValues) {
+        const res = await request(app)
+          .patch("/users/profile")
+          .set("Authorization", `Bearer ${token}`)
+          .send({ [key]: value })
+          .expect(400);
+
+        const updatedUserInDB = await db.orm.public.User.where({
+          id: user.id,
+        }).first();
+
+        expect(updatedUserInDB[key]).toBe(originalUser[key]);
+      }
+    });
     it("Ignores or blocks attempts to update restricted fields like password or email", async () => {
       // Add us to DB
       const { token, user } = await succSignIn(newUser);
